@@ -15,7 +15,7 @@ var ntp = require("socket-ntp");
 app.use(require("body-parser").json());
 app.use(serveStatic('.'));
 
-var MONGO = process.env.MONGOHQ_URL || 'mongodb://127.0.0.1:27017/ld31';
+var MONGO = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/ld31';
 var PORT = process.env.PORT || 9832;
 var COLL = "scores";
 
