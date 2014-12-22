@@ -33,7 +33,6 @@ NetworkPlayerPlayback.prototype = {
       var e = this.evts[i];
       if (e[0] < t-this.delay) {
         var move = e[1];
-        console.log(move);
         this.player.life = move.life;
         this.player.position.set(move.pos.x, move.pos.y);
         this.controls.setState(move.controls);

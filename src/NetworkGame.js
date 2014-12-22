@@ -26,7 +26,6 @@ NetworkGame.prototype = {
   onPlayerEvent: function (ev, obj, id, time) {
     var p = this.playersByIds[id];
     if (!p) {
-      console.log("new player", id);
       var playerSprite = new OtherPlayer();
       playerSprite.position.x = -1000;
       p = new NetworkPlayerPlayback(playerSprite);
