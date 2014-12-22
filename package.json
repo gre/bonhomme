@@ -4,7 +4,8 @@
   "description": "LudumDare 31 entry by @greweb",
   "scripts": {
     "dev": "beefy src/index.js",
-    "start": "npm run compile && node server.js",
+    "prestart": "npm run compile",
+    "start": "node server.js",
     "browserify": "browserify src/index.js > build.js",
     "compile": "browserify src/index.js | uglifyjs -c > build.js",
     "watch": "wr 'npm run browserify' src"
