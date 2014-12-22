@@ -29,11 +29,11 @@ NetworkPlayerPlayback.prototype = {
   },
 
   update: function (t, dt) {
-    console.log(this.controls._x, this.controls._y);
     for (var i=0; i<this.evts.length; ++i) {
       var e = this.evts[i];
       if (e[0] < t-this.delay) {
         var move = e[1];
+        console.log(move);
         this.player.life = move.life;
         this.player.position.set(move.pos.x, move.pos.y);
         this.controls.setState(move.controls);
