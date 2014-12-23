@@ -25,6 +25,9 @@ NetworkGame.prototype = {
     this.game = game;
     game.players.addChild(this.players);
     game.names.addChild(this.names);
+    if (this.player) {
+      this.player.destroy();
+    }
     this.player = new NetworkPlayer(game.player, this.socket);
   },
 

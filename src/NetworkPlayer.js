@@ -12,6 +12,9 @@ function NetworkPlayer (player, socket, rate) {
 }
 
 NetworkPlayer.prototype = {
+  destroy: function () {
+
+  },
   update: function (t, dt) {
     if (t-this._lastSubmit < this.rate) return;
     this._lastSubmit = t;

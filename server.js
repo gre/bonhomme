@@ -125,6 +125,7 @@ io.sockets.on('connection', function (socket) {
   console.log("connected", id);
 
   socket.on("ready", function (obj) {
+    if (ready) return;
     if (!_.isEqual(Object.keys(obj), ["name"])
       || !obj.name || !nameRegexp.exec(obj.name)) {
       console.log("Invalid player: ", obj);
