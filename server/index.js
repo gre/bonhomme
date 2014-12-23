@@ -16,7 +16,7 @@ var ntp = require("socket-ntp");
 var nameRegexp = /^[a-zA-Z0-9]{3,10}$/;
 
 app.use(require("body-parser").json());
-app.use(serveStatic('.'));
+app.use(serveStatic('static'));
 
 var MONGO = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/ld31';
 var PORT = process.env.PORT || 9832;
