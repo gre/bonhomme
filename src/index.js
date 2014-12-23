@@ -28,6 +28,8 @@ var socket = io();
 var socketConnectedD = Q.defer();
 var socketConnected = socketConnectedD.promise;
 
+var playerNameP = Q.delay(100).then(getPlayerName);
+
 socket.on('connect', socketConnectedD.resolve);
 
 ntp.init(socket);
@@ -42,9 +44,10 @@ var stage, renderer;
 createDom();
 
 Q.all([
+  playerNameP,
   imagesLoaded,
   syncTime
-]).then(start).done();
+]).spread(start).done();
 
 
 // var audio2 = loopAudio("/audio/2.ogg");
@@ -77,8 +80,6 @@ function createDom() {
   return stage;
 }
 
-setTimeout(Player.getPlayerName, 100);
-
 function getPlayerName () {
   var name = window.localStorage.player || prompt("What's your name? (3 to 10 alphanum characters)");
   if (!name) return null;
@@ -98,12 +99,11 @@ var currentNetwork;
 
 currentNetwork = new NetworkGame(socket);
 
-
-function newGame (controls) {
+function newGame (controls, playerName) {
   // This part is ugly...
   var seed = "grewebisawesome" + ~~(now() / (24 * 3600 * 1000));
   console.log("seed = "+seed);
-  var game = new Game(seed, controls, getPlayerName());
+  var game = new Game(seed, controls, playerName);
   game.on("GameOver", function () {
     network.submitScore(game.player)
       .then(function () {
@@ -128,10 +128,10 @@ function newGame (controls) {
 }
 
 
-function start () {
+function start (playerName) {
 
   var controls = new KeyboardControls();
-  newGame(controls);
+  newGame(controls, playerName);
 
   // move in Game?
 
