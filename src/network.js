@@ -13,9 +13,11 @@ function refreshScores () {
 }
 
 function submitScore (player) {
+  var score = player.getScore();
+  console.log("submitScore", score);
   return Qajax(scoresEndPoint, {
     method: "PUT",
-    data: player.getScore()
+    data: score
   })
   .then(Qajax.filterSuccess);
 }

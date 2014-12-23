@@ -107,13 +107,13 @@ function newGame (controls, playerName) {
   game.on("GameOver", function () {
     network.submitScore(game.player)
       .then(function () {
-        network.refreshScores();
+        return network.refreshScores();
       })
       .delay(6000)
       .fin(function () {
         stage.removeChild(game);
         game.destroy();
-        newGame(controls);
+        newGame(controls, playerName);
       })
       .done();
   });

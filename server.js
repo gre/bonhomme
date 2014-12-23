@@ -92,6 +92,7 @@ app.put("/scores", function (req, res) {
       return Q.ninvoke(collection, "insert", item).thenResolve(item);
     }
     else {
+      console.log(item);
       throw new Error("score requirement: { player /* alphanum in 3-10 chars */, x, score }");
     }
   })
