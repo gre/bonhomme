@@ -27,7 +27,7 @@ function addCarPath (random, y, leftToRight, vel, maxFollowing, maxHole, spacing
 function addRotatingParticleSpawner (pos, rotate, vel, speed, seq) {
   return {
     scale: function (i, random) {
-      return 0.3 + 0.3 * random() + 0.3 * random() * random();
+      return 0.3 + 0.2 * random() + 0.3 * random() * random();
     },
     pos: pos,
     vel: vel,
@@ -73,10 +73,11 @@ function allocChunk (i, time, random) {
   if (i > 1 && random() < 0.9) {
     nb = 3 * random() * random() + 2 * random() * (10-i%10)/10 + 1;
     for (j=0; j<nb; ++j) {
-      pos = [random()<0.5 ? 0 : WIDTH, y-200*random()-280];
+      var posd = 50*random() + 50;
+      pos = [random()<0.5 ? posd : WIDTH-posd, y-200*random()-280];
       n = 1 + ~~(random() * (3 * random() + i / 8));
       offset = random() * (random() * 0.3 + 0.1 * (i % 24) / 24);
-      speed = (1-(i%50)/50) * 1000 * (1 - random()*random());
+      speed = (1-(i%40)/50) * 1000 * (1.1 - random()*random());
       chunk.snowballs.push(nSpawner(pos, n, offset, speed));
     }
   }
@@ -84,7 +85,7 @@ function allocChunk (i, time, random) {
   if (i > 4 && random() < 0.9) {
     nb = 2 * random() * random() + random() * (i/8) + i / 30 + 0.5;
     for (j=0; j<nb; ++j) {
-      pos = [random()<0.5 ? 0 : WIDTH, y-200*random()-280];
+      pos = [random()<0.5 ? posd : WIDTH-posd, y-200*random()-280];
       n = 1 + ~~(random() * (random() + i / 10));
       offset = random() * (random() * 0.3 + 0.1 * ((i+10) % 24) / 24);
       speed = (1-(i%50)/50) * 1000 * (1 - random()*random());

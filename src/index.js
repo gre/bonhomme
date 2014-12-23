@@ -16,7 +16,7 @@ var atlas = require("./atlas");
 var Game = require("./Game");
 var NetworkGame = require("./NetworkGame");
 var Player = require("./Player");
-var KeyboardControls = require("./KeyboardControls");
+var ResponsiveControls = require("./ResponsiveControls");
 
 // FIXME remove the spaghettis!
 
@@ -60,8 +60,7 @@ function createDom() {
   renderer.view.style.width = conf.WIDTH+"px";
   renderer.view.style.height = conf.HEIGHT+"px";
 
-  if (!EMBED)
-    renderer.view.style.border = "6px ridge #88B";
+  document.body.style.background = "#000";
   document.body.style.padding = "0";
   document.body.style.margin = "0";
   var wrapper = document.createElement("div");
@@ -69,13 +68,6 @@ function createDom() {
   wrapper.style.width = conf.WIDTH+"px";
   document.body.appendChild(wrapper);
   wrapper.appendChild(renderer.view);
-
-  if (!EMBED) {
-    var link = document.createElement("a");
-    link.href = "http://ludumdare.com/compo/ludum-dare-31/?action=preview&uid=18803";
-    link.innerHTML = "LudumDare 31 entry";
-    wrapper.appendChild(link);
-  }
 
   return stage;
 }
@@ -130,7 +122,7 @@ function newGame (controls, playerName) {
 
 function start (playerName) {
 
-  var controls = new KeyboardControls();
+  var controls = new ResponsiveControls();
   newGame(controls, playerName);
 
   // move in Game?

@@ -18,12 +18,15 @@ var roadInTexture = PIXI.Texture.fromImage("/img/roadin.png");
 var roadOutTexture = PIXI.Texture.fromImage("/img/roadout.png");
 var roadSeparatorTexture = PIXI.Texture.fromImage("/img/roadseparator.png");
 
+var fireSpawnerTexture = PIXI.Texture.fromImage("/img/firespawner.png");
+var snowSpawnerTexture = PIXI.Texture.fromImage("/img/snowspawner.png");
 
-function Map (seed, cars, spawners, genName) {
+function Map (seed, cars, particles, spawners, genName) {
   PIXI.DisplayObjectContainer.call(this);
 
   this.random = seedrandom(seed);
   this.cars = cars;
+  this.particles = particles;
   this.spawners = spawners;
   this.generator = generators[genName||"v2"];
   if (!this.generator) throw new Error("no such generator "+genName);
@@ -144,7 +147,12 @@ Map.prototype.allocChunk = function (i, t) {
       angle: item.angle
     });
     spawner.init(t);
-    this.spawners.addChild(spawner);
+    var sprite = new PIXI.Sprite(snowSpawnerTexture);
+    sprite.pivot.set(40, 40);
+    sprite.scale.set(0.5, 0.5);
+    sprite.position.set.apply(sprite.position, item.pos);
+    this.spawners.addChild(sprite);
+    this.particles.addChild(spawner);
   }, this);
 
   // Create fireballs spawners
@@ -164,7 +172,12 @@ Map.prototype.allocChunk = function (i, t) {
       angle: item.angle
     });
     spawner.init(t);
-    this.spawners.addChild(spawner);
+    var sprite = new PIXI.Sprite(fireSpawnerTexture);
+    sprite.pivot.set(40, 40);
+    sprite.scale.set(0.5, 0.5);
+    sprite.position.set.apply(sprite.position, item.pos);
+    this.spawners.addChild(sprite);
+    this.particles.addChild(spawner);
   }, this);
 
   return {

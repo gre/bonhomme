@@ -7,6 +7,7 @@ var snowballTexture = PIXI.Texture.fromImage("./img/snowball.png");
 function Snowball (scale) {
   PIXI.Sprite.call(this, snowballTexture);
   this.scale.set(scale, scale);
+  this.pivot.set(16, 16);
 }
 Snowball.prototype = Object.create(PIXI.Sprite.prototype);
 Snowball.prototype.constructor = Snowball;

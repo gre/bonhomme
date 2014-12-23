@@ -7,6 +7,7 @@ function Fireball (scale) {
   PIXI.Sprite.call(this, fireballTexture);
   var scale = 0.3 + 0.2 * Math.random() + 0.5 * Math.random() * Math.random();
   this.scale.set(scale, scale);
+  this.pivot.set(16, 16);
 }
 Fireball.prototype = Object.create(PIXI.Sprite.prototype);
 Fireball.prototype.constructor = Fireball;

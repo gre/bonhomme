@@ -26,7 +26,8 @@ function Game (seed, controls, playername) {
   var world = new World();
   var cars = new SpawnerCollection();
   var particles = new SpawnerCollection();
-  var map = new Map(seed, cars, particles);
+  var spawners = new PIXI.DisplayObjectContainer();
+  var map = new Map(seed, cars, particles, spawners);
   var deadCarrots = new PIXI.DisplayObjectContainer();
   var footprints = new PIXI.DisplayObjectContainer();
   var player = new Player(playername, footprints);
@@ -46,6 +47,7 @@ function Game (seed, controls, playername) {
   world.addChild(map);
   world.addChild(deadCarrots);
   world.addChild(footprints);
+  world.addChild(spawners);
   world.addChild(players);
   world.addChild(names);
   world.addChild(player);
@@ -62,6 +64,7 @@ function Game (seed, controls, playername) {
   this.map = map;
   this.cars = cars;
   this.particles = particles;
+  this.spawners = spawners;
   this.deadCarrots = deadCarrots;
   this.footprints = footprints;
   this.player = player;

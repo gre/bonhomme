@@ -19,8 +19,8 @@ function Player (name, footprints) {
   PIXI.Sprite.call(this, playerTexture);
   this.life = 100;
   this.maxLife = 500;
-  this.meltingSpeed = 0.003;
-  this.moveSpeed = 0.2;
+  this.meltingSpeed = 0.0025;
+  this.moveSpeed = 0.25;
   this.dead = false;
   this.controls = null; // Set me later
   this.maxProgress = 9999;
