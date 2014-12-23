@@ -1,0 +1,11 @@
+{
+  "name": "mapgen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pixi.js": "^2.2.0"
+  }
+}
