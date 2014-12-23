@@ -1,4 +1,3 @@
-
 var requestAnimFrame = require("raf");
 var PIXI = require("pixi.js");
 
@@ -11,10 +10,8 @@ var conf = require("../../client/conf");
 var font = require("../../client/font");
 
 var genName = "v2";
-
 var width = conf.WIDTH;
-var height = window.innerHeight - 40;
-
+var height = window.innerHeight - 50;
 var NB = ~~(window.innerWidth / width);
 
 var currentScore = document.createElement("span");
@@ -30,15 +27,16 @@ for (var i=0; i<NB; ++i) {
 }
 
 var keyboard = new KeyboardControls();
-var scroll = 1000;
+var scroll = 2000;
+var seed = ~~(10000000*Math.random());
 
-function newRun () {
+function newRun (i) {
   var stage = new PIXI.Stage(0xFFFFFF);
 
   var cars = new SpawnerCollection();
   var particules = new SpawnerCollection();
   var spawners = new PIXI.DisplayObjectContainer();
-  var map = new Map(Math.random(), cars, particules, spawners, genName);
+  var map = new Map(seed+i, cars, particules, spawners, genName);
 
   var world = new World();
   world.addChild(map);
@@ -54,19 +52,21 @@ function newRun () {
 function newRuns () {
   var runs = [];
   for (var i=0; i<NB; ++i) {
-    runs[i] = newRun();
+    runs[i] = newRun(i);
   }
   return runs;
 }
 
 var runs = newRuns();
-function regenerate () {
+function regenerate (dir) {
+  seed += NB * dir;
   runs = newRuns();
 }
 
 
 var last;
 var k=0;
+var lastGen = 0;
 function render (t) {
   requestAnimFrame(render);
 
@@ -88,8 +88,9 @@ function render (t) {
     renderers[i].render(current.stage);
   }
 
-  if ((++k) % 10 == 0 && keyboard.x()) {
-    regenerate();
+  if (t-lastGen > 200 && keyboard.x()) {
+    lastGen = t;
+    regenerate(keyboard.x());
   }
 
   currentScore.innerText = ""+scroll;
@@ -99,7 +100,7 @@ requestAnimFrame(render);
 
 var regenBtn = document.createElement("button");
 regenBtn.innerText = "Regenerate (or press left/right)";
-regenBtn.onclick = regenerate;
+regenBtn.onclick = function () { regenerate(1); };
 
 document.body.appendChild(currentScore);
 document.body.appendChild(regenBtn);

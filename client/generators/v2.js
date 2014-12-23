@@ -27,7 +27,7 @@ function addCarPath (random, y, leftToRight, vel, maxFollowing, maxHole, spacing
 function addRotatingParticleSpawner (pos, rotate, vel, speed, seq) {
   return {
     scale: function (i, random) {
-      return 0.3 + 0.2 * random() + 0.3 * random() * random();
+      return 0.4 + 0.3 * random() * random();
     },
     pos: pos,
     vel: vel,
@@ -56,6 +56,7 @@ function allocChunk (i, time, random) {
     fireballs: []
   };
 
+  // Roads
   if (i > 0) {
     nb = ~~Math.min(6, 2*random()*random() + random() * (i / 8) + 1);
     for (j=0; j<nb; ++j) {
@@ -70,26 +71,27 @@ function allocChunk (i, time, random) {
     }
   }
 
+  // Snowballs
   if (i > 1 && random() < 0.9) {
-    nb = 3 * random() * random() + 2 * random() * (10-i%10)/10 + 1;
+    nb = 2 * random() * random();
     for (j=0; j<nb; ++j) {
-      var posd = 50*random() + 50;
-      pos = [random()<0.5 ? posd : WIDTH-posd, y-200*random()-280];
-      n = 1 + ~~(random() * (3 * random() + i / 8));
+      pos = [ random() * (WIDTH-100) + 50, y-200*random()-280 ];
+      n = 1 + ~~(random() * random() + 5 * random() * random() * random());
       offset = random() * (random() * 0.3 + 0.1 * (i % 24) / 24);
-      speed = (1-(i%40)/50) * 1000 * (1.1 - random()*random());
+      speed = (0.5 + 0.5*random()) * 500 * (1.1 - random()*random());
       chunk.snowballs.push(nSpawner(pos, n, offset, speed));
     }
   }
 
+  // Fireballs
   if (i > 4 && random() < 0.9) {
-    nb = 2 * random() * random() + random() * (i/8) + i / 30 + 0.5;
+    nb = 2 * random() * random();
     for (j=0; j<nb; ++j) {
       var posd = 50*random() + 50;
       pos = [random()<0.5 ? posd : WIDTH-posd, y-200*random()-280];
-      n = 1 + ~~(random() * (random() + i / 10));
+      n = 1 + ~~(random() * random() + 5 * random() * random() * random());
       offset = random() * (random() * 0.3 + 0.1 * ((i+10) % 24) / 24);
-      speed = (1-(i%50)/50) * 1000 * (1 - random()*random());
+      speed = i * 500 * (1 - random()*random());
       chunk.fireballs.push(nSpawner(pos, n, offset, speed));
     }
   }
