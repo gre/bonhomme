@@ -9,24 +9,38 @@ var NetworkPlayerPlayback = require("./NetworkPlayerPlayback");
 function NetworkGame (socket) {
   this.socket = socket;
   this.playersByIds = {};
+  this.playersData = {};
   this.players = new PIXI.DisplayObjectContainer();
+  this.names = new PIXI.DisplayObjectContainer();
   this.players.update = updateChildren;
 
   socket.on("playerevent", this.onPlayerEvent.bind(this));
+  socket.on("playerenter", this.onPlayerEnter.bind(this));
   socket.on("playerleave", this.onPlayerLeave.bind(this));
+  socket.on("players", this.onPlayers.bind(this));
 }
 
 NetworkGame.prototype = {
   setGame: function (game) {
     this.game = game;
     game.players.addChild(this.players);
+    game.names.addChild(this.names);
     this.player = new NetworkPlayer(game.player, this.socket);
   },
 
+  onPlayers: function (players) {
+    for (var id in players) {
+      this.onNewPlayerData(players[id], id);
+    }
+    console.log("players =", players);
+  },
+
   onPlayerEvent: function (ev, obj, id, time) {
+    if (!(id in this.playersData)) return; // I still don't know this guy
     var p = this.playersByIds[id];
     if (!p) {
-      var playerSprite = new OtherPlayer();
+      var data = this.playersData[id];
+      var playerSprite = new OtherPlayer(data.name, this.names);
       playerSprite.position.x = -1000;
       p = new NetworkPlayerPlayback(playerSprite);
       this.playersByIds[id] = p;
@@ -35,15 +49,23 @@ NetworkGame.prototype = {
     p.onMessage(ev, obj, time);
   },
 
-  onPlayerEnter: function (ev, id) {
+  onPlayerEnter: function (p, id) {
+    this.onNewPlayerData(p, id);
+    console.log("new player =", p);
   },
 
-  onPlayerLeave: function (ev, id) {
+  onPlayerLeave: function (id) {
     var p = this.playersByIds[id];
+    console.log("player leave", id, p);
     if (p) {
       p.destroy();
-      delete this.playersByIds[id];
     }
+    delete this.playersByIds[id];
+    delete this.playersData[id];
+  },
+
+  onNewPlayerData: function (p, id) {
+    this.playersData[id] = p;
   },
 
   update: function (t, dt) {

@@ -32,6 +32,7 @@ function Game (seed, controls, playername) {
   var player = new Player(playername, footprints);
   player.controls = controls;
   var players = new PIXI.DisplayObjectContainer();
+  var names = new PIXI.DisplayObjectContainer();
   var ui = new PIXI.DisplayObjectContainer();
   var score = new PIXI.Text("", { font: 'bold 20px '+font.name, fill: '#88B' });
   score.position.x = 10;
@@ -46,6 +47,7 @@ function Game (seed, controls, playername) {
   world.addChild(deadCarrots);
   world.addChild(footprints);
   world.addChild(players);
+  world.addChild(names);
   world.addChild(player);
   world.addChild(cars);
   world.addChild(particles);
@@ -64,6 +66,7 @@ function Game (seed, controls, playername) {
   this.footprints = footprints;
   this.player = player;
   this.players = players;
+  this.names = names;
   this.players.update = updateChildren;
   this.ui = ui;
   this.score = score;

@@ -10,7 +10,10 @@ var io = require('socket.io')(http);
 var serveStatic = require('serve-static')
 var fs = require("fs");
 var Q = require("q");
+var _ = require("lodash");
 var ntp = require("socket-ntp");
+
+var nameRegexp = /^[a-zA-Z0-9]{3,10}$/;
 
 app.use(require("body-parser").json());
 app.use(serveStatic('.'));
@@ -73,7 +76,7 @@ app.put("/scores", function (req, res) {
   .then(function (db) {
     var item = req.body;
     if (
-      typeof item.player === "string" && /^[a-zA-Z0-9]{3,10}$/.exec(item.player) &&
+      typeof item.player === "string" && nameRegexp.exec(item.player) &&
       typeof item.x === "number" && !isNaN(item.x) &&
       typeof item.score === "number" && !isNaN(item.score) &&
       0 <= item.x && item.x <= 320 &&
@@ -109,21 +112,35 @@ app.put("/scores", function (req, res) {
   .done();
 });
 
+var players = {};
+
 // Real Time
 io.sockets.on('connection', function (socket) {
   ntp.sync(socket);
 
-  console.log("connected", socket.id);
-  socket.broadcast.emit("playerenter", socket.id, Date.now());
+  var id = socket.id;
 
+  console.log("connected", id);
+
+  socket.on("ready", function (obj) {
+    if (!_.isEqual(Object.keys(obj), ["name"])
+      || !obj.name || !nameRegexp.exec(obj.name)) {
+      console.log("Invalid player: ", obj);
+      socket.close();
+    }
+    players[id] = obj;
+    socket.emit("players", players);
+    socket.broadcast.emit("playerenter", obj, id, Date.now());
+  });
 
   socket.on("player", function (ev, obj) {
-    socket.broadcast.emit("playerevent", ev, obj, socket.id, Date.now());
+    socket.broadcast.emit("playerevent", ev, obj, id, Date.now());
   });
 
   socket.on("disconnect", function () {
-    console.log("disconnected", socket.id);
-    socket.broadcast.emit("playerleave", socket.id, Date.now());
+    console.log("disconnected", id);
+    socket.broadcast.emit("playerleave", id, Date.now());
+    delete players[id];
   });
 });
 

@@ -14,11 +14,15 @@ function NetworkPlayerPlayback (player, delay) {
 
 NetworkPlayerPlayback.prototype = {
   destroy: function () {
-    this.player.parent.removeChild(this.player);
+    this.player.destroy();
   },
 
   handle_move: function (move, time) {
     this.evts.push([ time, move ]);
+  },
+
+  handle_ready: function (name) {
+    this.player.name = name;
   },
   
   onMessage: function (typ, o, time) {

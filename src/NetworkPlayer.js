@@ -8,7 +8,7 @@ function NetworkPlayer (player, socket, rate) {
   this.rate = rate || conf.networkSendRate;
   this._lastSubmit = 0;
   
-  this.socket.emit("ready");
+  this.socket.emit("ready", { name: player.name });
 }
 
 NetworkPlayer.prototype = {
