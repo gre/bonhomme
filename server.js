@@ -119,6 +119,7 @@ io.sockets.on('connection', function (socket) {
   ntp.sync(socket);
 
   var id = socket.id;
+  var ready = false;
 
   console.log("connected", id);
 
@@ -126,18 +127,22 @@ io.sockets.on('connection', function (socket) {
     if (!_.isEqual(Object.keys(obj), ["name"])
       || !obj.name || !nameRegexp.exec(obj.name)) {
       console.log("Invalid player: ", obj);
-      socket.close();
+      socket.disconnect();
+      return;
     }
     players[id] = obj;
     socket.emit("players", players);
     socket.broadcast.emit("playerenter", obj, id, Date.now());
+    ready = true;
   });
 
   socket.on("player", function (ev, obj) {
+    if (!ready) return;
     socket.broadcast.emit("playerevent", ev, obj, id, Date.now());
   });
 
   socket.on("disconnect", function () {
+    if (!ready) return;
     console.log("disconnected", id);
     socket.broadcast.emit("playerleave", id, Date.now());
     delete players[id];
