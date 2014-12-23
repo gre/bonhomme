@@ -54,6 +54,7 @@ var SpawnerDefault = {
  * particles are triggered reccurently based on parameters.
  */
 function Spawner (parameters) {
+  // console.log("new Spawner", parameters);
   PIXI.DisplayObjectContainer.call(this);
   _.extend(this, SpawnerDefault, parameters);
 

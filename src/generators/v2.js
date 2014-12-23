@@ -85,6 +85,7 @@ function allocChunk (i, time, random) {
   if (i > 4 && random() < 0.9) {
     nb = 2 * random() * random() + random() * (i/8) + i / 30 + 0.5;
     for (j=0; j<nb; ++j) {
+      var posd = 50*random() + 50;
       pos = [random()<0.5 ? posd : WIDTH-posd, y-200*random()-280];
       n = 1 + ~~(random() * (random() + i / 10));
       offset = random() * (random() * 0.3 + 0.1 * ((i+10) % 24) / 24);
