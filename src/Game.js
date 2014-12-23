@@ -124,17 +124,17 @@ Game.prototype.update = function (t, dt) {
   var angry = 0;
 
   if (!player.dead) {
-    var car = cars.collides(player);
-    if (car) {
-      world.carHitPlayerExplode(car, player);
-      player.onCarHit(car);
-    }
     var particle = particles.collides(player);
     if (particle) {
       particle.explodeInWorld(world);
       particle.hitPlayer(player);
       particle.parent.removeChild(particle);
       angry ++;
+    }
+    var car = cars.collides(player);
+    if (car) {
+      world.carHitPlayerExplode(car, player);
+      player.onCarHit(car);
     }
   }
 

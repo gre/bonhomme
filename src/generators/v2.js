@@ -50,6 +50,8 @@ function allocChunk (i, time, random) {
   var pos, nb, n, off, j, speed, vel;
   var maxFollowing, maxHole, spacing;
 
+  i += 40;
+
   var chunk = {
     roads: [],
     snowballs: [],
