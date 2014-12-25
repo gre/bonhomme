@@ -21,7 +21,7 @@ function Player (name, footprints) {
   this.maxLife = 500;
   this.meltingSpeed = 0.0025;
   this.moveSpeed = 0.25;
-  this.maxMoveBack = 140;
+  this.maxMoveBack = 120;
   this.dead = false;
   this.controls = null; // Set me later
 
@@ -30,7 +30,7 @@ function Player (name, footprints) {
   this.maxProgress = conf.HEIGHT - this.maxMoveBack - 25;
   this.maxSafeProgress = this.maxProgress;
 
-  this.safe = true;
+  // this.safe = true;
 
   this._m = 0;
   this.pivot.set(80, 80);
@@ -46,9 +46,11 @@ Player.prototype.getState = function () {
     pos: this.position
   };
 };
+/*
 Player.prototype.syncMap = function (map) {
   this.safe = !map.isRoad(this.y);
 };
+*/
 Player.prototype.update = function (t, dt) {
   if (this.dead) return;
 
@@ -88,9 +90,11 @@ Player.prototype.update = function (t, dt) {
     this.life -= dt * this.meltingSpeed;
   }
 
+  /*
   if (this.safe) {
     this.maxSafeProgress = this.maxProgress;
   }
+  */
 
   y = Math.min(y, this.maxSafeProgress + this.maxMoveBack);
 

@@ -74,6 +74,7 @@ Map.prototype.update = function (t, dt) {
   }
 };
 
+/*
 Map.prototype.isRoad = function (y) {
   var chunk = this.generateLevels.getChunkForX(this.generateLevels.chunkSize-y);
   if (chunk) {
@@ -87,6 +88,7 @@ Map.prototype.isRoad = function (y) {
   }
   return false;
 };
+*/
 
 Map.prototype.freeChunk = function (i, chunk) {
   chunk.destroy();
@@ -96,7 +98,7 @@ Map.prototype.allocChunk = function (i, t) {
   var chunk = this.generator.generate(i, t, this.random);
   var allSprites = [];
 
-  var roadAreas = [];
+  // var roadAreas = [];
 
   function track (sprite) {
     allSprites.push(sprite);
@@ -146,7 +148,7 @@ Map.prototype.allocChunk = function (i, t) {
       roadsPaint.addChild(roadSeparator);
     }
 
-    roadAreas.push([ road.y, road.y + 70 ]);
+    // roadAreas.push([ road.y, road.y + 70 ]);
   }, this);
 
   // Create snowballs spawners
@@ -226,7 +228,7 @@ Map.prototype.allocChunk = function (i, t) {
 
   var self = this;
   return {
-    roadAreas: roadAreas,
+    // roadAreas: roadAreas,
     destroy: function () {
       allSprites.forEach(function (sprite) {
         sprite.parent.removeChild(sprite);
