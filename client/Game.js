@@ -78,6 +78,8 @@ function Game (seed, controls, playername) {
 
   // Game states
   this.audio1 = audio.loop("/audio/1.ogg");
+
+  world.gameStart();
 };
 
 Game.prototype = Object.create(PIXI.Stage.prototype);

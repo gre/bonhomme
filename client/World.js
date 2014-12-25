@@ -37,11 +37,15 @@ function World () {
 World.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 World.prototype.constructor = World;
 World.prototype.update = updateChildren;
+World.prototype.gameStart = function () {
+  audio.play("start");
+};
 World.prototype.playerDied = function (player) {
   var obj = player.getScore();
   obj.opacity = 1;
   var self = this;
   setTimeout(function () {
+    audio.play("lose");
     self.addChild(new DeadCarrot(obj, true, true));
   }, 800);
   this.addChild(new ParticleExplosion(player, playerExplosionTextures, 250));
