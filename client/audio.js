@@ -58,6 +58,9 @@ function play (src, obj, volume) {
   if (typeof src === "object" && src.length) {
     return play(src[~~(Math.random()*src.length)], obj, volume);
   }
+  if (!src) {
+    console.log("play failure", arguments);
+  }
   var volume = volume || 1;
   if (obj) {
     var dx = obj.x - micSprite.x;

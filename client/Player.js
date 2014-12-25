@@ -28,7 +28,7 @@ function Player (name, footprints) {
   this.position.x = conf.WIDTH / 2;
   this.position.y = conf.HEIGHT - 50;
   this.maxProgress = conf.HEIGHT - this.maxMoveBack - 25;
-  this.maxSafeProgress = this.maxProgress;
+  // this.maxSafeProgress = this.maxProgress;
 
   // this.safe = true;
 
@@ -94,9 +94,10 @@ Player.prototype.update = function (t, dt) {
   if (this.safe) {
     this.maxSafeProgress = this.maxProgress;
   }
+  y = Math.min(y, this.maxSafeProgress + this.maxMoveBack);
   */
 
-  y = Math.min(y, this.maxSafeProgress + this.maxMoveBack);
+  y = Math.min(y, this.maxProgress + this.maxMoveBack);
 
   var scale = 0.6 + this.life / 150;
   this.width  = 40 * scale;

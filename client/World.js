@@ -54,7 +54,7 @@ World.prototype.carHitPlayerExplode = function (car, player) {
   var rect = spriteIntersect(car, player);
   var x = rect.from.x + (rect.to.x - rect.from.x) / 2;
   var y = rect.from.y + (rect.to.y - rect.from.y) / 2;
-  // this.addChild(new ParticleExplosion(/* FIXME HACK */{ position: new PIXI.Point(x, y), width: 100 }, snowExplosionTextures));
+  this.addChild(new ParticleExplosion(/* FIXME HACK */{ position: new PIXI.Point(x, y), width: 100 }, snowExplosionTextures));
 }
 World.prototype.fireballExplode = function (fireball) {
   audio.play("burn", fireball, 0.3);
