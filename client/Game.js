@@ -101,7 +101,7 @@ Game.prototype.update = function (t, dt) {
   var danger = 0;
 
   // Handle cars and collision with particles
-  var carNearby = 0;
+  var carNearby = [];
   cars.children.forEach(function (spawner) {
     spawner.children.forEach(function (car) {
       var particle = particles.collides(car);
@@ -111,15 +111,15 @@ Game.prototype.update = function (t, dt) {
       }
       var d = dist(car, player);
       danger += Math.pow(smoothstep(300, 50, d), 2);
-      if (!car.neverSaw && d < 220) {
+      if (!car.neverSaw && d < 300) {
         car.neverSaw = 1;
-        carNearby ++;
+        carNearby.push(car);
       }
     });
   });
-  if (carNearby) {
-    audio.play("car");
-  }
+  carNearby.forEach(function (car) {
+    audio.play("car", car);
+  });
 
   var angry = 0;
 
@@ -183,6 +183,7 @@ Game.prototype.update = function (t, dt) {
   map.watchWindow(win);
 
   world.update(t, dt);
+  audio.update(t, dt);
 };
 
 Game.prototype.createDeadCarrot = function (score) {

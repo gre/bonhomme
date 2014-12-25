@@ -1,84 +1,111 @@
 var jsfxr = require("jsfxr");
 var howler = require("howler");
 
-console.log("TODO", howler);
-
-var micSprite = null;
-var smoothstep = require("smoothstep");
+var Howl = howler.Howl;
+var Howler = howler.Howler;
 
 function burnGen (f) {
   return jsfxr([3,,0.2597,0.3427,0.3548,0.04+0.03*f,,0.1573,,,,,,,,,0.3027,-0.0823,1,,,,,0.5]);
 }
 
+function carGen (p) {
+  var freq = 0.1+p*0.2;
+  var lowpass = 0.08;
+  return jsfxr([3,0.4,1,,0.81,freq,,,,0.04,0.45,,,,,,0.58,,lowpass,,0.05,0.05,,0.8]);
+}
+
+
 var SOUNDS = {
   burn: [burnGen(0),burnGen(0.2),burnGen(0.4),burnGen(0.6),burnGen(0.8),burnGen(1)],
-  snowballHit: jsfxr([3,0.03,0.1,0.14,0.28,0.92,,-0.02,,,,0.0155,0.8768,,,,,,0.35,,,,,0.5]),
-  carHit: jsfxr([0,,0.11,,0.1997,0.29,,-0.3599,-0.04,,,,,0.1609,,,,,1,,,,,0.5]),
+  snowballHit: [jsfxr([3,0.03,0.1,0.14,0.28,0.92,,-0.02,,,,0.0155,0.8768,,,,,,0.35,,,,,0.5])],
+  carHit: [
+    jsfxr([3,,0.0661,,0.36,0.3901,,-0.5478,,,,-0.0799,0.29,,,,,-0.2199,0.22,-0.26,,,0.02,0.5])
+  ],
   car: [
-    jsfxr([3,0.3,0.7,,0.82,0.23,,-0.0999,,,,-0.02,,,,,0.62,,0.09,,,0.55,,0.5]),
-    jsfxr([3,0.4,0.7,,0.82,0.13,,0.08,,,,-0.02,,,,,0.62,,0.09,,,0.55,,0.5]),
-    jsfxr([2,0.29,0.6,,0.66,0.12,,-0.04,,,,-0.02,,,,,0.62,,0.08,,,0.33,-0.02,0.5])
+    // jsfxr([3,0.4,1,,0.79,0.2,,,,,,-0.02,,,,,0.62,,0.13,,,,,0.8]),
+    // jsfxr([3,0.4,1,,0.79,0.19,,,,,,-0.02,,,,,-0.12,,0.08,,0.33,0.21,,0.8]),
+    // jsfxr([3,0.4,1,,0.79,0.24,,,,,,-0.02,,,,,-0.24,0.08,0.13,,,,,0.8]),
+    // jsfxr([3,0.4,1,,0.79,0.18,,,,,,-0.02,,,,,-0.2199,,0.07,,,,,0.8]),
+    // jsfxr([3,0.4,1,,0.79,0.19,,,,,,-0.02,,,,,0.58,,0.06,,,0.02,,0.8]),
+    carGen(0), carGen(0.5), carGen(1)
   ]
 };
+var howlsById = {};
+for (var id in SOUNDS) {
+  var howls = [];
+  var SOUND = SOUNDS[id];
+  var lgth = SOUND.length;
+  for (var i=0; i<lgth; ++i) {
+    var howl = new Howl({
+      src: [ SOUND[i] ],
+      refDistance: 10,
+      rolloffFactor: 1
+    });
+    howls.push(howl);
+  }
+  howlsById[id] = howls;
+}
 
 function loopAudio (src) {
-  var volume = 0;
-  var current;
-  var stopped = false;
-
-  function step () {
-    var audio = new Audio();
-    audio.addEventListener('ended', function () {
-      if (!stopped)
-        step();
-    });
-    audio.src = src;
-    audio.volume = volume;
-    audio.play();
-    current = audio;
-  }
-
-  step();
+  var howl = new Howl({
+    src: [ src ],
+    volume: 0,
+    loop: true,
+    autoplay: true
+  });
 
   return {
     setVolume: function (v) {
-      current.volume = volume = v;
+      howl.volume(v);
     },
     stop: function () {
-      stopped = true;
-      current.pause();
-      current.src = null;
+      howl.stop();
     }
   };
 }
 
-function play (src, obj, volume) {
-  if (!micSprite) return;
-  if (typeof src === "string" && src in SOUNDS) src = SOUNDS[src];
-  if (typeof src === "object" && src.length) {
-    return play(src[~~(Math.random()*src.length)], obj, volume);
+var trackingSprites = [];
+
+function syncSprite (howl, audioId, sprite) {
+  howl.pos(sprite.x, sprite.y, 0, audioId);
+  if (sprite.vel) howl.velocity(sprite.vel[0], sprite.vel[1], 0, audioId);
+}
+
+function play (src, sprite, volume) {
+  if (!(src in howlsById)) throw new Error(src+" is unknown");
+  volume = volume || 1;
+  var arr = howlsById[src];
+  var howl = arr.length===1 ? arr[0] : arr[~~(Math.random()*arr.length)];
+
+  var audioId = howl.play();
+  howl.volume(volume, audioId);
+
+  if (sprite) {
+    var item = [ howl, audioId, sprite ];
+
+    syncSprite.apply(null, item);
+
+    trackingSprites.push(item);
+    howl.once("end", function () {
+      var i = trackingSprites.indexOf(item);
+      if (i !== -1) trackingSprites.splice(i, 1);
+    }, audioId);
+
   }
-  if (!src) {
-    console.log("play failure", arguments);
+}
+
+function update (t, dt) {
+  for (var i=0, length = trackingSprites.length; i<length; ++i) {
+    syncSprite.apply(null, trackingSprites[i]);
   }
-  var volume = volume || 1;
-  if (obj) {
-    var dx = obj.x - micSprite.x;
-    var dy = obj.y - micSprite.y;
-    var dist = Math.sqrt(dx*dx+dy*dy);
-    volume *= Math.pow(smoothstep(350, 40, dist), 3);
-  }
-  if (!volume) return;
-  var audio = new Audio();
-  audio.src = src;
-  audio.volume = volume;
-  audio.play();
 }
 
 module.exports = {
   micOn: function (sprite) {
-    micSprite = sprite;
+    Howler.pos(sprite.x, sprite.y, 0);
+    if (sprite.vel) Howler.velocity(sprite.vel[0], sprite.vel[1], 0);
   },
   play: play,
-  loop: loopAudio
+  loop: loopAudio,
+  update: update
 };

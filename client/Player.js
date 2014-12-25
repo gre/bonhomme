@@ -3,6 +3,7 @@ var smoothstep = require("smoothstep");
 var mix = require("./utils/mix");
 
 var spriteCollides = require("./utils/spriteCollides");
+var velUpdate = require("./behavior/velUpdate");
 var audio = require("./audio");
 var conf = require("./conf");
 
@@ -24,6 +25,7 @@ function Player (name, footprints) {
   this.maxMoveBack = 120;
   this.dead = false;
   this.controls = null; // Set me later
+  this.vel = [0,0];
 
   this.position.x = conf.WIDTH / 2;
   this.position.y = conf.HEIGHT - 50;
@@ -62,9 +64,6 @@ Player.prototype.update = function (t, dt) {
   var initialX = this.position.x;
   var initialY = this.position.y;
 
-  var x = initialX;
-  var y = initialY;
-
   var startMovingT = this._m;
 
   // Handle controls
@@ -76,14 +75,20 @@ Player.prototype.update = function (t, dt) {
 
     if (cx && cy) speed /= 1.414; // in diagonal, you move sqrt(2) slower
 
-    x += cx * dt * speed;
-    y -= cy * dt * speed;
+    this.vel[0] = cx * speed;
+    this.vel[1] = -cy * speed;
   }
-
   else {
     this._m = 0;
     this.setTexture(playerTexture);
+    this.vel[0] = 0;
+    this.vel[1] = 0;
   }
+
+  velUpdate.call(this, t, dt);
+
+  var x = this.position.x;
+  var y = this.position.y;
 
   this.maxProgress = Math.min(this.maxProgress, y);
   if (this.maxProgress < 0) {
