@@ -76,17 +76,24 @@ function loopAudio (src) {
 var trackingSprites = [];
 
 function syncSprite (howl, audioId, sprite) {
-  howl.pos(sprite.x, sprite.y, 0, audioId);
-  if (sprite.vel) howl.velocity(sprite.vel[0], sprite.vel[1], 0, audioId);
+  if (Howler.usingWebAudio) {
+    howl.pos(sprite.x, sprite.y, 0, audioId);
+    if (sprite.vel) howl.velocity(sprite.vel[0], sprite.vel[1], 0, audioId);
+  }
+  else {
+    // TODO fallback
+  }
 }
 
 function play (src, sprite, volume) {
   if (!(src in howlsById)) throw new Error(src+" is unknown");
+  if (!Howler.usingWebAudio) return; // FIXME implement fallback?
   volume = volume || 1;
   var arr = howlsById[src];
   var howl = arr.length===1 ? arr[0] : arr[~~(Math.random()*arr.length)];
 
   var audioId = howl.play();
+
   howl.volume(volume, audioId);
 
   if (sprite) {

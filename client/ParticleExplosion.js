@@ -9,6 +9,7 @@ function ParticleExplosion (ref, textures, speed) {
   this.height = ref.width;
   this.rotation = Math.random() * 2 * Math.PI;
   this.pivot.set(32, 32);
+  this.nb = textures.length;
   this.sprites = textures.map(function (t) {
     return new PIXI.Sprite(t);
   });
@@ -20,7 +21,7 @@ ParticleExplosion.prototype.update = function (t) {
     this.start = t;
   }
   var i = ~~((t-this.start)/this.speed);
-  if (i < 3) {
+  if (i < this.nb) {
     var s = this.sprites[i];
     if (s !== this.current) {
       if (this.current) this.removeChild(this.current);
