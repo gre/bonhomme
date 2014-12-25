@@ -3,6 +3,7 @@ var PIXI = require("pixi.js");
 var SlidingWindow = require("sliding-window");
 
 var conf = require("./conf");
+var debug = require("./utils/debug");
 
 var HomeTile = require("./HomeTile");
 var MapTile = require("./MapTile");
@@ -52,8 +53,8 @@ function Map (seed, cars, particles, spawners, genName) {
   mapTileSize, 1, 1, 0);
 
   this.generateLevels = new SlidingWindow(
-    this.allocChunk.bind(this),
-    this.freeChunk.bind(this),
+    debug.profile("allocChunk", this.allocChunk.bind(this)),
+    debug.profile("freeChunk", this.freeChunk.bind(this)),
     this.generator.chunkSize,
     1, 1, 1);
 }
@@ -73,6 +74,20 @@ Map.prototype.update = function (t, dt) {
   }
 };
 
+Map.prototype.isRoad = function (y) {
+  var chunk = this.generateLevels.getChunkForX(this.generateLevels.chunkSize-y);
+  if (chunk) {
+    var roadAreas = chunk.roadAreas;
+    var length = roadAreas.length;
+    for (var i=0; i<length; ++i) {
+      var area = roadAreas[i];
+      if (area[0] <= y && y <= area[1])
+        return true;
+    }
+  }
+  return false;
+};
+
 Map.prototype.freeChunk = function (i, chunk) {
   chunk.destroy();
 };
@@ -80,6 +95,8 @@ Map.prototype.freeChunk = function (i, chunk) {
 Map.prototype.allocChunk = function (i, t) {
   var chunk = this.generator.generate(i, t, this.random);
   var allSprites = [];
+
+  var roadAreas = [];
 
   function track (sprite) {
     allSprites.push(sprite);
@@ -115,7 +132,7 @@ Map.prototype.allocChunk = function (i, t) {
     roads.addChild(roadSprite);
     if (road.last) {
       roadSprite = new PIXI.Sprite(roadOutTexture);
-      roadSprite.position.set(0, road.y - 10);
+      roadSprite.position.set(0, road.y - 20);
       roads.addChild(roadSprite);
     }
     if (road.first) {
@@ -128,6 +145,8 @@ Map.prototype.allocChunk = function (i, t) {
       roadSeparator.position.set(- ~~(100*Math.random()), road.y - 8);
       roadsPaint.addChild(roadSeparator);
     }
+
+    roadAreas.push([ road.y, road.y + 70 ]);
   }, this);
 
   // Create snowballs spawners
@@ -180,7 +199,34 @@ Map.prototype.allocChunk = function (i, t) {
     this.particles.addChild(spawner);
   }, this);
 
+  if (this.debug) {
+    var debug = track(new PIXI.DisplayObjectContainer());
+    var h = this.generator.chunkSize;
+    debug.position.set(0, -i * h);
+    this.debug.addChild(debug);
+    var line = new PIXI.Graphics();
+    line.beginFill(0xFF0000);
+    line.drawRect(0, h-2, conf.WIDTH, 2);
+    line.endFill();
+    var text = new PIXI.Text("chunk "+i, { fill: "#F00", font: "bold 32px monospace" });
+    text.scale.set(0.5, 0.5);
+    text.position.set(conf.WIDTH-text.width-4, h-4-text.height);
+    var y = h-4;
+    (chunk.logs||[]).forEach(function (log) {
+      var text = new PIXI.Text(log, { fill: "#F00", font: "normal 16px monospace" });
+      text.scale.set(0.5, 0.5);
+      y -= text.height;
+      text.position.set(4, y);
+      text.alpha = 0.7;
+      debug.addChild(text);
+    });
+    debug.addChild(line);
+    debug.addChild(text);
+  }
+
+  var self = this;
   return {
+    roadAreas: roadAreas,
     destroy: function () {
       allSprites.forEach(function (sprite) {
         sprite.parent.removeChild(sprite);

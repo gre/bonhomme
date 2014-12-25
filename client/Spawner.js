@@ -55,8 +55,9 @@ var SpawnerDefault = {
  */
 function Spawner (parameters) {
   // console.log("new Spawner", parameters);
+
   PIXI.DisplayObjectContainer.call(this);
-  _.extend(this, SpawnerDefault, parameters);
+  _.extend(this, parameters);
 
   if (typeof this.spawn !== "function")
     throw new Error("spawn function must be implemented and return a PIXI object.");
@@ -64,6 +65,8 @@ function Spawner (parameters) {
 
 Spawner.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Spawner.prototype.constructor = Spawner;
+
+_.extend(Spawner.prototype, SpawnerDefault);
 
 Object.defineProperty(Spawner.prototype, "seq", {
   set: function (seq) {

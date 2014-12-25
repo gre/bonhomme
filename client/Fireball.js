@@ -1,18 +1,23 @@
 var PIXI = require("pixi.js");
 var spriteCollides = require("./utils/spriteCollides");
 
+var conf = require("./conf");
 var fireballTexture = PIXI.Texture.fromImage("./img/fireball.png");
 
 function Fireball (scale) {
   PIXI.Sprite.call(this, fireballTexture);
-  var scale = 0.3 + 0.2 * Math.random() + 0.5 * Math.random() * Math.random();
   this.scale.set(scale, scale);
   this.pivot.set(16, 16);
 }
 Fireball.prototype = Object.create(PIXI.Sprite.prototype);
 Fireball.prototype.constructor = Fireball;
 Fireball.prototype.update = function () {
-  if (this.position.y > 0) this.parent.removeChild(this);
+  if (
+    this.position.y > 0
+    || this.position.x < -this.width
+    || this.position.x > conf.WIDTH+this.width
+  ) this.parent.removeChild(this);
+  
 };
 Fireball.prototype.hitBox = function () {
   return {

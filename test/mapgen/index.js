@@ -23,26 +23,33 @@ currentScore.style.display = "inline-block";
 
 var renderers = [];
 for (var i=0; i<NB; ++i) {
-  renderers.push(new PIXI.autoDetectRenderer(width, height));
+  var renderer = new PIXI.autoDetectRenderer(width, height, { resolution: window.devicePixelRatio });
+  renderer.view.style.width = width+"px";
+  renderer.view.style.height = height+"px";
+  renderers.push(renderer);
 }
 
 var keyboard = new KeyboardControls();
-var scroll = 2000;
+var scroll = 1900;
 var seed = ~~(10000000*Math.random());
 
 function newRun (i) {
   var stage = new PIXI.Stage(0xFFFFFF);
 
+  var debug = new PIXI.DisplayObjectContainer();
   var cars = new SpawnerCollection();
   var particules = new SpawnerCollection();
   var spawners = new PIXI.DisplayObjectContainer();
   var map = new Map(seed+i, cars, particules, spawners, genName);
+  map.debug = debug;
 
   var world = new World();
   world.addChild(map);
   world.addChild(spawners);
   world.addChild(particules);
   world.addChild(cars);
+
+  world.addChild(debug);
 
   stage.addChild(world);
 

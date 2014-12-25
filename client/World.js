@@ -64,7 +64,9 @@ World.prototype.getWindow = function () {
   return [ this.position.y, this.position.y+conf.HEIGHT ];
 };
 World.prototype.focusOn = function (player) {
-  y = conf.HEIGHT - Math.max(player.position.y, player.maxProgress+120);
+  var y = conf.HEIGHT - Math.max(player.position.y, player.maxSafeProgress + player.maxMoveBack + player.height / 2);
+
+  y = Math.max(0, y);
   //var y = HEIGHT-50-player.position.y;
   //var y = HEIGHT - Math.max(player.position.y, player.maxProgress-100);
   this.position.y = this.position.y + (y-this.position.y) * 0.07;

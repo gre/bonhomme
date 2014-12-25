@@ -21,13 +21,16 @@ function Player (name, footprints) {
   this.maxLife = 500;
   this.meltingSpeed = 0.0025;
   this.moveSpeed = 0.25;
+  this.maxMoveBack = 140;
   this.dead = false;
   this.controls = null; // Set me later
-  this.maxProgress = 9999;
 
   this.position.x = conf.WIDTH / 2;
-  this.position.y = conf.HEIGHT - 30;
-  this.maxProgress = conf.HEIGHT - 120;
+  this.position.y = conf.HEIGHT - 50;
+  this.maxProgress = conf.HEIGHT - this.maxMoveBack - 25;
+  this.maxSafeProgress = this.maxProgress;
+
+  this.safe = true;
 
   this._m = 0;
   this.pivot.set(80, 80);
@@ -43,53 +46,75 @@ Player.prototype.getState = function () {
     pos: this.position
   };
 };
+Player.prototype.syncMap = function (map) {
+  this.safe = !map.isRoad(this.y);
+};
 Player.prototype.update = function (t, dt) {
   if (this.dead) return;
-  if (this.controls.update) {
-    this.controls.update(t, dt);
-  }
-  var x = this.controls.x();
-  var y = this.controls.y();
-  var startMovingT = this._m;
-  var speed = 0;
 
-  if (x || y) {
+  if (this.controls.update)
+    this.controls.update(t, dt);
+  var cx = this.controls.x();
+  var cy = this.controls.y();
+
+  var initialX = this.position.x;
+  var initialY = this.position.y;
+
+  var x = initialX;
+  var y = initialY;
+
+  var startMovingT = this._m;
+
+  // Handle controls
+  if (cx || cy) {
     if (!startMovingT) {
       this._m = startMovingT = t;
     }
-    speed = this.moveSpeed * mix(0.5, 1, smoothstep(0, 200, t-startMovingT));
+    var speed = this.moveSpeed * mix(0.5, 1, smoothstep(0, 200, t-startMovingT));
 
-    if (x && y) speed /= 1.414; // in diagonal, you move sqrt(2) slower
+    if (cx && cy) speed /= 1.414; // in diagonal, you move sqrt(2) slower
 
-    this.setTexture(playerWalkTextures[~~(t / 150) % playerWalkTextures.length]);
-
-    if (this.footprints && (!this._lastFoot||t-this._lastFoot>30) && Math.random() < 0.7) {
-      this.footprints.walk(this.position, this.width / 2);
-    }
+    x += cx * dt * speed;
+    y -= cy * dt * speed;
   }
+
   else {
     this._m = 0;
     this.setTexture(playerTexture);
   }
 
-  this.position.x += x * dt * speed;
-  this.position.y -= y * dt * speed;
-
-  this.maxProgress = Math.min(this.maxProgress, this.position.y);
+  this.maxProgress = Math.min(this.maxProgress, y);
   if (this.maxProgress < 0) {
     this.life -= dt * this.meltingSpeed;
   }
-  this.position.x = Math.max(0, Math.min(this.position.x, conf.WIDTH));
-  this.position.y = Math.min(this.position.y, this.maxProgress+120);
+
+  if (this.safe) {
+    this.maxSafeProgress = this.maxProgress;
+  }
+
+  y = Math.min(y, this.maxSafeProgress + this.maxMoveBack);
 
   var scale = 0.6 + this.life / 150;
   this.width  = 40 * scale;
   this.height = 40 * scale;
 
-  if (y < 0) this.rotation = Math.PI;
-  else if (y > 0) this.rotation = 0;
-  else if (x > 0) this.rotation = Math.PI/2;
-  else if (x < 0) this.rotation = -Math.PI/2;
+  if (cy < 0) this.rotation = Math.PI;
+  else if (cy > 0) this.rotation = 0;
+  else if (cx > 0) this.rotation = Math.PI/2;
+  else if (cx < 0) this.rotation = -Math.PI/2;
+
+  var halfw = this.width / 2;
+  x = Math.max(halfw, Math.min(x, conf.WIDTH-halfw));
+
+  if ((cx || cy) && (x !== initialX || y !== initialY)) {
+    this.setTexture(playerWalkTextures[~~(t / 150) % playerWalkTextures.length]);
+    if (this.footprints && (!this._lastFoot||t-this._lastFoot>30) && Math.random() < 0.7) {
+      this.footprints.walk(this.position, this.width / 2);
+    }
+  }
+
+  this.position.x = x;
+  this.position.y = y;
 };
 Player.prototype.hitBox = function () {
   return {
@@ -113,8 +138,8 @@ Player.prototype.onFireball = function (ball) {
   this.onProjectile(ball);
 };
 Player.prototype.onCarHit = function () {
-  // this.life -= 100; // FIXME new gameplay to consider later
-  this.life = 0;
+  this.life -= 100;
+  // this.life = 0;
   audio.play("carHit", null, 1.0);
 };
 Player.prototype.collidesCar = function (car) {

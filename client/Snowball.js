@@ -1,5 +1,6 @@
 var PIXI = require("pixi.js");
 
+var conf = require("./conf");
 var spriteCollides = require("./utils/spriteCollides");
 
 var snowballTexture = PIXI.Texture.fromImage("./img/snowball.png");
@@ -12,6 +13,11 @@ function Snowball (scale) {
 Snowball.prototype = Object.create(PIXI.Sprite.prototype);
 Snowball.prototype.constructor = Snowball;
 Snowball.prototype.update = function () {
+  if (
+    this.position.y > 0
+    || this.position.x < -this.width
+    || this.position.x > conf.WIDTH+this.width
+  ) this.parent.removeChild(this);
 };
 Snowball.prototype.hitBox = function () {
   return {

@@ -166,6 +166,11 @@ Game.prototype.update = function (t, dt) {
     this.emit("GameOver");
   }
 
+  player.syncMap(map);
+  this.players.children[0].children.forEach(function (player) {
+    player.syncMap(map);
+  });
+
   world.focusOn(player);
   audio.micOn(player);
 
