@@ -1,7 +1,7 @@
 var PIXI = require("pixi.js");
 var spriteCollides = require("./utils/spriteCollides");
+var destroyOutOfMap = require("./behavior/destroyOutOfMap");
 
-var conf = require("./conf");
 var fireballTexture = PIXI.Texture.fromImage("./img/fireball.png");
 
 function Fireball (scale) {
@@ -11,14 +11,7 @@ function Fireball (scale) {
 }
 Fireball.prototype = Object.create(PIXI.Sprite.prototype);
 Fireball.prototype.constructor = Fireball;
-Fireball.prototype.update = function () {
-  if (
-    this.position.y > 0
-    || this.position.x < -this.width
-    || this.position.x > conf.WIDTH+this.width
-  ) this.parent.removeChild(this);
-  
-};
+Fireball.prototype.update = destroyOutOfMap;
 Fireball.prototype.hitBox = function () {
   return {
     x: this.x - this.pivot.x * this.scale.x + 0.2 * this.width,
@@ -32,7 +25,7 @@ Fireball.prototype.explodeInWorld = function (world) {
 };
 Fireball.prototype.hitPlayer = function (player) {
   player.onFireball(this);
-}
+};
 Fireball.prototype.collides = spriteCollides;
 
 module.exports = Fireball;

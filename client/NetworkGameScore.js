@@ -18,7 +18,7 @@ function submitScore (player) {
 }
 
 function NetworkGameScore (socket) {
-  
+  this.socket = socket;
 }
 
 NetworkGameScore.prototype = {

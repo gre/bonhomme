@@ -8,10 +8,10 @@ function KeyboardControls () {
 }
 
 KeyboardControls.prototype = {
-  _onFocus: function (e) {
+  _onFocus: function () {
     this._paused = 0;
   },
-  _onBlur: function (e) {
+  _onBlur: function () {
     this._paused = 1;
   },
   _onDown: function (e) {

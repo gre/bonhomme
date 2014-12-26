@@ -3,7 +3,6 @@ var smoothstep = require("smoothstep");
 var _ = require("lodash");
 
 var dist = require("./utils/dist");
-var mix = require("./utils/mix");
 
 var audio = require("./audio");
 var conf = require("./conf");
@@ -13,12 +12,9 @@ var World = require("./World");
 var Map = require("./Map");
 var DeadCarrot = require("./DeadCarrot");
 var Player = require("./Player");
-var KeyboardControls = require("./KeyboardControls");
 var SpawnerCollection = require("./SpawnerCollection");
 
-var findChildrenCollide = require("./behavior/findChildrenCollide");
 var updateChildren = require("./behavior/updateChildren");
-var velUpdate = require("./behavior/velUpdate");
 
 var GENERATOR = "v2";
 
@@ -88,7 +84,7 @@ function Game (seed, controls, playername) {
   this.audio1 = audio.loop("/audio/1.ogg");
 
   world.gameStart();
-};
+}
 
 Game.prototype = Object.create(PIXI.Stage.prototype);
 Game.prototype.constructor = Game;

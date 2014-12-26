@@ -32,7 +32,7 @@ var playerExplosionTextures = [
 
 function World () {
   PIXI.DisplayObjectContainer.call(this);
-};
+}
 
 World.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 World.prototype.constructor = World;
@@ -59,8 +59,8 @@ World.prototype.carHitPlayerExplode = function (car, player) {
   var x = rect.from.x + (rect.to.x - rect.from.x) / 2;
   var y = rect.from.y + (rect.to.y - rect.from.y) / 2;
   for (var i=0; i<5; ++i) {
-    var px = x + 40*(Math.random()-.5);
-    var py = y + 40*(Math.random()-.5);
+    var px = x + 40*(Math.random()-0.5);
+    var py = y + 40*(Math.random()-0.5);
     this.addChild(new ParticleExplosion(
       /* FIXME HACK */{ position: new PIXI.Point(px, py), width: 40+40*Math.random() },
       snowExplosionTextures,
@@ -68,7 +68,7 @@ World.prototype.carHitPlayerExplode = function (car, player) {
       1000 * Math.random()
     ));
   }
-}
+};
 World.prototype.fireballExplode = function (fireball) {
   audio.play("burn", fireball, 0.3);
   this.addChild(new ParticleExplosion(fireball, fireExplosionTextures));

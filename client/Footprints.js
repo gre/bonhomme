@@ -17,7 +17,7 @@ function Footprints () {
 Footprints.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Footprints.prototype.constructor = Footprints;
 
-Footprints.prototype.alloc = function (i) {
+Footprints.prototype.alloc = function () {
   var container = new PIXI.DisplayObjectContainer();
   this.addChild(container);
   return container;

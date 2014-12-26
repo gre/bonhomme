@@ -3,7 +3,7 @@
 function NetworkControls () {
   this._x = 0;
   this._y = 0;
-};
+}
 
 NetworkControls.prototype = {
   setState: function (state) {

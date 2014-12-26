@@ -1,5 +1,3 @@
-var NetworkControls = require("./NetworkControls");
-
 var conf = require("./conf");
 
 function NetworkPlayer (player, socket, rate) {
@@ -18,7 +16,7 @@ NetworkPlayer.prototype = {
     this.player = null;
     this.socket = null;
   },
-  update: function (t, dt) {
+  update: function (t) {
     if (t-this._lastSubmit < this.rate) return;
     this._lastSubmit = t;
     

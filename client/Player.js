@@ -152,12 +152,6 @@ Player.prototype.onCarHit = function () {
   // this.life = 0;
   audio.play("carHit", null, 1.0);
 };
-Player.prototype.collidesCar = function (car) {
-  return collideRectangle(this, car);
-};
-Player.prototype.collidesParticle = function (p) {
-  return collideRectangle(this, p);
-};
 Player.prototype.collides = spriteCollides;
 Player.prototype.getScore = function () {
  return {

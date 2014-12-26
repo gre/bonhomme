@@ -15,7 +15,7 @@ OtherPlayer.prototype = Object.create(Player.prototype);
 OtherPlayer.prototype.constructor = OtherPlayer;
 
 OtherPlayer.prototype.update = function (t, dt) {
-  Player.prototype.update.apply(this, arguments);
+  Player.prototype.update.call(this, t, dt);
   this.nameSprite.position.set(this.position.x-this.nameSprite.width/2, this.position.y+this.height * 0.4);
 };
 
@@ -34,7 +34,7 @@ Object.defineProperty(OtherPlayer.prototype, "name", {
       this.nameSprite.setText("");
     }
   },
-  get: function (name) {
+  get: function () {
     return this._name;
   }
 });

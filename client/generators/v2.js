@@ -78,7 +78,7 @@ function allocChunk (i, time, random) {
   }
 
   var y = -CHUNK_SIZE * i;
-  var pos, nb, n, off, j, speed, vel;
+  var pos, nb, n, offset, j, speed, vel;
   var maxFollowing, maxHole, spacing;
 
   var maxRoad = 5;

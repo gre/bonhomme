@@ -22,7 +22,7 @@ function HighScore (score, i) {
   var scoreText = new PIXI.Text(score.score, { align: 'center', font: 'bold 12px '+font.name, fill: '#C40'});
   scoreText.position.set(100, 10);
   this.addChild(scoreText);
-};
+}
 HighScore.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 HighScore.prototype.constructor = HighScore;
 

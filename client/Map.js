@@ -66,13 +66,13 @@ Map.prototype.constructor = Map;
 
 Map.prototype.setScores = function (scores) {
   this.homeTile.setScores(scores);
-}
+};
 
 Map.prototype.watchWindow = function (win) {
   this._win = win;
-}
+};
 
-Map.prototype.update = function (t, dt) {
+Map.prototype.update = function (t) {
   var win = this._win;
 
   if (win) {
@@ -233,7 +233,6 @@ Map.prototype.allocChunk = function (i, t) {
     debug.addChild(text);
   }
 
-  var self = this;
   return {
     // roadAreas: roadAreas,
     destroy: function () {

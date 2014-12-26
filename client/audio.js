@@ -110,7 +110,7 @@ function play (src, sprite, volume) {
   }
 }
 
-function update (t, dt) {
+function update () {
   for (var i=0, length = trackingSprites.length; i<length; ++i) {
     syncSprite.apply(null, trackingSprites[i]);
   }

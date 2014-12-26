@@ -34,7 +34,7 @@ NetworkPlayerPlayback.prototype = {
     }
   },
 
-  update: function (t, dt) {
+  update: function (t) {
     for (var i=0; i<this.evts.length; ++i) {
       var e = this.evts[i];
       if (e[0] < t-this.delay) {

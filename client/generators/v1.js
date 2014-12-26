@@ -47,7 +47,7 @@ function nSpawner (pos, n, offset, speed) {
 
 function allocChunk (i, time, random) {
   var y = -CHUNK_SIZE * i;
-  var pos, nb, n, off, j, speed, vel;
+  var pos, nb, n, j, speed, vel, offset;
   var maxFollowing, maxHole, spacing;
 
   var chunk = {

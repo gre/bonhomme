@@ -80,8 +80,6 @@ NetworkGame.prototype = {
 
   update: function (t, dt) {
     if (!this.game) return;
-    var game = this.game;
-
     this.player.update(t, dt);
     for (var id in this.playersByIds) {
       this.playersByIds[id].update(t, dt);

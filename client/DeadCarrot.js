@@ -17,7 +17,7 @@ function DeadCarrot (score, animated, me, size) {
   this.alpha = score.opacity;
   this.animated = animated;
   this.start = Date.now();
-};
+}
 
 DeadCarrot.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 DeadCarrot.prototype.constructor = DeadCarrot;
