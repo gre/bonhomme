@@ -42,7 +42,7 @@ var stage, renderer;
 
 function createDom() {
 
-  stage = new PIXI.Stage(0xFFFFFF);
+  stage = new PIXI.Stage(0x000000);
   renderer = PIXI.autoDetectRenderer(conf.WIDTH, conf.HEIGHT, { resolution: window.devicePixelRatio });
   renderer.view.style.width = conf.WIDTH+"px";
   renderer.view.style.height = conf.HEIGHT+"px";
