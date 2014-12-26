@@ -4,8 +4,8 @@ var PIXI = require("pixi.js");
 var svgTexture = require('./utils/svgTexture');
 var templateCar = require("./svg/car");
 
-function randomColor (r) { // TODO better color randomness
-  return "rgb("+[~~(255*r()),~~(255*r()),~~(255*r())]+")";
+function randomColor (r) { // TODO better color palette
+  return "hsl("+[~~(255*r()), "80%", "50%"]+")";
 }
 
 function generateCar (random) {
