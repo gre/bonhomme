@@ -8,8 +8,8 @@ var io = require("socket.io-client");
 require("socket-ntp/client/ntp")
 var ntp = window.ntp;
 
+var debug = require("./utils/debug");
 var audio = require("./audio");
-var network = require("./network");
 var conf = require("./conf");
 var atlas = require("./atlas");
 
@@ -97,21 +97,15 @@ function newGame (controls, playerName) {
   console.log("seed = "+seed);
   var game = new Game(seed, controls, playerName);
   game.on("GameOver", function () {
-    network.submitScore(game.player)
-      .then(function () {
-        return network.refreshScores();
-      })
-      .delay(6000)
-      .fin(function () {
-        stage.removeChild(game);
-        game.destroy();
-        newGame(controls, playerName);
-      })
-      .done();
+    Q.delay(6000)
+    .fin(function(){
+      stage.removeChild(game);
+      game.destroy();
+      newGame(controls, playerName);
+      game = null;
+    })
+    .done();
   });
-  network.scores().then(function (scores) {
-    scores.forEach(game.createDeadCarrot, game);
-  }).done();
   stage.addChild(game);
 
   currentNetwork.setGame(game);
@@ -130,6 +124,10 @@ function start (playerName) {
   var lastLoopT;
   var lastAbsoluteTime = 0;
 
+  var updateGame = debug.profile("game.update", function (t, dt) {
+    currentGame.update(t, dt);
+  }, 100);
+
   function loop (loopT) {
     requestAnimFrame(loop);
 
@@ -140,7 +138,7 @@ function start (playerName) {
     var dt = Math.min(100, loopT - lastLoopT); // The delta time is computed using the more precised loopT
     lastLoopT = loopT;
 
-    currentGame.update(t, dt);
+    updateGame(t, dt);
     currentNetwork.update(t, dt);
 
     renderer.render(stage);

@@ -3,11 +3,13 @@ var PIXI = require("pixi.js");
 var updateChildren = require("./behavior/updateChildren");
 
 var OtherPlayer = require("./OtherPlayer");
+var NetworkGameScore = require("./NetworkGameScore");
 var NetworkPlayer = require("./NetworkPlayer");
 var NetworkPlayerPlayback = require("./NetworkPlayerPlayback");
 
 function NetworkGame (socket) {
   this.socket = socket;
+  this.score = new NetworkGameScore(socket);
   this.playersByIds = {};
   this.playersData = {};
   this.players = new PIXI.DisplayObjectContainer();
@@ -22,6 +24,7 @@ function NetworkGame (socket) {
 
 NetworkGame.prototype = {
   setGame: function (game) {
+    this.score.setGame(game);
     this.game = game;
     game.players.addChild(this.players);
     game.names.addChild(this.names);

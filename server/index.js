@@ -35,7 +35,7 @@ connectMongo(MONGO)
 
 
 // TODO: vary with influence.
-var CARROT_PERSISTENCE = 8 * 3600 * 1000;
+var CARROT_PERSISTENCE = 24 * 3600 * 1000;
 
 app.get("/scores", function (req, res) {
   var timeOfDay = +Date.today();

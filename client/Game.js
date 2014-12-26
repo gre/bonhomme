@@ -1,5 +1,6 @@
 var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
+var _ = require("lodash");
 
 var dist = require("./utils/dist");
 var mix = require("./utils/mix");
@@ -19,6 +20,8 @@ var findChildrenCollide = require("./behavior/findChildrenCollide");
 var updateChildren = require("./behavior/updateChildren");
 var velUpdate = require("./behavior/velUpdate");
 
+var GENERATOR = "v2";
+
 function Game (seed, controls, playername) {
   PIXI.Stage.call(this);
   PIXI.EventTarget.mixin(this);
@@ -27,7 +30,7 @@ function Game (seed, controls, playername) {
   var cars = new SpawnerCollection();
   var particles = new SpawnerCollection();
   var spawners = new PIXI.DisplayObjectContainer();
-  var map = new Map(seed, cars, particles, spawners);
+  var map = new Map(seed, cars, particles, spawners, GENERATOR);
   var deadCarrots = new PIXI.DisplayObjectContainer();
   var footprints = new PIXI.DisplayObjectContainer();
   var player = new Player(playername, footprints);
@@ -38,6 +41,9 @@ function Game (seed, controls, playername) {
   var score = new PIXI.Text("", { font: 'bold 20px '+font.name, fill: '#88B' });
   score.position.x = 10;
   score.position.y = 10;
+  var rank = new PIXI.Text("", { font: 'bold 20px '+font.name, fill: '#B88' });
+  rank.position.x = 10;
+  rank.position.y = 40;
   var life = new PIXI.Text("", {
     font: 'normal 20px '+font.name
   });
@@ -55,6 +61,7 @@ function Game (seed, controls, playername) {
   world.addChild(particles);
 
   ui.addChild(score);
+  ui.addChild(rank);
   ui.addChild(life);
 
   this.addChild(world);
@@ -72,6 +79,7 @@ function Game (seed, controls, playername) {
   this.names = names;
   this.players.update = updateChildren;
   this.ui = ui;
+  this.rank = rank;
   this.score = score;
   this.life = life;
   this.controls = controls;
@@ -151,6 +159,10 @@ Game.prototype.update = function (t, dt) {
 
   var s = Player.getPlayerScore(player);
   if (s > 0) {
+    var rank = 0;
+    for (var length = this.scores.length; rank < length && s < this.scores[rank].score; ++rank);
+    ++ rank;
+    this.rank.setText("#" + rank);
     this.score.setText("" + s);
     if (player.life > 0) {
       this.life.setText("" + ~~(player.life) + "%");
@@ -193,6 +205,32 @@ Game.prototype.createDeadCarrot = function (score) {
     var deadCarrot = new DeadCarrot(score, false, score.player === this.player.name);
     this.deadCarrots.addChild(deadCarrot);
   }
-}
+};
+
+Game.prototype.setScores = function (scores) {
+  scores = [].concat(scores);
+  scores.sort(function (a, b) {
+    return b.score - a.score;
+  });
+  this.map.setScores(scores);
+  scores.forEach(this.createDeadCarrot, this);
+
+  this.scores = scores;
+
+  var name = this.player.name;
+  var bestScoreIndex = _.findIndex(scores, function (s) {
+    return s.player === name;
+  });
+  var bestScore = scores[bestScoreIndex];
+
+  if (bestScore) {
+    this.score.setText("" + bestScore.score);
+    this.rank.setText("#"+(bestScoreIndex+1));
+  }
+  else {
+    this.score.setText("no score");
+    this.rank.setText("no rank");
+  }
+};
 
 module.exports = Game;

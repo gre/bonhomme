@@ -29,10 +29,12 @@ function Map (seed, cars, particles, spawners, genName) {
   this.cars = cars;
   this.particles = particles;
   this.spawners = spawners;
-  this.generator = generators[genName||"v2"];
+  this.generator = generators[genName];
   if (!this.generator) throw new Error("no such generator "+genName);
 
   var mapTileSize = 480;
+
+  var homeTile = this.homeTile = new HomeTile();
 
   var mapTiles = new PIXI.DisplayObjectContainer();
   this.addChild(mapTiles);
@@ -40,8 +42,9 @@ function Map (seed, cars, particles, spawners, genName) {
   this.generateMapTileWindow = new SlidingWindow(function (i) {
     var y = -i * mapTileSize;
     var tile;
-    if (i ===0)
-      tile = new HomeTile();
+    if (i ===0) {
+      tile = homeTile;
+    }
     else
       tile = new MapTile(i);
     tile.position.y = y;
@@ -60,6 +63,10 @@ function Map (seed, cars, particles, spawners, genName) {
 }
 Map.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Map.prototype.constructor = Map;
+
+Map.prototype.setScores = function (scores) {
+  this.homeTile.setScores(scores);
+}
 
 Map.prototype.watchWindow = function (win) {
   this._win = win;
