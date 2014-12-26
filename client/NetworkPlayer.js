@@ -9,11 +9,14 @@ function NetworkPlayer (player, socket, rate) {
   this._lastSubmit = 0;
   
   this.socket.emit("ready", { name: player.name });
+
+  this.socket.emit("player", "newgame");
 }
 
 NetworkPlayer.prototype = {
   destroy: function () {
-
+    this.player = null;
+    this.socket = null;
   },
   update: function (t, dt) {
     if (t-this._lastSubmit < this.rate) return;

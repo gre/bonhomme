@@ -95,6 +95,9 @@ Game.prototype.constructor = Game;
 
 Game.prototype.destroy = function () {
   this.audio1.stop();
+  for (var k in this) {
+    this[k] = null;
+  }
 };
 
 Game.prototype.update = function (t, dt) {

@@ -15,6 +15,8 @@ function NetworkPlayerPlayback (player, delay) {
 NetworkPlayerPlayback.prototype = {
   destroy: function () {
     this.player.destroy();
+    this.player = null;
+    this.evts = null;
   },
 
   handle_move: function (move, time) {
