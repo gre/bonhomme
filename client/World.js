@@ -99,5 +99,8 @@ World.prototype.focusOn = function (player) {
 
   this._focusY = this._focusY + (y-this._focusY) * 0.07;
 };
+World.prototype.focusOnY = function (y) {
+  this._focusY = y;
+};
 
 module.exports = World;

@@ -1,24 +1,21 @@
-var PIXI = require("pixi.js");
-
 var spriteCollides = require("./utils/spriteCollides");
 
-var carTextures = [
-  PIXI.Texture.fromImage("./img/car1.png"),
-  PIXI.Texture.fromImage("./img/car2.png"),
-  PIXI.Texture.fromImage("./img/car3.png"),
-  PIXI.Texture.fromImage("./img/car4.png"),
-  PIXI.Texture.fromImage("./img/car5.png"),
-  PIXI.Texture.fromImage("./img/car6.png"),
-  PIXI.Texture.fromImage("./img/car7.png"),
-  PIXI.Texture.fromImage("./img/car8.png"),
-  PIXI.Texture.fromImage("./img/car9.png"),
-  PIXI.Texture.fromImage("./img/car10.png")
-];
+var PIXI = require("pixi.js");
+var svgTexture = require('./utils/svgTexture');
+var templateCar = require("./svg/car");
+
+function randomColor (r) { // TODO better color randomness
+  return "rgb("+[~~(255*r()),~~(255*r()),~~(255*r())]+")";
+}
+
+function generateCar (random) {
+  var color = randomColor(random);
+  var shape = templateCar.shapes[~~(random()*templateCar.shapes.length)];
+  return templateCar(color, shape);
+}
 
 function Car (random) {
-  PIXI.Sprite.call(this, carTextures[~~(random() * carTextures.length)]);
-  this.width = 0;
-  this.height = 0;
+  PIXI.Sprite.call(this, svgTexture(generateCar(random)));
 }
 Car.prototype = Object.create(PIXI.Sprite.prototype);
 Car.prototype.constructor = Car;

@@ -7,7 +7,6 @@ var Map = require("../../client/Map");
 var SpawnerCollection = require("../../client/SpawnerCollection");
 
 var conf = require("../../client/conf");
-var font = require("../../client/font");
 
 var genName = "v2";
 var width = conf.WIDTH;
@@ -34,7 +33,7 @@ var scroll = 1900;
 var seed = ~~(10000000*Math.random());
 
 function newRun (i) {
-  var stage = new PIXI.Stage(0xFFFFFF);
+  var stage = new PIXI.Stage(0x000000);
 
   var debug = new PIXI.DisplayObjectContainer();
   var cars = new SpawnerCollection();
@@ -72,9 +71,8 @@ function regenerate (dir) {
 
 
 var last;
-var k=0;
 var lastGen = 0;
-function render (t) {
+function render () {
   requestAnimFrame(render);
 
   var t = Date.now();
@@ -88,7 +86,7 @@ function render (t) {
     var current = runs[i];
 
     current.map.watchWindow([scroll, height + scroll]);
-    current.world.position.y = height + scroll;
+    current.world.focusOnY(height + scroll);
 
     current.world.update(t, dt);
 
