@@ -50,8 +50,13 @@ NetworkGame.prototype = {
       p = null;
     }
     if (!p) {
+      var self = this;
       var data = this.playersData[id];
-      var playerSprite = new OtherPlayer(data.name, this.names);
+      var playerSprite = new OtherPlayer(data.name, this.names, 0.6, {
+        computeAlpha: function (pos) {
+          return 1-self.game.positionObfuscation(pos);
+        }
+      });
       playerSprite.position.x = -1000;
       p = new NetworkPlayerPlayback(playerSprite);
       this.playersByIds[id] = p;

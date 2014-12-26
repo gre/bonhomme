@@ -199,6 +199,11 @@ Game.prototype.update = function (t, dt) {
   audio.update(t, dt);
 };
 
+Game.prototype.positionObfuscation = function (pos) {
+  var w = this.player.width;
+  return 0.9 * smoothstep(40+w, w/2, dist(this.player.position, pos));
+};
+
 Game.prototype.createDeadCarrot = function (score) {
   if (score.opacity > 0) {
     var deadCarrot = new DeadCarrot(score, false, score.player === this.player.name);

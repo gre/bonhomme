@@ -1,5 +1,5 @@
 module.exports = function dist (a, b) {
-  var dx = a.position.x - b.position.x;
-  var dy = a.position.y - b.position.y;
+  var dx = a.x - b.x;
+  var dy = a.y - b.y;
   return Math.sqrt(dx * dx + dy * dy);
 };
