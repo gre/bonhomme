@@ -22,7 +22,7 @@ function Game (seed, controls, playername) {
   PIXI.Stage.call(this);
   PIXI.EventTarget.mixin(this);
 
-  var world = new World();
+  // TODO move containers to World
   var cars = new SpawnerCollection();
   var particles = new SpawnerCollection();
   var spawners = new PIXI.DisplayObjectContainer();
@@ -46,6 +46,7 @@ function Game (seed, controls, playername) {
   life.position.x = conf.WIDTH - 60;
   life.position.y = 10;
 
+  var world = new World(particles);
   world.addChild(map);
   world.addChild(deadCarrots);
   world.addChild(footprints);

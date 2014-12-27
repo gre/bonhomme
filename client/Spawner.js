@@ -116,10 +116,6 @@ Spawner.prototype.init = function (currentTime) {
 Spawner.prototype.update = function (t, dt) {
   updateChildren.apply(this, arguments);
   this.children.forEach(function (child) {
-    // Increment velocity
-    child.position.x += child.vel[0] * dt;
-    child.position.y += child.vel[1] * dt;
-
     if (t > child._dieAfter || this.livingBound && !child.collides(this.livingBound)) {
       this.removeChild(child);
       if (child.destroy) child.destroy();

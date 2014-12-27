@@ -56,6 +56,17 @@ function createDom() {
   document.body.appendChild(wrapper);
   wrapper.appendChild(renderer.view);
 
+  var ypos;
+  function resize () {
+    var y = Math.max(0, ~~((window.innerHeight - conf.HEIGHT) / 2));
+    if (y !== ypos) {
+      ypos = y;
+      renderer.view.style.marginTop = y + "px";
+    }
+  }
+  window.addEventListener("resize", resize, false);
+  resize();
+
   return stage;
 }
 

@@ -1,6 +1,7 @@
 var PIXI = require("pixi.js");
 var spriteCollides = require("./utils/spriteCollides");
 var destroyOutOfMap = require("./behavior/destroyOutOfMap");
+var velUpdate = require("./behavior/velUpdate");
 
 var fireballTexture = PIXI.Texture.fromImage("./img/fireball.png");
 
@@ -14,6 +15,7 @@ function Fireball (scale) {
 Fireball.prototype = Object.create(PIXI.Sprite.prototype);
 Fireball.prototype.constructor = Fireball;
 Fireball.prototype.update = function (t, dt) {
+  velUpdate.call(this, t, dt);
   if (!this.startT) this.startT = t;
   if (this.scale.x < this.targetScale) {
     var scale = Math.min((t-this.startT) * this.growSpeed, this.targetScale);
