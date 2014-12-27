@@ -5,12 +5,25 @@ var svgTexture = require('./utils/svgTexture');
 var templateCar = require("./svg/car");
 
 function randomColor (r) { // TODO better color palette
-  return "hsl("+[~~(255*r()), "80%", "50%"]+")";
+  /*
+  return "rgb("+[
+    ~~(255*r()),
+    ~~(255*r()),
+    ~~(255*r())
+  ]+")";
+  */
+  var a = r();
+
+  return "hsl("+[
+    ~~( 255 * ((3-2*a)*a*a) ),
+    ~~( 80 - 70 * (0.333*(r()+r()+r())) )+"%",
+    ~~( 90 - 60 * (0.5*(r()+r())) ) + "%"
+  ]+")";
 }
 
 function generateCar (random) {
   var color = randomColor(random);
-  var shape = templateCar.shapes[~~(random()*templateCar.shapes.length)];
+  var shape = random() < 0.3 ? templateCar.shapes[~~(random()*templateCar.shapes.length)] : null;
   return templateCar(color, shape);
 }
 
