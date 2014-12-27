@@ -117,6 +117,7 @@ Spawner.prototype.update = function (t, dt) {
 
     if (t > child._dieAfter || this.livingBound && !child.collides(this.livingBound)) {
       this.removeChild(child);
+      if (child.destroy) child.destroy();
     }
   }, this);
 

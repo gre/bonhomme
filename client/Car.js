@@ -5,20 +5,17 @@ var svgTexture = require('./utils/svgTexture');
 var templateCar = require("./svg/car");
 
 function randomColor (r) { // TODO better color palette
-  /*
-  return "rgb("+[
-    ~~(255*r()),
-    ~~(255*r()),
-    ~~(255*r())
-  ]+")";
-  */
-  var a = r();
+  var a = r(), b = r();
 
-  return "hsl("+[
-    ~~( 255 * ((3-2*a)*a*a) ),
-    ~~( 80 - 70 * (0.333*(r()+r()+r())) )+"%",
-    ~~( 90 - 60 * (0.5*(r()+r())) ) + "%"
-  ]+")";
+  var hue = ((3-2*a)*a*a);
+  var sat = (0.8 - 0.7 * b * hue );
+  var lum = 0.9 - 0.6 * (0.5*(r()+r()));
+
+  if (r() < hue && r() < 0.5) {
+    lum = r() < 0.5 ? lum * r() : Math.min(lum + r(), 1);
+  }
+
+  return "hsl("+[ ~~(255 * hue), ~~(100 * sat)+"%", ~~(100 * lum)+"%" ]+")";
 }
 
 function generateCar (random) {
@@ -28,10 +25,16 @@ function generateCar (random) {
 }
 
 function Car (random) {
-  PIXI.Sprite.call(this, svgTexture(generateCar(random)));
+  var texture = svgTexture(generateCar(random));
+  PIXI.Sprite.call(this, texture);
+  this._texture = texture;
 }
 Car.prototype = Object.create(PIXI.Sprite.prototype);
 Car.prototype.constructor = Car;
+Car.prototype.destroy = function () {
+  this._texture.destroy(true);
+  if (this.parent) this.parent.removeChild(this);
+};
 Car.prototype.update = function () {
   this.width  = this.vel[0] < 0 ? -84 : 84; // FIXME hack...
   this.height = 48;
