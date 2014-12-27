@@ -339,7 +339,8 @@ function allocChunk (i, time, random) {
   var difficulty =
     0.2 * ((i /  16) % 1) +
     0.5 * ((i / 32) % 1) +
-    0.3 * (i / 64) ;
+    0.3 * (i / 64) +
+    0.8 * random() * random() * random(); // rare hardness
 
   var g = "standard";
   if ( i > 12 && random() < 0.2 )

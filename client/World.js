@@ -2,6 +2,7 @@ var PIXI = require("pixi.js");
 
 var audio = require("./audio");
 var conf = require("./conf");
+var vibrate = require("./vibrate");
 
 var DeadCarrot = require("./DeadCarrot");
 var ParticleExplosion = require("./ParticleExplosion");
@@ -68,8 +69,9 @@ World.prototype.carHitPlayerExplode = function (car, player) {
   var x = rect.from.x + (rect.to.x - rect.from.x) / 2;
   var y = rect.from.y + (rect.to.y - rect.from.y) / 2;
 
-  this.shaking += 10 + (player.life<0 ? 10 : 0);
+  this.shaking += 10 + (player.life<=0 ? 10 : 0);
   this.shakingVel = -30 / 1000;
+  vibrate(player.life<=0 ? 400 : 200);
 
   // FIXME Not very satisfying effect
   for (var i=0; i<5; ++i) {
