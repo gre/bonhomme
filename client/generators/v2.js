@@ -5,15 +5,26 @@ var mix = require("../utils/mix");
 var conf = require("../conf");
 
 var WIDTH = conf.WIDTH;
-var CHUNK_SIZE = 480;
+var CHUNK_SIZE = 500;
 var ROAD_DIST = 60;
 
 function logger (chunk) {
   return function log (name, o) {
     chunk.logs.push(name+": "+JSON.stringify(o));
+    return o;
   };
 }
 
+function listDistribution (random, split, n) {
+  var j;
+  var list = [];
+  for (j=0; j<split; ++j)
+    list.push(1);
+  var toDistrib = n-split;
+  for (j=0; j<toDistrib; ++j)
+    list[~~(split*random())]++;
+  return list;
+}
 
 function rotatingHolesPattern (n, holesIndex) {
   var pattern = [];
@@ -34,6 +45,33 @@ function rotatingHolesPattern (n, holesIndex) {
   }
   if (plus) pattern.push(plus);
   if (minus) pattern.push(minus);
+  return pattern;
+}
+
+function floorPattern (a) {
+  return _.map(a, Math.floor.bind(Math));
+}
+
+function multPattern (a, x) {
+  return _.map(a, function (y) { return x * y; });
+}
+
+function dotPattern (a, b) {
+  var pattern = [];
+  for (var j=0; j<b.length; ++j) {
+    var n = b[j];
+    if (n < 0) {
+      pattern.push(n * a.length);
+    }
+    else {
+      // Repeat n times the pattern a
+      for (var k = 0; k < n; ++k) {
+        for (var i=0; i<a.length; ++i) {
+          pattern.push(a[i]);
+        }
+      }
+    }
+  }
   return pattern;
 }
 
@@ -79,9 +117,69 @@ function roads (nb, createRoad) {
   });
 }
 
-/**
- * - make roads direction not anymore %2
- */
+function roadGen (random, yBase, difficulty, maxRoad) {
+  var roadCount = ~~Math.min(0.8 + random() + 5 * difficulty * random(), maxRoad);
+  if (roadCount <= 0) return [];
+  var perRoadDifficulty = 1 - 1 / roadCount;
+  return roads(roadCount, function (y, j) {
+    var vel = 0.08 + 0.5 * mix(random(), 1-perRoadDifficulty, 0.8) * mix(random(), difficulty, 0.5);
+    var maxFollowing = 3 + perRoadDifficulty * random() + 6 * random() * random();
+    var maxHole = 8 - 5 * mix(smoothstep(0, 20, difficulty * perRoadDifficulty), random(), 0.5) + random();
+    var spacing = 0.2 + 0.2 * random();
+    // TODO make roads not anymore alternating
+    return road(random, yBase + y, j % 2 === 0, vel, maxFollowing, maxHole, spacing);
+  });
+}
+
+
+function hellChunk (random, difficulty) {
+  var chunk = {
+    roads: [],
+    snowballs: [],
+    fireballs: [],
+    logs: []
+  };
+  var log = logger(chunk);
+
+  function fireballScale (i, random) {
+    return 0.3 + 0.8 * random();
+  }
+
+  var j;
+
+  var nb = ~~( 1.8 + 4 * difficulty * random() );
+  var totalCols = nb * (1 + 2 * random() * random() + 4 * difficulty * random());
+
+  var distribCols = listDistribution(random, nb, totalCols);
+
+  log("distribCols", distribCols);
+
+  for (j=0; j<nb; ++j) {
+    var col = distribCols[j];
+
+    var coolRepeatPatterns = [
+      floorPattern([ 10 + 60 * random(), -20 * random() ]),
+      floorPattern(multPattern([ random(), -random(), random(), -random() ], 1 + 20 * random())),
+      [ 10, -2, 10, -2, 10, Math.floor(-40 * (1-difficulty)) ],
+      [ 57, -78 ],
+      multPattern([10, -10 ], col)
+    ];
+
+    var pos = [ j%2 ? 80 : WIDTH-80, 80 + ~~(j/2) * 100 ];
+    var offset = (random() < 0.5 ? 1 : -1) * ((0.01+0.01*difficulty) * random() * random());
+    var speed = 60 - 40 * random() - 10 * difficulty;
+    var holes = _.range(Math.min(col * (0.2 * (1-difficulty) + 0.4 * random() * random()), col-1));
+    var repeatPattern = coolRepeatPatterns[~~(random() * coolRepeatPatterns.length)];
+    log("repeatPattern", repeatPattern);
+    var pattern = dotPattern(rotatingHolesPattern(col, holes), repeatPattern);
+    var spawner = nSpawner(fireballScale, pos, col, offset, speed, pattern);
+    chunk.fireballs.push(spawner);
+  }
+
+
+  return chunk;
+}
+
 
 function blizzardChunk (random, difficulty) {
   var chunk = {
@@ -98,25 +196,20 @@ function blizzardChunk (random, difficulty) {
 
   var j;
 
-  var moreCols = random();
+  var moreCols = mix(difficulty, random(), 0.5);
   log("more-cols", moreCols);
 
-  var nb = 2;
-  var totalCols = nb * (10 + 30 * mix(moreCols, random(), 0.5) * difficulty);
+  var nb = ~~( 1.8 + 4 * difficulty * difficulty * mix(difficulty, random(), 0.5) );
+  var totalCols = 20 + 40 * moreCols;
 
-  var distribCols = [];
-  for (j=0; j<nb; ++j)
-    distribCols.push(0);
-  for (j=0; j<totalCols; ++j) {
-    distribCols[~~(nb*random())]++;
-  }
+  var distribCols = listDistribution(random, nb, totalCols);
 
   for (j=0; j<nb; ++j) {
-    var pos = [ j%2 ? 20 : WIDTH-20, 100 + ~~(j/2) * 100 ];
-    var offset = 0.1 * random() * random();
+    var pos = [ j%2 ? 20 : WIDTH-20, 100 + ~~(j/2) * 60 ];
+    var offset = (random() < 0.5 ? 1 : -1) * (0.1 * random() + 0.3 * random() * difficulty);
     var speed = 300 - 280*random() * difficulty * moreCols;
     var col = distribCols[j];
-    var holes = _.union(_.range(0, (nb/2) * random()), _.range(nb/2, nb/2 + (nb/2) * random() * random()));
+    var holes = _.range(Math.min(col * (0.2 * (1-difficulty) + 0.4 * random() * random()), col-1));
     var pattern = rotatingHolesPattern(col, holes);
     chunk.snowballs.push(nSpawner(snowballScale, pos, col, offset, speed, pattern));
   }
@@ -124,13 +217,37 @@ function blizzardChunk (random, difficulty) {
   return chunk;
 }
 
-/*
-function doubleRoadChunk () {
+function doubleRoadChunk (random, difficulty) {
+  var diffs = random() < 0.5 ? [ difficulty / 2, difficulty ] : [ difficulty, difficulty / 2 ];
+  var roads1 = roadGen(random, 0, diffs[0], 5);
+  var dist = 160 - 80 * random()  - 60 * difficulty * random();
+  var ystart = roads1.length * ROAD_DIST;
+  var yend = roads1.length * ROAD_DIST + dist;
+  var remaining = ~~((CHUNK_SIZE - yend) / ROAD_DIST);
+  var roads2 = roadGen(random, yend, diffs[1], remaining);
 
+  var snowballs = [];
+  if (random() > mix(random(), difficulty, 0.8)) {
+    snowballs.push({
+      scale: function(){ return 0.5; },
+      pos: [ 5, ystart + dist * 0.5 ],
+      vel: 0.1 + 0.1 * random(),
+      angle: 0,
+      randAngle: 0.8 * random(),
+      speed: 500 + 1000 * random(),
+      life: 6000
+    });
+  }
+
+  return {
+    roads: roads1.concat(roads2),
+    snowballs: snowballs,
+    fireballs: [],
+    logs: []
+  };
 }
-*/
 
-function standardChunk (i, time, random) {
+function standardChunk (random, difficulty, i) {
   var chunk = {
     roads: [],
     snowballs: [],
@@ -141,34 +258,26 @@ function standardChunk (i, time, random) {
   var log = logger(chunk);
 
   function fireballScale (i, random) {
-    return 0.5 + 0.3 * random();
+    return 0.4 + 0.4 * random();
   }
 
   function snowballScale (i, random) {
     return 0.5 + 0.6 * random() * random();
   }
 
-  var pos, nb, n, offset, j, speed, vel;
-  var maxFollowing, maxHole, spacing;
+  var pos, nb, n, offset, j, speed;
 
-  var maxRoad = 5;
-
-  var roadCount = ~~Math.min(maxRoad, 3*random()*random() + random() * mix(i / 7, 1, random()*random()) + 0.7);
-  var roadHeight = ROAD_DIST * roadCount;
+  var maxRoad = 6;
 
   // Roads
-  var maxRoadVel = 0;
   if (i > 0) {
-    chunk.roads = roads(roadCount, function (y, j) {
-      vel = 0.05 + 0.05 * random() + 0.004 * (i + 10 * random() + 50 * random() * random());
-      maxRoadVel = Math.max(maxRoadVel, vel);
-      maxFollowing = 3 + (i / 20) * random() + 6 * random() * random();
-      maxHole = 8 - 5 * mix(smoothstep(0, 20, i * random()), random(), 0.5) + random() / (i / 5);
-      spacing = 0.2 + 0.3 * random();
-      return road(random, y, j % 2 === 0, vel, maxFollowing, maxHole, spacing);
-    });
+    chunk.roads = roadGen(random, 0, difficulty, maxRoad);
   }
-  var roadDifficulty = Math.max(0, Math.min(Math.pow(roadCount / maxRoad, 2) + 2*(maxRoadVel-0.05), 1));
+  var roadCount = chunk.roads.length;
+  var roadHeight = ROAD_DIST * roadCount;
+
+  var maxRoadVel = _.max(_.pluck(chunk.roads, "vel"));
+  var roadDifficulty = !roadCount ? 0 : Math.max(0, Math.min(Math.pow(roadCount / maxRoad, 2) + 2*(maxRoadVel-0.05), 1));
   
   log("road-difficulty", roadDifficulty);
 
@@ -219,15 +328,29 @@ function standardChunk (i, time, random) {
   return chunk;
 }
 
+var generators = {
+  "hell": hellChunk,
+  "blizzard": blizzardChunk,
+  "standard": standardChunk,
+  "double": doubleRoadChunk
+};
+
 function allocChunk (i, time, random) {
-  var difficulty = random();
-  var chunk;
-  if (i === 5)
-    chunk = blizzardChunk(random, difficulty);
-  else {
-    chunk = standardChunk(i, time, random);
-  }
-  logger(chunk)("difficulty", difficulty);
+  var difficulty =
+    0.2 * ((i /  16) % 1) +
+    0.5 * ((i / 32) % 1) +
+    0.3 * (i / 64) ;
+
+  var g = "standard";
+  if ( i > 12 && random() < 0.2 )
+    g = "hell";
+  if ( i > 6 && random() < 0.1 )
+    g = "blizzard";
+  if ( i > 4 && random() < 0.2 )
+    g = "double";
+
+  var chunk = generators[g](random, difficulty, i);
+  chunk.logs = [ "gen: "+g+", diff: "+difficulty.toPrecision(3), "" ].concat(chunk.logs);
   return chunk;
 }
 

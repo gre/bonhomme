@@ -135,7 +135,7 @@ Player.prototype.hitBox = function () {
   };
 };
 Player.prototype.onProjectile = function (p) {
-  var knock = 60 * p.width / this.width;
+  var knock = 100 * p.width / this.width;
   this.position.x += knock * p.vel[0];
   this.position.y += knock * p.vel[1];
 };

@@ -80,7 +80,7 @@ function render () {
   var dt = t - last;
   last = t;
   
-  scroll += 15 * keyboard.y();
+  scroll += dt * keyboard.y();
 
   for (var i=0; i<NB; ++i) {
     var current = runs[i];

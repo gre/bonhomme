@@ -169,20 +169,15 @@ Map.prototype.allocChunk = function (i, t) {
 
   (chunk.snowballs||[]).forEach(function (item) {
     var pos = [item.pos[0], item.pos[1]+y];
-    var spawner = new Spawner({
-      seed: ""+item.pos,
-      spawn: function (i, random) {
-        return new Snowball(item.scale(i, random));
-      },
-      pos: pos,
-      vel: item.vel,
-      rotate: item.rotate,
-      speed: item.speed,
-      seq: item.seq,
-      life: item.life,
-      angle: item.angle,
-      front: 20
-    });
+    var scale = item.scale;
+    item.seed = "" + pos;
+    item.pos = pos;
+    item.spawn = function (i, random) {
+      return new Snowball(scale(i, random));
+    };
+    item.front = 10;
+    delete item.scale;
+    var spawner = new Spawner(item);
     spawner.init(t);
     var sprite = new PIXI.Sprite(snowSpawnerTexture);
     sprite.pivot.set(40, 40);
@@ -196,20 +191,15 @@ Map.prototype.allocChunk = function (i, t) {
 
   (chunk.fireballs||[]).forEach(function (item) {
     var pos = [item.pos[0], item.pos[1]+y];
-    var spawner = new Spawner({
-      seed: ""+pos,
-      spawn: function (i, random) {
-        return new Fireball(item.scale(i, random));
-      },
-      pos: pos,
-      vel: item.vel,
-      rotate: item.rotate,
-      speed: item.speed,
-      seq: item.seq,
-      life: item.life,
-      angle: item.angle,
-      front: 10
-    });
+    var scale = item.scale;
+    item.seed = "" + pos;
+    item.pos = pos;
+    item.spawn = function (i, random) {
+      return new Fireball(scale(i, random));
+    };
+    item.front = 10;
+    delete item.scale;
+    var spawner = new Spawner(item);
     spawner.init(t);
     var sprite = new PIXI.Sprite(fireSpawnerTexture);
     sprite.pivot.set(40, 40);
