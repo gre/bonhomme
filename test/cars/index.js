@@ -23,6 +23,7 @@ var stage = new PIXI.Stage(0x222233);
 var cars = new PIXI.DisplayObjectContainer();
 stage.addChild(cars);
 
+var nb = 0;
 setInterval(function () {
   cars.children.forEach(function (car) {
     setTimeout(function () {
@@ -32,11 +33,13 @@ setInterval(function () {
   _.range(0, renderer.width, 90).forEach(function (x) {
     _.range(0, renderer.height, 50).forEach(function (y) {
       var random = prependRandom([ y/renderer.height, x/renderer.width ], mathRandom);
+      if (nb % 2 === 0) random = mathRandom;
       var car = new Car(random);
       car.position.set(x, y);
       cars.addChild(car);
     });
   });
+  ++ nb;
 }, 1000);
 
 requestAnimFrame(function loop () {
