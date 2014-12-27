@@ -13,6 +13,7 @@ var Fireball = require("./Fireball");
 var Snowball = require("./Snowball");
 
 var generators = require("./generators");
+var generateCars = require("./generateCars");
 
 var roadTexture = PIXI.Texture.fromImage("/img/road.png");
 var roadInTexture = PIXI.Texture.fromImage("/img/roadin.png");
@@ -60,6 +61,8 @@ function Map (seed, cars, particles, spawners, genName) {
     debug.profile("freeChunk", this.freeChunk.bind(this)),
     this.generator.chunkSize,
     1, 1, 1);
+
+  this.carsTexture = generateCars(50, seedrandom("cars"+seed));
 }
 Map.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Map.prototype.constructor = Map;
@@ -102,6 +105,8 @@ Map.prototype.freeChunk = function (i, chunk) {
 };
 
 Map.prototype.allocChunk = function (i, t) {
+  var carsTexture = this.carsTexture;
+
   var chunk = this.generator.generate(i, t, this.random);
   var allSprites = [];
 
@@ -122,7 +127,7 @@ Map.prototype.allocChunk = function (i, t) {
   (chunk.roads||[]).forEach(function (road) {
     var pos = [ road.leftToRight ? -100 : conf.WIDTH+100, road.y ];
     var ang = road.leftToRight ? 0 : Math.PI;
-    var spawn = function (i, random) { return new Car(random); };
+    var spawn = function (i, random) { return new Car(random, carsTexture); };
     var spawner = new Spawner({
       seed: road.y,
       pos: pos,
