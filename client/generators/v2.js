@@ -5,12 +5,56 @@ var mix = require("../utils/mix");
 var conf = require("../conf");
 
 var WIDTH = conf.WIDTH;
-
 var CHUNK_SIZE = 480;
-
 var ROAD_DIST = 60;
 
-function addCarPath (random, y, leftToRight, vel, maxFollowing, maxHole, spacing) {
+function logger (chunk) {
+  return function log (name, o) {
+    chunk.logs.push(name+": "+JSON.stringify(o));
+  };
+}
+
+
+function rotatingHolesPattern (n, holesIndex) {
+  var pattern = [];
+  var plus = 0;
+  var minus = 0;
+  for (var i=0; i<n; ++i) {
+    var p = !_.contains(holesIndex, i);
+    if (p && minus) {
+      pattern.push(minus);
+      minus = 0;
+    }
+    if (!p && plus) {
+      pattern.push(plus);
+      plus = 0;
+    }
+    if (p) plus ++;
+    else minus --;
+  }
+  if (plus) pattern.push(plus);
+  if (minus) pattern.push(minus);
+  return pattern;
+}
+
+function rotatingSpawner (scale, pos, rotate, vel, speed, seq) {
+  return {
+    scale: scale,
+    pos: pos,
+    vel: vel,
+    rotate: rotate,
+    speed: speed,
+    seq: seq,
+    life: 6000,
+    angle: 0
+  };
+}
+
+function nSpawner (scale, pos, n, offset, speed, seq) {
+  return rotatingSpawner(scale, pos, (offset + 2*Math.PI) / n, 0.25, speed / n, seq);
+}
+
+function road (random, y, leftToRight, vel, maxFollowing, maxHole, spacing) {
   var length = 10;
   var seq = [];
   for (var i=0; i<length; ++i) {
@@ -26,38 +70,67 @@ function addCarPath (random, y, leftToRight, vel, maxFollowing, maxHole, spacing
   };
 }
 
-
-function addRotatingParticleSpawner (scale, pos, rotate, vel, speed, seq) {
-  return {
-    scale: scale,
-    pos: pos,
-    vel: vel,
-    rotate: rotate,
-    speed: speed,
-    seq: seq,
-    life: 6000,
-    angle: 0
-  };
-}
-
-function nSpawner (scale, pos, n, offset, speed) {
-  return addRotatingParticleSpawner(scale, pos, (offset + 2*Math.PI) / n, 0.25, speed / n);
+function roads (nb, createRoad) {
+  return _.map(_.range(0, nb), function (j) {
+    var road = createRoad(j * ROAD_DIST, j);
+    road.first = j === nb-1;
+    road.last = j === 0;
+    return road;
+  });
 }
 
 /**
  * - make roads direction not anymore %2
  */
 
+function blizzardChunk (random, difficulty) {
+  var chunk = {
+    roads: [],
+    snowballs: [],
+    fireballs: [],
+    logs: []
+  };
+  var log = logger(chunk);
 
-function blizzardChunk () {
+  function snowballScale (i, random) {
+    return 0.4 + 0.4 * random();
+  }
 
+  var j;
+
+  var moreCols = random();
+  log("more-cols", moreCols);
+
+  var nb = 2;
+  var totalCols = nb * (10 + 30 * mix(moreCols, random(), 0.5) * difficulty);
+
+  var distribCols = [];
+  for (j=0; j<nb; ++j)
+    distribCols.push(0);
+  for (j=0; j<totalCols; ++j) {
+    distribCols[~~(nb*random())]++;
+  }
+
+  for (j=0; j<nb; ++j) {
+    var pos = [ j%2 ? 20 : WIDTH-20, 100 + ~~(j/2) * 100 ];
+    var offset = 0.1 * random() * random();
+    var speed = 300 - 280*random() * difficulty * moreCols;
+    var col = distribCols[j];
+    var holes = _.union(_.range(0, (nb/2) * random()), _.range(nb/2, nb/2 + (nb/2) * random() * random()));
+    var pattern = rotatingHolesPattern(col, holes);
+    chunk.snowballs.push(nSpawner(snowballScale, pos, col, offset, speed, pattern));
+  }
+
+  return chunk;
 }
 
+/*
 function doubleRoadChunk () {
 
 }
+*/
 
-function allocChunk (i, time, random) {
+function standardChunk (i, time, random) {
   var chunk = {
     roads: [],
     snowballs: [],
@@ -65,19 +138,16 @@ function allocChunk (i, time, random) {
     logs: []
   };
 
-  function log (name, o) {
-    chunk.logs.push(name+": "+JSON.stringify(o));
-  }
+  var log = logger(chunk);
 
   function fireballScale (i, random) {
-    return 0.5 + 0.1 * random();
+    return 0.5 + 0.3 * random();
   }
 
   function snowballScale (i, random) {
-    return 0.4 + 0.6 * random() * random();
+    return 0.5 + 0.6 * random() * random();
   }
 
-  var y = -CHUNK_SIZE * i;
   var pos, nb, n, offset, j, speed, vel;
   var maxFollowing, maxHole, spacing;
 
@@ -89,20 +159,16 @@ function allocChunk (i, time, random) {
   // Roads
   var maxRoadVel = 0;
   if (i > 0) {
-    nb = roadCount;
-    for (j=0; j<nb; ++j) {
+    chunk.roads = roads(roadCount, function (y, j) {
       vel = 0.05 + 0.05 * random() + 0.004 * (i + 10 * random() + 50 * random() * random());
       maxRoadVel = Math.max(maxRoadVel, vel);
       maxFollowing = 3 + (i / 20) * random() + 6 * random() * random();
       maxHole = 8 - 5 * mix(smoothstep(0, 20, i * random()), random(), 0.5) + random() / (i / 5);
       spacing = 0.2 + 0.3 * random();
-      var road = addCarPath(random, y + j*ROAD_DIST, j % 2 === 0, vel, maxFollowing, maxHole, spacing);
-      road.first = j === nb-1;
-      road.last = j === 0;
-      chunk.roads.push(road);
-    }
+      return road(random, y, j % 2 === 0, vel, maxFollowing, maxHole, spacing);
+    });
   }
-  var roadDifficulty = Math.max(0, Math.min(Math.pow(nb / maxRoad, 2) + 2*(maxRoadVel-0.05), 1));
+  var roadDifficulty = Math.max(0, Math.min(Math.pow(roadCount / maxRoad, 2) + 2*(maxRoadVel-0.05), 1));
   
   log("road-difficulty", roadDifficulty);
 
@@ -110,7 +176,7 @@ function allocChunk (i, time, random) {
   var gridy = 5;
 
 
-  var spawnyfrom = y + roadHeight;
+  var spawnyfrom = roadHeight;
   var spawnheight = CHUNK_SIZE - roadHeight;
 
   var xRange = _.range(1, gridx).map(function (i) {
@@ -153,6 +219,17 @@ function allocChunk (i, time, random) {
   return chunk;
 }
 
+function allocChunk (i, time, random) {
+  var difficulty = random();
+  var chunk;
+  if (i === 5)
+    chunk = blizzardChunk(random, difficulty);
+  else {
+    chunk = standardChunk(i, time, random);
+  }
+  logger(chunk)("difficulty", difficulty);
+  return chunk;
+}
 
 module.exports = {
   chunkSize: CHUNK_SIZE,

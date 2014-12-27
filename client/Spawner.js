@@ -24,6 +24,9 @@ var SpawnerDefault = {
   // Spawner particle velocity
   vel: 0.1,
 
+  // front pixel distance
+  front: 0,
+
   /**
    * an optional array to describe a pattern to loop on when spawing.
    * e.g: [ 2, -1, 3, -2 ] // 2 bullets followed by 1 hole, followed by 3 bullets, followed by 2 holes
@@ -58,6 +61,8 @@ function Spawner (parameters) {
 
   PIXI.DisplayObjectContainer.call(this);
   _.extend(this, parameters);
+
+  this.maxCatchup = 500;
 
   if (typeof this.spawn !== "function")
     throw new Error("spawn function must be implemented and return a PIXI object.");
@@ -122,6 +127,10 @@ Spawner.prototype.update = function (t, dt) {
   }, this);
 
   var currentti = Math.floor((t - this.initialTime) / this.speed);
+  if (currentti - this.lastti > this.maxCatchup) { // Avoid overflow of particles
+    console.log((currentti-this.lastti)+" particles to catchup. maximized to "+this.maxCatchup+" and lost some.");
+    this.lastti = currentti -  100;
+  }
 
   // Trigger all missing particles or do nothing
   while (this.lastti < currentti) {
@@ -132,7 +141,7 @@ Spawner.prototype.update = function (t, dt) {
     if (this.pattern) {
       var shouldSkip = this.pattern[this._ip] === 0;
       this._ip = this._ip >= this.pattern.length-1 ? 0 : this._ip + 1;
-      if (shouldSkip) return;
+      if (shouldSkip) continue;
     }
 
     var random = seedrandom(this.seed + "" + ti);
@@ -140,12 +149,14 @@ Spawner.prototype.update = function (t, dt) {
     var particle = this.spawn(ti, random);
     var angle = this.ang + this.randAngle * (random() - 0.5) + (this.rotate * ti) % (2*Math.PI);
     var vel = this.vel + this.randVel * (random() - 0.5);
+    var xAngle = Math.cos(angle);
+    var yAngle = -Math.sin(angle);
     particle.vel = [
-      vel * Math.cos(angle),
-      -vel * Math.sin(angle)
+      vel * xAngle,
+      vel * yAngle
     ];
-    particle.position.x = this.pos[0] + this.randPos * (random() - 0.5) + particle.vel[0] * delta;
-    particle.position.y = this.pos[1] + this.randPos * (random() - 0.5) + particle.vel[1] * delta;
+    particle.position.x = this.pos[0] + this.randPos * (random() - 0.5) + particle.vel[0] * delta + this.front * xAngle;
+    particle.position.y = this.pos[1] + this.randPos * (random() - 0.5) + particle.vel[1] * delta + this.front * yAngle;
 
     particle._dieAfter = start + this.life + this.randLife * (random()-0.5);
     this.addChild(particle);

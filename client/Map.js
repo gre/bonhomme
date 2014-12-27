@@ -110,6 +110,8 @@ Map.prototype.allocChunk = function (i, t) {
   var chunk = this.generator.generate(i, t, this.random);
   var allSprites = [];
 
+  var y = -i * this.generator.chunkSize;
+
   // var roadAreas = [];
 
   function track (sprite) {
@@ -125,38 +127,38 @@ Map.prototype.allocChunk = function (i, t) {
   this.addChild(roadsPaint);
 
   (chunk.roads||[]).forEach(function (road) {
-    var pos = [ road.leftToRight ? -100 : conf.WIDTH+100, road.y ];
+    var pos = [ road.leftToRight ? -100 : conf.WIDTH+100, y+road.y ];
     var ang = road.leftToRight ? 0 : Math.PI;
     var spawn = function (i, random) { return new Car(random, carsTexture); };
     var spawner = new Spawner({
-      seed: road.y,
+      seed: y+road.y,
       pos: pos,
       spawn: spawn,
       ang: ang,
       speed: road.speed,
       vel: road.vel,
       seq: road.seq,
-      livingBound: { x: -100, y: road.y, height: 100, width: conf.WIDTH+200 }
+      livingBound: { x: -100, y: y+road.y, height: 100, width: conf.WIDTH+200 }
     });
     spawner.init(t);
     this.cars.addChild(track(spawner));
 
     var roadSprite = new PIXI.Sprite(roadTexture);
-    roadSprite.position.set(0, road.y);
+    roadSprite.position.set(0, y+road.y);
     roads.addChild(roadSprite);
     if (road.last) {
       roadSprite = new PIXI.Sprite(roadOutTexture);
-      roadSprite.position.set(0, road.y - 20);
+      roadSprite.position.set(0, y+road.y - 20);
       roads.addChild(roadSprite);
     }
     if (road.first) {
       roadSprite = new PIXI.Sprite(roadInTexture);
-      roadSprite.position.set(0, road.y + 10);
+      roadSprite.position.set(0, y+road.y + 10);
       roads.addChild(roadSprite);
     }
     if (!road.last) {
       var roadSeparator = new PIXI.Sprite(roadSeparatorTexture);
-      roadSeparator.position.set(- ~~(100*Math.random()), road.y - 8);
+      roadSeparator.position.set(- ~~(100*Math.random()), y+road.y - 8);
       roadsPaint.addChild(roadSeparator);
     }
 
@@ -166,24 +168,26 @@ Map.prototype.allocChunk = function (i, t) {
   // Create snowballs spawners
 
   (chunk.snowballs||[]).forEach(function (item) {
+    var pos = [item.pos[0], item.pos[1]+y];
     var spawner = new Spawner({
       seed: ""+item.pos,
       spawn: function (i, random) {
         return new Snowball(item.scale(i, random));
       },
-      pos: item.pos,
+      pos: pos,
       vel: item.vel,
       rotate: item.rotate,
       speed: item.speed,
       seq: item.seq,
       life: item.life,
-      angle: item.angle
+      angle: item.angle,
+      front: 20
     });
     spawner.init(t);
     var sprite = new PIXI.Sprite(snowSpawnerTexture);
     sprite.pivot.set(40, 40);
     sprite.scale.set(0.5, 0.5);
-    sprite.position.set.apply(sprite.position, item.pos);
+    sprite.position.set.apply(sprite.position, pos);
     this.spawners.addChild(sprite);
     this.particles.addChild(spawner);
   }, this);
@@ -191,24 +195,26 @@ Map.prototype.allocChunk = function (i, t) {
   // Create fireballs spawners
 
   (chunk.fireballs||[]).forEach(function (item) {
+    var pos = [item.pos[0], item.pos[1]+y];
     var spawner = new Spawner({
-      seed: ""+item.pos,
+      seed: ""+pos,
       spawn: function (i, random) {
         return new Fireball(item.scale(i, random));
       },
-      pos: item.pos,
+      pos: pos,
       vel: item.vel,
       rotate: item.rotate,
       speed: item.speed,
       seq: item.seq,
       life: item.life,
-      angle: item.angle
+      angle: item.angle,
+      front: 10
     });
     spawner.init(t);
     var sprite = new PIXI.Sprite(fireSpawnerTexture);
     sprite.pivot.set(40, 40);
     sprite.scale.set(0.5, 0.5);
-    sprite.position.set.apply(sprite.position, item.pos);
+    sprite.position.set.apply(sprite.position, pos);
     this.spawners.addChild(sprite);
     this.particles.addChild(spawner);
   }, this);
@@ -216,7 +222,7 @@ Map.prototype.allocChunk = function (i, t) {
   if (this.debug) {
     var debug = track(new PIXI.DisplayObjectContainer());
     var h = this.generator.chunkSize;
-    debug.position.set(0, -i * h);
+    debug.position.set(0, y);
     this.debug.addChild(debug);
     var line = new PIXI.Graphics();
     line.beginFill(0xFF0000);
@@ -225,12 +231,12 @@ Map.prototype.allocChunk = function (i, t) {
     var text = new PIXI.Text("chunk "+i, { fill: "#F00", font: "bold 32px monospace" });
     text.scale.set(0.5, 0.5);
     text.position.set(conf.WIDTH-text.width-4, h-4-text.height);
-    var y = h-4;
+    var ty = h-4;
     (chunk.logs||[]).forEach(function (log) {
       var text = new PIXI.Text(log, { fill: "#F00", font: "normal 16px monospace" });
       text.scale.set(0.5, 0.5);
-      y -= text.height;
-      text.position.set(4, y);
+      ty -= text.height;
+      text.position.set(4, ty);
       text.alpha = 0.7;
       debug.addChild(text);
     });

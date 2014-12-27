@@ -19,7 +19,7 @@ function Player (name, footprints) {
   this.name = name;
   PIXI.Sprite.call(this, playerTexture);
   this.life = 100;
-  this.maxLife = 500;
+  this.maxLife = 1000;
   this.meltingSpeed = 0.0025;
   this.moveSpeed = 0.25;
   this.maxMoveBack = 120;
@@ -135,16 +135,16 @@ Player.prototype.hitBox = function () {
   };
 };
 Player.prototype.onProjectile = function (p) {
-  var knock = 2 * p.width;
+  var knock = 60 * p.width / this.width;
   this.position.x += knock * p.vel[0];
   this.position.y += knock * p.vel[1];
 };
 Player.prototype.onSnowball = function (ball) {
-  this.life = Math.min(this.life+10, this.maxLife);
+  this.life = Math.min(this.life+ball.playerLifeValue(), this.maxLife);
   this.onProjectile(ball);
 };
 Player.prototype.onFireball = function (ball) {
-  this.life -= 10;
+  this.life += ball.playerLifeValue();
   this.onProjectile(ball);
 };
 Player.prototype.onCarHit = function () {

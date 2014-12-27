@@ -20,6 +20,9 @@ Snowball.prototype.hitBox = function () {
     height: this.height
   };
 };
+Snowball.prototype.playerLifeValue = function () {
+  return 10 * this.scale.x;
+};
 Snowball.prototype.explodeInWorld = function (world) {
   world.snowballExplode(this);
 };

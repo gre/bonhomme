@@ -5,9 +5,13 @@
   "scripts": {
     "dev": "beefy client/index.js",
     "start": "node server/index.js",
-    "browserify": "browserify -t brfs client/index.js > static/build.js",
-    "compile": "browserify -t brfs client/index.js | uglifyjs -c -m --screw-ie8 > static/build.js",
-    "watch": "wr 'npm run browserify' client"
+    "compile": "browserify client/index.js | uglifyjs -c -m --screw-ie8 > static/build.js",
+    "watch": "watchify client/index.js -o static/build.js -v"
+  },
+  "browserify": {
+    "transform": [
+      "brfs"
+    ]
   },
   "repository": {
     "type": "git",
@@ -28,6 +32,7 @@
     "brfs": "^1.2.0",
     "browserify": "^7.0.0",
     "uglify-js": "^2.4.15",
+    "watchify": "^2.2.1",
     "wr": "^1.3.1"
   },
   "dependencies": {
