@@ -121,6 +121,7 @@ function start (playerName) {
 
   function loop (loopT) {
     requestAnimFrame(loop);
+    // if (controls.paused()) return; // FIXME
 
     var t = Math.max(now(), lastAbsoluteTime); // ensure no backwards in synchronized time with current game.
     lastAbsoluteTime = t;

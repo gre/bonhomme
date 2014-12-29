@@ -53,6 +53,7 @@
     "raf": "^2.0.4",
     "seedrandom": "^2.3.10",
     "serve-static": "^1.7.1",
+    "simple-quadtree": "^0.1.2",
     "sliding-window": "^0.1.2",
     "smoothstep": "^1.0.1",
     "socket-ntp": "^0.1.0",

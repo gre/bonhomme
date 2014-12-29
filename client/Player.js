@@ -2,7 +2,7 @@ var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
 var mix = require("./utils/mix");
 
-var spriteCollides = require("./utils/spriteCollides");
+var Groups = require("./Groups");
 var velUpdate = require("./behavior/velUpdate");
 var audio = require("./audio");
 var conf = require("./conf");
@@ -42,6 +42,14 @@ function Player (name, footprints) {
 }
 Player.prototype = Object.create(PIXI.Sprite.prototype);
 Player.prototype.constructor = Player;
+
+Player.prototype.die = function () {
+  this.dead = true;
+};
+Player.prototype.isDead = function () {
+  return this.dead;
+};
+
 Player.prototype.getState = function () {
   return {
     life: this.life,
@@ -126,6 +134,16 @@ Player.prototype.update = function (t, dt) {
   this.position.x = x;
   this.position.y = y;
 };
+Player.prototype.toQuadTreeObject = function () {
+  return {
+    x: this.x - this.pivot.x * this.scale.x + this.width * 0.25,
+    y: this.y - this.pivot.y * this.scale.y + this.height * 0.2,
+    w: this.width * 0.5,
+    h: this.height * 0.6,
+    obj: this,
+    group: Groups.PLAYER
+  };
+};
 Player.prototype.hitBox = function () {
   return {
     x: this.x - this.pivot.x * this.scale.x + this.width * 0.25,
@@ -152,7 +170,6 @@ Player.prototype.onCarHit = function () {
   // this.life = 0;
   audio.play("carHit", null, 1.0);
 };
-Player.prototype.collides = spriteCollides;
 Player.prototype.getScore = function () {
  return {
    player: this.name,

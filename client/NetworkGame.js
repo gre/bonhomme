@@ -20,6 +20,19 @@ function NetworkGame (socket) {
   socket.on("playerenter", this.onPlayerEnter.bind(this));
   socket.on("playerleave", this.onPlayerLeave.bind(this));
   socket.on("players", this.onPlayers.bind(this));
+
+  this.playerGhost = true;
+  var self = this;
+  if (this.playerGhost) {
+    this.env = {
+      computeAlpha: function (pos) {
+        return 1-self.game.positionObfuscation(pos);
+      }
+    };
+  }
+  else {
+    this.env = {};
+  }
 }
 
 NetworkGame.prototype = {
@@ -50,13 +63,8 @@ NetworkGame.prototype = {
       p = null;
     }
     if (!p) {
-      var self = this;
       var data = this.playersData[id];
-      var playerSprite = new OtherPlayer(data.name, this.names, 0.6, {
-        computeAlpha: function (pos) {
-          return 1-self.game.positionObfuscation(pos);
-        }
-      });
+      var playerSprite = new OtherPlayer(data.name, this.names, this.playerGhost ? 0.6 : 1.0, this.env);
       playerSprite.position.x = -1000;
       p = new NetworkPlayerPlayback(playerSprite);
       this.playersByIds[id] = p;

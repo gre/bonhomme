@@ -1,7 +1,8 @@
 
 module.exports = function velUpdate (t, dt) {
-  if (this.vel) {
-    this.position.x += this.vel[0] * dt;
-    this.position.y += this.vel[1] * dt;
+  var vel = this.vel;
+  if (vel) {
+    this.position.x += vel[0] * dt;
+    this.position.y += vel[1] * dt;
   }
 };

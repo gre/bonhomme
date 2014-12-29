@@ -3,7 +3,7 @@ var _ = require("lodash");
 var seedrandom = require("seedrandom");
 
 var updateChildren = require("./behavior/updateChildren");
-var findChildrenCollide = require("./behavior/findChildrenCollide");
+var destroyOutOfLivingBound = require("./behavior/destroyOutOfLivingBound");
 
 var SpawnerDefault = {
   // The initial absolute time
@@ -38,14 +38,10 @@ var SpawnerDefault = {
    */
   spawn: null,
 
-  // Particle life
-  life: 10000,
-
   // optionally give a bounding box where the particles lives (dies outside)
   livingBound: null,
 
   // Determinist Randomness
-  randLife: 0,
   randPos: 0,
   randAngle: 0,
   randVel: 0,
@@ -114,17 +110,12 @@ Spawner.prototype.init = function (currentTime) {
 };
 
 Spawner.prototype.update = function (t, dt) {
-  updateChildren.apply(this, arguments);
-  this.children.forEach(function (child) {
-    if (t > child._dieAfter || this.livingBound && !child.collides(this.livingBound)) {
-      this.removeChild(child);
-      if (child.destroy) child.destroy();
-    }
-  }, this);
+  updateChildren.call(this, t, dt);
+  destroyOutOfLivingBound.call(this, t, dt);
 
   var currentti = Math.floor((t - this.initialTime) / this.speed);
   if (currentti - this.lastti > this.maxCatchup) { // Avoid overflow of particles
-    console.log((currentti-this.lastti)+" particles to catchup. maximized to "+this.maxCatchup+" and lost some.");
+    console.log("Spawner: "+(currentti-this.lastti)+" particles to catchup. maximized to "+this.maxCatchup+" and lost some.");
     this.lastti = currentti -  100;
   }
 
@@ -140,7 +131,7 @@ Spawner.prototype.update = function (t, dt) {
       if (shouldSkip) continue;
     }
 
-    var random = seedrandom(this.seed + "" + ti);
+    var random = seedrandom(this.seed + "" + ti); // FIXME bottleneck
 
     var particle = this.spawn(ti, random);
     var angle = this.ang + this.randAngle * (random() - 0.5) + (this.rotate * ti) % (2*Math.PI);
@@ -154,12 +145,9 @@ Spawner.prototype.update = function (t, dt) {
     particle.position.x = this.pos[0] + this.randPos * (random() - 0.5) + particle.vel[0] * delta + this.front * xAngle;
     particle.position.y = this.pos[1] + this.randPos * (random() - 0.5) + particle.vel[1] * delta + this.front * yAngle;
 
-    particle._dieAfter = start + this.life + this.randLife * (random()-0.5);
     this.addChild(particle);
   }
 
 };
-Spawner.prototype.collides = findChildrenCollide;
-
 
 module.exports = Spawner;

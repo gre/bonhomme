@@ -1,6 +1,8 @@
 var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
 var _ = require("lodash");
+var QuadTree = require('simple-quadtree');
+var Groups = require("./Groups");
 
 var dist = require("./utils/dist");
 
@@ -9,7 +11,7 @@ var conf = require("./conf");
 var font = require("./font");
 
 var World = require("./World");
-var Map = require("./Map");
+var GameMap = require("./Map");
 var DeadCarrot = require("./DeadCarrot");
 var Player = require("./Player");
 var SpawnerCollection = require("./SpawnerCollection");
@@ -26,7 +28,7 @@ function Game (seed, controls, playername) {
   var cars = new SpawnerCollection();
   var particles = new SpawnerCollection();
   var spawners = new PIXI.DisplayObjectContainer();
-  var map = new Map(seed, cars, particles, spawners, GENERATOR);
+  var map = new GameMap(seed, cars, particles, spawners, GENERATOR);
   var deadCarrots = new PIXI.DisplayObjectContainer();
   var footprints = new PIXI.DisplayObjectContainer();
   var player = new Player(playername, footprints);
@@ -84,6 +86,8 @@ function Game (seed, controls, playername) {
   // Game states
   this.audio1 = audio.loop("/audio/1.ogg");
 
+  this.playerGhost = true;
+
   audio.play("start");
 }
 
@@ -97,11 +101,15 @@ Game.prototype.destroy = function () {
   }
 };
 
+Game.prototype.handleCarCollides = function (data) {
+  if (data.group & Groups.PARTICLE)
+    data.obj.explodeInWorld(this.world);
+};
+
 Game.prototype.update = function (t, dt) {
+  var i, j, spawner;
   var world = this.world;
   var player = this.player;
-  var cars = this.cars;
-  var particles = this.particles;
   var controls = this.controls;
   var map = this.map;
 
@@ -110,43 +118,75 @@ Game.prototype.update = function (t, dt) {
   // general vars for this loop time
   var danger = 0;
 
+  var quadtree = QuadTree(0, 0, conf.WIDTH, 100); // TODO ask map what is the current allocation window
+  for (i=0; i<this.particles.children.length; ++i) {
+    spawner = this.particles.children[i];
+    for (j=0; j<spawner.children.length; ++j) {
+      var particle = spawner.children[j];
+      quadtree.put(particle.toQuadTreeObject());
+    }
+  }
+
+  function handleCarCollides (data) {
+    if (data.group & Groups.PARTICLE)
+      data.obj.explodeInWorld(world);
+  }
+
   // Handle cars and collision with particles
-  var carNearby = [];
-  cars.children.forEach(function (spawner) {
-    spawner.children.forEach(function (car) {
-      var particle = particles.collides(car);
-      if (particle) {
-        particle.explodeInWorld(world);
-        particle.parent.removeChild(particle);
-      }
+  for (i=0; i<this.cars.children.length; ++i) {
+    spawner = this.cars.children[i];
+    for (j=0; j<spawner.children.length; ++j) {
+      var car = spawner.children[j];
+      var carQuad = car.toQuadTreeObject();
+      quadtree.get(carQuad, handleCarCollides);
+      quadtree.put(carQuad);
       var d = dist(car, player);
       danger += Math.pow(smoothstep(300, 50, d), 2);
       if (!car.neverSaw && d < 300) {
         car.neverSaw = 1;
-        carNearby.push(car);
+        audio.play("car", car);
       }
-    });
-  });
-  carNearby.forEach(function (car) {
-    audio.play("car", car);
-  });
+    }
+  }
 
   var angry = 0;
 
-  if (!player.dead) {
-    var particle = particles.collides(player);
-    if (particle) {
-      particle.explodeInWorld(world);
-      particle.hitPlayer(player);
-      particle.parent.removeChild(particle);
-      angry ++;
+  function playerUpdate (player, isMyself) {
+    if (!player.isDead()) {
+      var playerQuad = player.toQuadTreeObject();
+      quadtree.get(playerQuad, function (data) {
+        if (data.group & Groups.CAR) {
+          var car = data.obj;
+          player.onCarHit(car);
+          world.carHitPlayerExplode(car, player);
+        }
+        else if (data.group & Groups.PARTICLE) {
+          var particle = data.obj;
+          particle.explodeInWorld(world);
+          particle.hitPlayer(player);
+          if (isMyself)
+            angry ++;
+        }
+      });
+      if (player.life <= 0) {
+        player.die();
+        world.playerDied(player, isMyself);
+        if (isMyself) {
+          world.removeChild(player);
+          this.emit("GameOver");
+        }
+      }
     }
-    var car = cars.collides(player);
-    if (car) {
-      player.onCarHit(car);
-      world.carHitPlayerExplode(car, player);
+
+  }
+
+  if (!this.playerGhost) {
+    var players = this.players.children[0].children;
+    for (i=0; i<players.length; ++i) {
+      playerUpdate.call(this, players[i], false);
     }
   }
+  playerUpdate.call(this, player, true);
 
   angry = Math.max(0, angry - dt * 0.001);
 
@@ -159,10 +199,15 @@ Game.prototype.update = function (t, dt) {
 
   var s = Player.getPlayerScore(player);
   if (s > 0) {
-    var rank = 0;
-    for (var length = this.scores.length; rank < length && s < this.scores[rank].score; ++rank);
-    ++ rank;
-    this.rank.setText("#" + rank);
+    if (this.scores) {
+      var rank = 0;
+      for (var length = this.scores.length; rank < length && s < this.scores[rank].score; ++rank);
+      ++ rank;
+      this.rank.setText("#" + rank);
+    }
+    else {
+      this.rank.setText("");
+    }
     this.score.setText("" + s);
     if (player.life > 0) {
       this.life.setText("" + ~~(player.life) + "%");
@@ -173,27 +218,14 @@ Game.prototype.update = function (t, dt) {
     }
   }
 
-  if (!player.dead && player.life <= 0) {
-    player.dead = 1;
-    world.playerDied(player);
-    world.removeChild(player);
-    this.emit("GameOver");
-  }
-
-  /*
-  player.syncMap(map);
-  this.players.children[0].children.forEach(function (player) {
-    player.syncMap(map);
-  });
-  */
-
   world.focusOn(player);
   audio.micOn(player);
 
   var win = world.getWindow();
-  this.footprints.children.forEach(function (footprints) {
-    footprints.watchWindow(win);
-  });
+  var footprints = this.footprints.children;
+  for (i=0; i<footprints.length; ++i) {
+    footprints[i].watchWindow(win);
+  }
   map.watchWindow(win);
 
   world.update(t, dt);

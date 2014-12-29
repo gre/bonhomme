@@ -4,6 +4,9 @@ function TouchControls () {
   window.addEventListener("touchend", this._onEnd.bind(this), false);
   window.addEventListener("touchmove", this._onMove.bind(this), false);
   window.addEventListener("touchcancel", this._onCancel.bind(this), false);
+  
+  window.addEventListener("focus", this._onFocus.bind(this), false);
+  window.addEventListener("blur", this._onBlur.bind(this), false);
 
   this._paused = false;
   this.touchEventId = null;
@@ -23,6 +26,13 @@ function posForTouch (touch) {
 }
 
 TouchControls.prototype = {
+  _onFocus: function () {
+    this._paused = 0;
+  },
+  _onBlur: function () {
+    this._paused = 1;
+  },
+  
   _onStart: function (e) {
     e.preventDefault();
     if (this.startPos) return;
