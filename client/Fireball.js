@@ -13,6 +13,11 @@ function Fireball (scale, life) {
   this.targetScale = scale;
   this.scale.set(0, 0);
   this.dieTimeout = life || 6000;
+  this._bound = {
+    x:0,y:0,w:0,h:0,
+    group: Groups.PARTICLE,
+    obj: this
+  };
 }
 Fireball.prototype = Object.create(PIXI.Sprite.prototype);
 Fireball.prototype.constructor = Fireball;
@@ -25,24 +30,14 @@ Fireball.prototype.update = function (t, dt) {
   }
   destroyOutOfMap.call(this, t, dt);
   dieAfterTimeout.call(this, t, dt);
+  var w = this.width, h = this.height;
+  this._bound.x =  this.x - this.pivot.x * this.scale.x + 0.2 * w;
+  this._bound.y =  this.y - this.pivot.y * this.scale.y + 0.2 * h;
+  this._bound.w = w * 0.6;
+  this._bound.h = h * 0.6;
 };
 Fireball.prototype.toQuadTreeObject = function () {
-  return {
-    x: this.x - this.pivot.x * this.scale.x + 0.2 * this.width,
-    y: this.y - this.pivot.y * this.scale.y + 0.2 * this.height,
-    w: this.width * 0.6,
-    h: this.height * 0.6,
-    obj: this,
-    group: Groups.PARTICLE
-  };
-};
-Fireball.prototype.hitBox = function () {
-  return {
-    x: this.x - this.pivot.x * this.scale.x + 0.2 * this.width,
-    y: this.y - this.pivot.y * this.scale.y + 0.2 * this.height,
-    width: this.width * 0.6,
-    height: this.height * 0.6
-  };
+  return this._bound;
 };
 Fireball.prototype.playerLifeValue = function () {
   return -30 * this.scale.x;

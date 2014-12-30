@@ -3,7 +3,7 @@ var PIXI = require("pixi.js");
 var SlidingWindow = require("sliding-window");
 
 var conf = require("./conf");
-var debug = require("./utils/debug");
+// var debug = require("./utils/debug");
 
 var HomeTile = require("./HomeTile");
 var MapTile = require("./MapTile");
@@ -26,7 +26,7 @@ var snowSpawnerTexture = PIXI.Texture.fromImage("/img/snowspawner.png");
 function Map (seed, cars, particles, spawners, genName) {
   PIXI.DisplayObjectContainer.call(this);
 
-  this.random = seedrandom(seed);
+  this.seed = seed;
   this.cars = cars;
   this.particles = particles;
   this.spawners = spawners;
@@ -57,8 +57,12 @@ function Map (seed, cars, particles, spawners, genName) {
   mapTileSize, 1, 1, 0);
 
   this.generateLevels = new SlidingWindow(
+      /*
     debug.profile("allocChunk", this.allocChunk.bind(this)),
     debug.profile("freeChunk", this.freeChunk.bind(this)),
+    */
+    this.allocChunk.bind(this),
+    this.freeChunk.bind(this),
     this.generator.chunkSize,
     1, 1, 1);
 
@@ -105,9 +109,10 @@ Map.prototype.freeChunk = function (i, chunk) {
 };
 
 Map.prototype.allocChunk = function (i, t) {
+  var random = seedrandom(this.seed+"-"+i);
   var carsTexture = this.carsTexture;
 
-  var chunk = this.generator.generate(i, t, this.random);
+  var chunk = this.generator.generate(i, t, random);
   var allSprites = [];
 
   var y = -i * this.generator.chunkSize;
@@ -234,6 +239,7 @@ Map.prototype.allocChunk = function (i, t) {
     debug.addChild(text);
   }
 
+  chunk = null;
   return {
     // roadAreas: roadAreas,
     destroy: function () {

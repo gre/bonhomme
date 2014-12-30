@@ -1,5 +1,7 @@
 var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
+
+var BitmapText = require("./BitmapText");
 var font = require("./font");
 var Player = require("./Player");
 
@@ -9,7 +11,9 @@ function DeadCarrot (score, animated, me, size) {
   PIXI.DisplayObjectContainer.call(this);
   var carrot = new PIXI.Sprite(deadCarrotTexture);
   carrot.pivot.set(12, 24);
-  var text = new PIXI.Text(score.player, { align: 'center', font: 'normal '+(size||10)+'px '+font.name, fill: me ?  '#F40' : '#C40'});
+  var text = new BitmapText(score.player, { align: "center", font: font.style(size||10) });
+  text.tint = me ? 0xFF4400 : 0xCC4400;
+  text.updateText();
   text.position.set(-text.width/2, 0);
   this.position.set(score.x, Player.scoreToY(score.score));
   this.addChild(carrot);

@@ -9,6 +9,7 @@ var ntp = window.ntp;
 var debug = require("./utils/debug");
 var conf = require("./conf");
 var atlas = require("./atlas");
+var font = require("./font");
 
 var Game = require("./Game");
 var NetworkGame = require("./NetworkGame");
@@ -115,9 +116,11 @@ function start (playerName) {
   var lastLoopT;
   var lastAbsoluteTime = 0;
 
+  /*
   var updateGame = debug.profile("game.update", function (t, dt) {
     currentGame.update(t, dt);
   }, 100);
+  */
 
   function loop (loopT) {
     requestAnimFrame(loop);
@@ -130,7 +133,7 @@ function start (playerName) {
     var dt = Math.min(100, loopT - lastLoopT); // The delta time is computed using the more precised loopT
     lastLoopT = loopT;
 
-    updateGame(t, dt);
+    currentGame.update(t, dt);
     currentNetwork.update(t, dt);
 
     renderer.render(stage);
@@ -145,5 +148,6 @@ createDom();
 Q.all([
   playerNameP,
   imagesLoaded,
-  syncTime
+  syncTime,
+  font.ready
 ]).spread(start).done();

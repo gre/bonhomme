@@ -39,6 +39,12 @@ function Player (name, footprints) {
 
   if (footprints)
     footprints.addChild(this.footprints = new Footprints());
+
+  this._bound = {
+    x:0,y:0,w:0,h:0,
+    group: Groups.PLAYER,
+    obj: this
+  };
 }
 Player.prototype = Object.create(PIXI.Sprite.prototype);
 Player.prototype.constructor = Player;
@@ -113,8 +119,8 @@ Player.prototype.update = function (t, dt) {
   y = Math.min(y, this.maxProgress + this.maxMoveBack);
 
   var scale = 0.6 + this.life / 150;
-  this.width  = 40 * scale;
-  this.height = 40 * scale;
+  var w = this.width  = 40 * scale;
+  var h = this.height = 40 * scale;
 
   if (cy < 0) this.rotation = Math.PI;
   else if (cy > 0) this.rotation = 0;
@@ -133,24 +139,14 @@ Player.prototype.update = function (t, dt) {
 
   this.position.x = x;
   this.position.y = y;
+
+  this._bound.x = x - this.pivot.x * this.scale.x + w * 0.25;
+  this._bound.y = y - this.pivot.y * this.scale.y + h * 0.2;
+  this._bound.w = w * 0.5;
+  this._bound.h = h * 0.6;
 };
 Player.prototype.toQuadTreeObject = function () {
-  return {
-    x: this.x - this.pivot.x * this.scale.x + this.width * 0.25,
-    y: this.y - this.pivot.y * this.scale.y + this.height * 0.2,
-    w: this.width * 0.5,
-    h: this.height * 0.6,
-    obj: this,
-    group: Groups.PLAYER
-  };
-};
-Player.prototype.hitBox = function () {
-  return {
-    x: this.x - this.pivot.x * this.scale.x + this.width * 0.25,
-    y: this.y - this.pivot.y * this.scale.y + this.height * 0.2,
-    width: this.width * 0.5,
-    height: this.height * 0.6
-  };
+  return this._bound;
 };
 Player.prototype.onProjectile = function (p) {
   var knock = 100 * p.width / this.width;

@@ -1,5 +1,6 @@
 var PIXI = require("pixi.js");
 
+var BitmapText = require("./BitmapText");
 var font = require("./font");
 
 var highscoreIcons = [
@@ -15,11 +16,15 @@ function HighScore (score, i) {
     this.addChild(icon);
   }
 
-  var playerText = new PIXI.Text(score.player, { align: 'center', font: 'normal 10px '+font.name, fill: '#C40'});
+  var playerText = new BitmapText(score.player, { align: "center", font: font.style(10) });
+  playerText.tint = 0xCC4400;
+  playerText.updateText();
   playerText.position.set(30, 10);
   this.addChild(playerText);
 
-  var scoreText = new PIXI.Text(score.score, { align: 'center', font: 'bold 12px '+font.name, fill: '#C40'});
+  var scoreText = new BitmapText(""+score.score, { align: "center", font: font.style(12, true)});
+  scoreText.tint = 0xCC4400;
+  scoreText.updateText();
   scoreText.position.set(100, 10);
   this.addChild(scoreText);
 }

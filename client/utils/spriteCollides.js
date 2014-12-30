@@ -1,11 +1,14 @@
 
 function collideRectangle (r1, r2) {
-  return !(r2.x > (r1.x + r1.width) ||
-      (r2.x + r2.width) < r1.x ||
-      r2.y > (r1.y + r1.height) ||
-      (r2.y + r2.height) < r1.y);
+  return !(r2.x > (r1.x + r1.w) ||
+      (r2.x + r2.w) < r1.x ||
+      r2.y > (r1.y + r1.h) ||
+      (r2.y + r2.h) < r1.y);
 }
 
 module.exports = function spriteCollides (sprite) {
-  return collideRectangle(this.hitBox(), sprite.hitBox ? sprite.hitBox() : sprite) ? this : null;
+  return collideRectangle(
+    this.toQuadTreeObject ? this.toQuadTreeObject() : this,
+    sprite.toQuadTreeObject ? sprite.toQuadTreeObject() : sprite
+  ) ? this : null;
 };

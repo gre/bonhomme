@@ -1,10 +1,10 @@
-var PIXI = require("pixi.js");
-
 var font = require("./font");
+var BitmapText = require("./BitmapText");
 var Player = require("./Player");
 
 function OtherPlayer (name, namesContainer, maxAlpha, env) {
-  this.nameSprite = new PIXI.Text("", { font: "normal 12px "+font.name, fill: "#C40" });
+  this.nameSprite = new BitmapText("", { font: font.style(12) });
+  this.nameSprite.tint = 0xCC4400;
   Player.call(this, name);
   namesContainer.addChild(this.nameSprite);
 
@@ -31,12 +31,7 @@ OtherPlayer.prototype.destroy = function () {
 Object.defineProperty(OtherPlayer.prototype, "name", {
   set: function (name) {
     this._name = name;
-    if (name) {
-      this.nameSprite.setText(name);
-    }
-    else {
-      this.nameSprite.setText("");
-    }
+    this.nameSprite.text = name || "";
   },
   get: function () {
     return this._name;

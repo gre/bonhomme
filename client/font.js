@@ -1,17 +1,17 @@
+var PIXI = require("pixi.js");
+var Q = require("q");
 
-window.WebFontConfig = {
-  google: { families: [ 'Monda:400,700:latin' ] }
-};
-(function() {
-  var wf = document.createElement('script');
-  wf.src = ('https:' === document.location.protocol ? 'https' : 'http') +
-  '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
-  wf.type = 'text/javascript';
-  wf.async = 'true';
-  var s = document.getElementsByTagName('script')[0];
-  s.parentNode.insertBefore(wf, s);
-})();
+function load (url) {
+  var d = Q.defer();
+  var font = new PIXI.BitmapFontLoader(url);
+  font.on("loaded", d.resolve);
+  font.load();
+  return d.promise;
+}
 
 module.exports = {
-  name: "Monda"
+  ready: Q.all([ load("./fonts/Monda-Bold.xml"), load("./fonts/Monda.xml") ]),
+  style: function (size, bold) {
+    return (bold ? "bold" : "normal") + " " + (size||12) + " Monda";
+  }
 };

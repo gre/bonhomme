@@ -9,6 +9,7 @@ var dist = require("./utils/dist");
 var audio = require("./audio");
 var conf = require("./conf");
 var font = require("./font");
+var BitmapText = require("./BitmapText");
 
 var World = require("./World");
 var GameMap = require("./Map");
@@ -36,15 +37,15 @@ function Game (seed, controls, playername) {
   var players = new PIXI.DisplayObjectContainer();
   var names = new PIXI.DisplayObjectContainer();
   var ui = new PIXI.DisplayObjectContainer();
-  var score = new PIXI.Text("", { font: 'bold 20px '+font.name, fill: '#88B' });
+  var score = new BitmapText("", { font: font.style(20, true) });
+  score.tint = 0x8888BB;
   score.position.x = 10;
   score.position.y = 10;
-  var rank = new PIXI.Text("", { font: 'bold 20px '+font.name, fill: '#B88' });
+  var rank = new BitmapText("", { font: font.style(20, true) });
+  rank.tint = 0xBB8888;
   rank.position.x = 10;
   rank.position.y = 40;
-  var life = new PIXI.Text("", {
-    font: 'normal 20px '+font.name
-  });
+  var life = new BitmapText("", { font: font.style(20) });
   life.position.x = conf.WIDTH - 60;
   life.position.y = 10;
 
@@ -151,23 +152,27 @@ Game.prototype.update = function (t, dt) {
 
   var angry = 0;
 
+  var playerGhost = this.playerGhost;
+
   function playerUpdate (player, isMyself) {
     if (!player.isDead()) {
-      var playerQuad = player.toQuadTreeObject();
-      quadtree.get(playerQuad, function (data) {
-        if (data.group & Groups.CAR) {
-          var car = data.obj;
-          player.onCarHit(car);
-          world.carHitPlayerExplode(car, player);
-        }
-        else if (data.group & Groups.PARTICLE) {
-          var particle = data.obj;
-          particle.explodeInWorld(world);
-          particle.hitPlayer(player);
-          if (isMyself)
-            angry ++;
-        }
-      });
+      if (isMyself || !playerGhost) {
+        var playerQuad = player.toQuadTreeObject();
+        quadtree.get(playerQuad, function (data) {
+          if (data.group & Groups.CAR) {
+            var car = data.obj;
+            player.onCarHit(car);
+            world.carHitPlayerExplode(car, player);
+          }
+          else if (data.group & Groups.PARTICLE) {
+            var particle = data.obj;
+            particle.explodeInWorld(world);
+            particle.hitPlayer(player);
+            if (isMyself)
+              angry ++;
+          }
+        });
+      }
       if (player.life <= 0) {
         player.die();
         world.playerDied(player, isMyself);
@@ -180,11 +185,9 @@ Game.prototype.update = function (t, dt) {
 
   }
 
-  if (!this.playerGhost) {
-    var players = this.players.children[0].children;
-    for (i=0; i<players.length; ++i) {
-      playerUpdate.call(this, players[i], false);
-    }
+  var players = this.players.children[0].children;
+  for (i=0; i<players.length; ++i) {
+    playerUpdate.call(this, players[i], false);
   }
   playerUpdate.call(this, player, true);
 
@@ -203,18 +206,18 @@ Game.prototype.update = function (t, dt) {
       var rank = 0;
       for (var length = this.scores.length; rank < length && s < this.scores[rank].score; ++rank);
       ++ rank;
-      this.rank.setText("#" + rank);
+      this.rank.text = "#" + rank;
     }
     else {
-      this.rank.setText("");
+      this.rank.text = "";
     }
-    this.score.setText("" + s);
+    this.score.text = "" + s;
     if (player.life > 0) {
-      this.life.setText("" + ~~(player.life) + "%");
-      this.life.style.fill = player.life < 20 ? '#F00' : (player.life < 50 ? '#F90' : (player.life < 100 ? '#999' : '#6C6'));
+      this.life.tint = player.life < 20 ? 0xFF0000 : (player.life < 50 ? 0xFF9900 : (player.life < 100 ? 0x999999 : 0x66CC66 ));
+      this.life.text = "" + ~~(player.life) + "%";
     }
     else {
-      this.life.setText("");
+      this.life.text = "";
     }
   }
 
@@ -261,12 +264,12 @@ Game.prototype.setScores = function (scores) {
   var bestScore = scores[bestScoreIndex];
 
   if (bestScore) {
-    this.score.setText("" + bestScore.score);
-    this.rank.setText("#"+(bestScoreIndex+1));
+    this.score.text = ("" + bestScore.score);
+    this.rank.text = ("#"+(bestScoreIndex+1));
   }
   else {
-    this.score.setText("no score");
-    this.rank.setText("no rank");
+    this.score.text = ("no score");
+    this.rank.text = ("no rank");
   }
 };
 

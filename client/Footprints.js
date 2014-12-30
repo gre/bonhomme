@@ -11,7 +11,7 @@ function Footprints () {
   this.containers = new SlidingWindow(
     this.alloc.bind(this),
     this.free.bind(this),
-    100, 1, 2, 0);
+    200, 1, 2, 0);
 }
 
 Footprints.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
@@ -35,6 +35,11 @@ Footprints.prototype.walk = function (position, size) {
   var chunk = this.containers.getChunkForX(conf.HEIGHT-position.y);
   if (chunk) {
     chunk.addChild(foot);
+    /*
+    if (chunk.children.length > 200) {
+      chunk.removeChildAt(0);
+    }
+    */
   }
 };
 

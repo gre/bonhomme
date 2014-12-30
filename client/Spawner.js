@@ -5,6 +5,14 @@ var seedrandom = require("seedrandom");
 var updateChildren = require("./behavior/updateChildren");
 var destroyOutOfLivingBound = require("./behavior/destroyOutOfLivingBound");
 
+function lazySeedrandom (seed) {
+  var rnd;
+  return function () {
+    if (!rnd) rnd = seedrandom(seed);
+    return rnd();
+  };
+}
+
 var SpawnerDefault = {
   // The initial absolute time
   initialTime: 0,
@@ -58,7 +66,8 @@ function Spawner (parameters) {
   PIXI.DisplayObjectContainer.call(this);
   _.extend(this, parameters);
 
-  this.maxCatchup = 500;
+  this.maxCatchup = 1000;
+  this.maxPerLoop = 100;
 
   if (typeof this.spawn !== "function")
     throw new Error("spawn function must be implemented and return a PIXI object.");
@@ -113,25 +122,28 @@ Spawner.prototype.update = function (t, dt) {
   updateChildren.call(this, t, dt);
   destroyOutOfLivingBound.call(this, t, dt);
 
+  var maxCatchup = this.maxCatchup;
+  var maxPerLoop = this.maxPerLoop;
+
   var currentti = Math.floor((t - this.initialTime) / this.speed);
-  if (currentti - this.lastti > this.maxCatchup) { // Avoid overflow of particles
-    console.log("Spawner: "+(currentti-this.lastti)+" particles to catchup. maximized to "+this.maxCatchup+" and lost some.");
+  var deltai = currentti - this.lastti;
+
+  if (deltai > maxCatchup) { // Avoid overflow of particles
+    console.log("Spawner: "+deltai+" particles to catchup. maximized to "+maxCatchup+" and lost some.");
     this.lastti = currentti -  100;
   }
 
   // Trigger all missing particles or do nothing
-  while (this.lastti < currentti) {
+  for (var i=0; this.lastti < currentti && i<maxPerLoop; ++i) {
     var ti = ++this.lastti;
-    var start = ti * this.speed;
-    var delta = t - start;
-  
     if (this.pattern) {
       var shouldSkip = this.pattern[this._ip] === 0;
       this._ip = this._ip >= this.pattern.length-1 ? 0 : this._ip + 1;
       if (shouldSkip) continue;
     }
 
-    var random = seedrandom(this.seed + "" + ti); // FIXME bottleneck
+    var delta = t - ti * this.speed;
+    var random = lazySeedrandom(this.seed + "@" + ti);
 
     var particle = this.spawn(ti, random);
     var angle = this.ang + this.randAngle * (random() - 0.5) + (this.rotate * ti) % (2*Math.PI);

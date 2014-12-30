@@ -343,10 +343,10 @@ function allocChunk (i, time, random) {
     0.8 * random() * random() * random(); // rare hardness
 
   var g = "standard";
-  if ( i > 12 && random() < 0.2 )
-    g = "hell";
-  if ( i > 6 && random() < 0.1 )
+  if ( i > 8 && random() < 0.1 )
     g = "blizzard";
+  if ( i > 8 && random() < 0.15 )
+    g = "hell";
   if ( i > 4 && random() < 0.2 )
     g = "double";
 

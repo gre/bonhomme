@@ -3,13 +3,13 @@ var PIXI = require("pixi.js");
 
 function rectIntersect (a, b) {
   var x1 = a.x;
-  var x2 = a.x + a.width;
+  var x2 = a.x + a.w;
   var y1 = a.y;
-  var y2 = a.y + a.height;
+  var y2 = a.y + a.h;
   var x3 = b.x;
-  var x4 = b.x + b.width;
+  var x4 = b.x + b.w;
   var y3 = b.y;
-  var y4 = b.y + b.height;
+  var y4 = b.y + b.h;
   var x5 = Math.max(x1, x3);
   var y5 = Math.max(y1, y3);
   var x6 = Math.min(x2, x4);
@@ -23,5 +23,5 @@ function rectIntersect (a, b) {
 }
 
 module.exports = function spriteIntersect (a, b) {
-  return rectIntersect(a.hitBox(), b.hitBox());
+  return rectIntersect(a.toQuadTreeObject(), b.toQuadTreeObject());
 };
