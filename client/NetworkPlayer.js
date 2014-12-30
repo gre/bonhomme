@@ -7,8 +7,6 @@ function NetworkPlayer (player, socket, rate) {
   this._lastSubmit = 0;
   
   this.socket.emit("ready", { name: player.name });
-
-  this.socket.emit("player", "newgame");
 }
 
 NetworkPlayer.prototype = {
