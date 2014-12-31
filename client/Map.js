@@ -53,8 +53,12 @@ function Map (seed, cars, particles, spawners, genName) {
     return tile;
   }, function (i, tile) {
     mapTiles.removeChild(tile);
-  },
-  mapTileSize, 1, 1, 0);
+  }, {
+    chunkSize: mapTileSize,
+    ahead: 1,
+    behind: 1,
+    bounds: [0, +Infinity]
+  });
 
   this.generateLevels = new SlidingWindow(
       /*
@@ -62,9 +66,12 @@ function Map (seed, cars, particles, spawners, genName) {
     debug.profile("freeChunk", this.freeChunk.bind(this)),
     */
     this.allocChunk.bind(this),
-    this.freeChunk.bind(this),
-    this.generator.chunkSize,
-    1, 1, 1);
+    this.freeChunk.bind(this), {
+      chunkSize: this.generator.chunkSize,
+      ahead: 1,
+      behind: 1,
+      bounds: [1, +Infinity]
+    });
 
   this.carsTexture = generateCars(50, seedrandom("cars"+seed));
 }
@@ -83,8 +90,8 @@ Map.prototype.update = function (t) {
   var win = this._win;
 
   if (win) {
-    this.generateMapTileWindow.sync(win, t);
-    this.generateLevels.sync(win, t);
+    this.generateMapTileWindow.move(win, t);
+    this.generateLevels.move(win, t);
   }
 };
 

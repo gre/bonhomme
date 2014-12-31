@@ -11,6 +11,7 @@ HomeTile.prototype = Object.create(PIXI.Sprite.prototype);
 HomeTile.prototype.constructor = HomeTile;
 
 HomeTile.prototype.setScores = function (scores) {
+  this.removeChildren();
   for (var i=0; i<scores.length && i < 5; ++i) {
     var score = scores[i];
     var h = new HighScore(score, i);

@@ -11,7 +11,12 @@ function Footprints () {
   this.containers = new SlidingWindow(
     this.alloc.bind(this),
     this.free.bind(this),
-    200, 1, 2, 0);
+    {
+      chunkSize: 200,
+      ahead: 1,
+      behind: 1,
+      bounds: [0, +Infinity]
+    });
 }
 
 Footprints.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
@@ -26,13 +31,13 @@ Footprints.prototype.free = function (i, container) {
   this.removeChild(container);
 };
 Footprints.prototype.watchWindow = function (win) {
-  this.containers.sync(win);
+  this.containers.move(win);
 };
 Footprints.prototype.walk = function (position, size) {
   var foot = new Foot(size);
   foot.position.x = position.x;
   foot.position.y = position.y;
-  var chunk = this.containers.getChunkForX(conf.HEIGHT-position.y);
+  var chunk = this.containers.getChunk(conf.HEIGHT-position.y);
   if (chunk) {
     chunk.addChild(foot);
     /*

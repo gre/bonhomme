@@ -72,7 +72,7 @@ function validScore (item) {
   );
 }
 
-function sendScore (item) {
+function saveScore (item) {
   return Q.fcall(function () {
     if (validScore(item)) {
       return connectMongo(MONGO).then(function (db) {
@@ -92,73 +92,6 @@ function sendScore (item) {
     }
   });
 }
-
-/*
-app.get("/scores", function (req, res) {
-  getScores().then(function (results) {
-    res
-      .header("Access-Control-Allow-Origin", "*")
-      .header("Content-Type", "application/json")
-      .send(JSON.stringify(results));
-  })
-  .fail(function (e) {
-    console.log(e);
-    console.log(e.stack);
-    res.status(400).send(e.toString());
-  })
-  .done();
-});
-
-app.options("/scores", function (req, res) {
-  res
-    .header("Access-Control-Allow-Origin", "*")
-    .header("Access-Control-Allow-Methods", "GET, PUT, OPTIONS")
-    .header("Access-Control-Allow-Headers", "Content-Type")
-    .send();
-});
-
-app.put("/scores", function (req, res) {
-  connectMongo(MONGO)
-  .then(function (db) {
-    var item = req.body;
-    if (
-      typeof item.player === "string" && nameRegexp.exec(item.player) &&
-      typeof item.x === "number" && !isNaN(item.x) &&
-      typeof item.score === "number" && !isNaN(item.score) &&
-      0 <= item.x && item.x <= 320 &&
-      item.score > 0
-    ) {
-      var collection = db.collection(COLL);
-      item = {
-        player: item.player,
-        x: Math.round(item.x),
-        score: Math.round(item.score),
-        date: Date.now()
-      };
-      return Q.ninvoke(collection, "insert", item).thenResolve(item);
-    }
-    else {
-      console.log(item);
-      throw new Error("score requirement: { player (alphanum in 3-10 chars), x, score }");
-    }
-  })
-  .then(function (item) {
-    console.log(item);
-    res
-      .header("Access-Control-Allow-Origin", "*")
-      .send();
-  })
-  .fail(function (e) {
-    console.log(e);
-    console.log(e.stack);
-    res
-      .header("Access-Control-Allow-Origin", "*")
-      .status(400)
-      .send(e.toString());
-  })
-  .done();
-});
-*/
 
 var CHUNK_SIZE = 480;
 
@@ -182,32 +115,34 @@ io.sockets.on('connection', function (socket) {
 
   console.log("connected", id);
 
-  debouncedGetScores().then(function (res) {
-    socket.emit("scores", res);
-  });
-
   var socketsChunks = new SlidingWindow(function (i) {
     var roomId = roomForChunk(i);
-    console.log(id+" watch "+roomId);
     socket.join(roomId);
     return roomId;
   }, function (i, roomId) {
-    console.log(id+" unwatch "+roomId);
     socket.leave(roomId);
-  }, CHUNK_SIZE, 1, 1, 0);
+  }, {
+    chunkSize: CHUNK_SIZE,
+    ahead: 1,
+    behind: 1,
+    bounds: [0, +Infinity]
+  });
 
   socket.on("ready", function (obj) {
     if (ready) return;
+    ready = true;
     if (!_.isEqual(Object.keys(obj), ["name"]) ||
         !obj.name || !nameRegexp.exec(obj.name)) {
       console.log("Invalid player: ", obj);
       socket.disconnect();
       return;
     }
-    players[id] = obj;
-    socket.emit("players", players);
-    socket.broadcast.emit("playerenter", obj, id, Date.now());
-    ready = true;
+    debouncedGetScores().then(function (scores) {
+      players[id] = obj;
+      socket.emit("scores", scores);
+      socket.emit("players", players);
+      socket.broadcast.emit("playerenter", obj, id, Date.now());
+    });
   });
 
   socket.on("die", function (score) {
@@ -215,8 +150,9 @@ io.sockets.on('connection', function (socket) {
     socket
       .broadcast
       .emit("playerevent", "die", score, id, Date.now());
-    sendScore(score).then(function (item) {
+    saveScore(score).then(function (item) {
       socket.broadcast.emit("newscore", item);
+      socket.emit("newscore", item);
     });
   });
 
@@ -229,7 +165,7 @@ io.sockets.on('connection', function (socket) {
     // TODO validate events & check illegal moves
     playersCurrentData[id] = obj;
     var y = obj.pos.y;
-    socketsChunks.sync([ conf.HEIGHT-y, (conf.HEIGHT-y)+conf.HEIGHT ]);
+    socketsChunks.move([ conf.HEIGHT-y, (conf.HEIGHT-y)+conf.HEIGHT ]);
 
     var roomId = roomForChunk(chunkForY(y));
 

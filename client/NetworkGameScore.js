@@ -1,33 +1,40 @@
 
-var Qajax = require("qajax");
-
-function getScores () {
-  return Qajax("/scores")
-    .then(Qajax.filterSuccess)
-    .then(Qajax.toJSON);
-}
-
-function submitScore (player) {
-  var score = player.getScore();
-  console.log("submitScore", score);
-  return Qajax("/scores", {
-    method: "PUT",
-    data: score
-  })
-  .then(Qajax.filterSuccess);
-}
+var Qdebounce = require("qdebounce");
 
 function NetworkGameScore (socket) {
   this.socket = socket;
+  this.scores = [];
+  this.refreshScores = Qdebounce(this._refreshScores.bind(this));
+
+  var self = this;
+  socket.on("scores", function (scores) {
+    scores.forEach(function (s) {
+      self.scores.push(s);
+    });
+    self.refreshScores();
+  });
+  socket.on("newscore", this.addScore.bind(this));
 }
 
 NetworkGameScore.prototype = {
+  addScore: function (score) {
+    this.scores.push(score);
+    this.refreshScores();
+  },
+  _refreshScores: function () {
+    this.scores.sort(function (a, b) {
+      return a.score < b.score;
+    });
+    if (this.game) {
+      this.game.setScores(this.scores);
+    }
+  },
   setGame: function (game) {
-    getScores().then(game.setScores.bind(game)).done();
-    game.on("GameOver", function () {
-      submitScore(game.player)
-        .delay(6000)
-        .done();
+    var self = this;
+    this.game = game;
+    game.setScores(this.scores);
+    game.on("GameOver", function (e) {
+      self.socket.emit("die", e.data);
     });
   }
 };

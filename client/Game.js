@@ -178,7 +178,7 @@ Game.prototype.update = function (t, dt) {
         world.playerDied(player, isMyself);
         if (isMyself) {
           world.removeChild(player);
-          this.emit("GameOver");
+          this.emit("GameOver", player.getScore());
         }
       }
     }
@@ -248,12 +248,19 @@ Game.prototype.createDeadCarrot = function (score) {
 };
 
 Game.prototype.setScores = function (scores) {
+  var previous = this.scores||[];
+  var news = _.filter(scores, function (a) {
+    return !_.any(previous, function (b) {
+      return a.player === b.player && a.x === b.x && a.score === b.score;
+    });
+  });
+
   scores = [].concat(scores);
   scores.sort(function (a, b) {
     return b.score - a.score;
   });
   this.map.setScores(scores);
-  scores.forEach(this.createDeadCarrot, this);
+  news.forEach(this.createDeadCarrot, this);
 
   this.scores = scores;
 

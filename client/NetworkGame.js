@@ -58,7 +58,7 @@ NetworkGame.prototype = {
     if (!(id in this.playersData)) return; // I still don't know this guy
     var p = this.playersByIds[id];
     if (p && ev === "die") {
-      console.log(id, "die");
+      console.log("die", p);
       p.destroy();
       delete this.playersByIds[id];
       p = null;
