@@ -5,23 +5,6 @@ var Qajax = require("qajax");
 var requestAnimFrame = require("raf");
 var io = require("socket.io-client");
 
-window.onerror = function (e) {
-  var webgl = ( function () { try { var canvas = document.createElement( 'canvas' ); return !! window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ); } catch( e ) { return false; } } )();
-
-  Qajax("/report/error", {
-    method: "POST",
-    data: {
-      userAgent: window.navigator.userAgent,
-      e: ""+e,
-      message: e.message,
-      stack: e.stack,
-      supports: {
-        webgl: webgl
-      }
-    }
-  });
-};
-
 require("socket-ntp/client/ntp");
 var ntp = window.ntp;
 
@@ -30,6 +13,7 @@ var atlas = require("./atlas");
 var font = require("./font");
 
 var Game = require("./Game");
+var Loading = require("./Loading");
 var NetworkGame = require("./NetworkGame");
 var ResponsiveControls = require("./ResponsiveControls");
 
@@ -57,11 +41,9 @@ var latestOffset = 0;
 
 var imagesLoaded = atlas();
 
-var stage, renderer;
+var renderer;
 
 function createDom() {
-
-  stage = new PIXI.Stage(0x000000);
   renderer = PIXI.autoDetectRenderer(conf.WIDTH, conf.HEIGHT, { resolution: window.devicePixelRatio });
   renderer.view.style.width = conf.WIDTH+"px";
   renderer.view.style.height = conf.HEIGHT+"px";
@@ -85,8 +67,6 @@ function createDom() {
   }
   window.addEventListener("resize", resize, false);
   resize();
-
-  return stage;
 }
 
 function now () {
@@ -109,14 +89,12 @@ function newGame (controls, playerName) {
   game.on("GameOver", function () {
     Q.delay(6000)
     .fin(function(){
-      stage.removeChild(game);
       game.destroy();
       newGame(controls, playerName);
       game = null;
     })
     .done();
   });
-  stage.addChild(game);
 
   currentNetwork.setGame(game);
 
@@ -154,7 +132,7 @@ function start (playerName) {
     currentGame.update(t, dt);
     currentNetwork.update(t, dt);
 
-    renderer.render(stage);
+    renderer.render(currentGame);
 
   }
 
@@ -163,9 +141,43 @@ function start (playerName) {
 
 createDom();
 
-Q.all([
+var load = Q.all([
   playerNameP,
   imagesLoaded,
   syncTime,
   font.ready
-]).spread(start).done();
+]);
+var loading = new Loading();
+
+var loadStart;
+(function loadingloop (t) {
+  if (!loadStart) loadStart = t;
+  if (!load.isPending()) return;
+  requestAnimFrame(loadingloop);
+  loading.setProgress((t-loadStart) / 2200);
+  loading.update(t - loadStart);
+  renderer.render(loading);
+}());
+
+load
+  .spread(start)
+  .done();
+
+function onerror (e) {
+  var webgl = ( function () { try { var canvas = document.createElement( 'canvas' ); return !! window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ); } catch( e ) { return false; } } )();
+
+  Qajax("/report/error", {
+    method: "POST",
+    data: {
+      userAgent: window.navigator.userAgent,
+      e: ""+e,
+      message: e.message,
+      stack: e.stack,
+      supports: {
+        webgl: webgl
+      }
+    }
+  });
+}
+
+window.onerror = onerror;

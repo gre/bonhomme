@@ -22,7 +22,7 @@ var updateChildren = require("./behavior/updateChildren");
 var GENERATOR = "v2";
 
 function Game (seed, controls, playername) {
-  PIXI.Stage.call(this);
+  PIXI.Stage.call(this, 0x000000);
   PIXI.EventTarget.mixin(this);
 
   // TODO move containers to World
