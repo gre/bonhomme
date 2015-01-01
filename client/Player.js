@@ -21,7 +21,7 @@ function Player (name, footprints) {
   this.life = 100;
   this.maxLife = 999;
   this.meltingSpeed = 0.0025;
-  this.moveSpeed = 0.25;
+  this.moveSpeed = conf.playerMoveSpeed;
   this.maxMoveBack = 120;
   this.dead = false;
   this.controls = null; // Set me later
@@ -54,13 +54,6 @@ Player.prototype.die = function () {
 };
 Player.prototype.isDead = function () {
   return this.dead;
-};
-
-Player.prototype.getState = function () {
-  return {
-    life: this.life,
-    pos: this.position
-  };
 };
 /*
 Player.prototype.syncMap = function (map) {

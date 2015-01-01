@@ -16,7 +16,6 @@ OtherPlayer.prototype = Object.create(Player.prototype);
 OtherPlayer.prototype.constructor = OtherPlayer;
 
 OtherPlayer.prototype.update = function (t, dt) {
-  console.log("other", this.y);
   Player.prototype.update.call(this, t, dt);
   if (this.env.computeAlpha) {
     this.nameSprite.alpha = this.alpha = this.maxAlpha * this.env.computeAlpha(this.position);

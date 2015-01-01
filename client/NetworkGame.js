@@ -6,6 +6,8 @@ var OtherPlayer = require("./OtherPlayer");
 var NetworkGameScore = require("./NetworkGameScore");
 var NetworkPlayer = require("./NetworkPlayer");
 var NetworkPlayerPlayback = require("./NetworkPlayerPlayback");
+var conf = require("./conf");
+var EV = conf.events;
 
 function NetworkGame (socket) {
   this.socket = socket;
@@ -16,10 +18,11 @@ function NetworkGame (socket) {
   this.names = new PIXI.DisplayObjectContainer();
   this.players.update = updateChildren;
 
-  socket.on("playerevent", this.onPlayerEvent.bind(this));
-  socket.on("playerenter", this.onPlayerEnter.bind(this));
-  socket.on("playerleave", this.onPlayerLeave.bind(this));
-  socket.on("players", this.onPlayers.bind(this));
+  socket.on(EV.playermove, this.onPlayerMove.bind(this));
+  socket.on(EV.playerdie, this.onPlayerDie.bind(this));
+  socket.on(EV.playerenter, this.onPlayerEnter.bind(this));
+  socket.on(EV.playerleave, this.onPlayerLeave.bind(this));
+  socket.on(EV.players, this.onPlayers.bind(this));
 
   this.playerGhost = true;
   var self = this;
@@ -54,7 +57,17 @@ NetworkGame.prototype = {
     console.log("players =", players);
   },
 
-  onPlayerEvent: function (ev, obj, id, time) {
+  onPlayerDie: function (obj, id, time) {
+    if (!(id in this.playersData)) return; // I still don't know this guy
+    var p = this.playersByIds[id];
+    if (p) {
+      p.onDie(obj, time);
+      p.destroy();
+      delete this.playersByIds[id];
+    }
+  },
+  
+  onPlayerMove: function (obj, id) {
     if (!(id in this.playersData)) return; // I still don't know this guy
     var p = this.playersByIds[id];
     if (!p) {
@@ -65,11 +78,7 @@ NetworkGame.prototype = {
       this.playersByIds[id] = p;
       this.players.addChild(playerSprite);
     }
-    p.onMessage(ev, obj, time);
-    if (p && ev === "die") {
-      p.destroy();
-      delete this.playersByIds[id];
-    }
+    p.onMove(obj);
   },
 
   onPlayerEnter: function (p, id) {

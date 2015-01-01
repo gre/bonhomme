@@ -1,4 +1,6 @@
 var conf = require("./conf");
+var EV = conf.events;
+var PlayerMoveState = require("./PlayerMoveState");
 
 function NetworkPlayer (player, socket, rate) {
   this.player = player;
@@ -6,7 +8,7 @@ function NetworkPlayer (player, socket, rate) {
   this.rate = rate || conf.networkSendRate;
   this._lastSubmit = 0;
   
-  this.socket.emit("ready", { name: player.name });
+  this.socket.emit(EV.ready, { name: player.name });
 }
 
 NetworkPlayer.prototype = {
@@ -18,12 +20,8 @@ NetworkPlayer.prototype = {
     if (t-this._lastSubmit < this.rate) return;
     this._lastSubmit = t;
     if (this.player.dead) return;
-    var state = this.player.getState();
-    state.controls = {
-      x: this.player.controls.x(),
-      y: this.player.controls.y()
-    };
-    this.socket.emit("player", "move", state);
+    var state = PlayerMoveState.encodeFromPlayer(this.player, t);
+    this.socket.emit(EV.playermove, state);
   }
 };
 

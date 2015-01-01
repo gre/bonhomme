@@ -1,5 +1,7 @@
 
 var Qdebounce = require("qdebounce");
+var conf = require("./conf");
+var EV = conf.events;
 
 function NetworkGameScore (socket) {
   this.socket = socket;
@@ -7,13 +9,13 @@ function NetworkGameScore (socket) {
   this.refreshScores = Qdebounce(this._refreshScores.bind(this));
 
   var self = this;
-  socket.on("scores", function (scores) {
+  socket.on(EV.scores, function (scores) {
     scores.forEach(function (s) {
       self.scores.push(s);
     });
     self.refreshScores(false);
   });
-  socket.on("newscore", this.addScore.bind(this));
+  socket.on(EV.newscore, this.addScore.bind(this));
 }
 
 NetworkGameScore.prototype = {
@@ -34,7 +36,7 @@ NetworkGameScore.prototype = {
     this.game = game;
     game.setScores(this.scores);
     game.on("GameOver", function (e) {
-      self.socket.emit("die", e.data);
+      self.socket.emit(EV.playerdie, e.data);
     });
   }
 };

@@ -14,16 +14,20 @@ var winston = require('winston');
 var ntp = require("socket-ntp");
 require('date-utils');
 
+var PlayerMoveState = require("../client/PlayerMoveState");
+
 var logger = new (winston.Logger)({ transports: [
     new (winston.transports.Console)({ level: "debug" })
   ]
 });
 
-var MONGO = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/ld31';
+var MONGO = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/bonhomme';
 var PORT = process.env.PORT || 9832;
 var COLL = "scores";
 var conf = require("../client/conf");
 var nameRegexp = /^[a-zA-Z0-9]{3,10}$/;
+
+var EV = conf.events;
 
 logger.debug("mongo:", MONGO, COLL);
 logger.debug("port:", PORT);
@@ -87,7 +91,16 @@ function validScore (item) {
   );
 }
 
-function saveScore (item) {
+function encodeTrack (track) {
+  return track.map(PlayerMoveState.encode);
+}
+/*
+function decodeTrack (track) {
+  return track.map(PlayerMoveState.decode);
+}
+*/
+
+function saveScore (item, track) {
   return Q.fcall(function () {
     if (validScore(item)) {
       return connectMongo(MONGO).then(function (db) {
@@ -96,10 +109,15 @@ function saveScore (item) {
           player: item.player,
           x: Math.round(item.x),
           score: Math.round(item.score),
-          date: Date.now()
+          date: Date.now(),
+          track: encodeTrack(track)
         };
+        var score = dbScoreToScore(item);
         return Q.ninvoke(collection, "insert", item)
-          .thenResolve(dbScoreToScore(item));
+          .then(function (res) {
+            logger.debug("score saved:", score);
+          })
+          .thenResolve(score);
       });
     }
     else {
@@ -112,7 +130,7 @@ function saveScore (item) {
 var CHUNK_SIZE = 480;
 
 var players = {};
-var playersCurrentData = {};
+var playersLastMove = {};
 
 function roomForChunk (i) {
   return "chunk@"+i;
@@ -126,7 +144,8 @@ function chunkForY (y) {
 io.sockets.on('connection', function (socket) {
   var id = socket.id;
   ntp.sync(socket);
-  var track = [];
+
+  var currentTrack = [];
 
   var socketsChunks = new SlidingWindow(function (i) {
     var roomId = roomForChunk(i);
@@ -141,50 +160,137 @@ io.sockets.on('connection', function (socket) {
     bounds: [0, +Infinity]
   });
 
-  socket.once("ready", function (obj) {
-
-    if (!_.isEqual(Object.keys(obj), ["name"]) ||
-        !obj.name || !nameRegexp.exec(obj.name)) {
-      logger.warn("Invalid player: ", obj);
+  socket.once(EV.ready, function (playerInfos) {
+    if (!_.isEqual(Object.keys(playerInfos), ["name"]) ||
+        !playerInfos.name || !nameRegexp.exec(playerInfos.name)) {
+      logger.warn(id, "Invalid player: ", playerInfos);
       socket.disconnect();
       return;
     }
+    logger.debug("player connect", id, playerInfos);
+
     debouncedGetScores().then(function (scores) {
-      players[id] = obj;
-      socket.emit("scores", scores);
-      socket.emit("players", players);
-      socket.broadcast.emit("playerenter", obj, id, Date.now());
+      players[id] = playerInfos;
+      socket.emit(EV.scores, scores);
+      socket.emit(EV.players, players);
+      socket.broadcast.emit(EV.playerenter, playerInfos, id, Date.now());
     });
 
-    socket.on("player", function (ev, obj) {
-      if (!obj) return;
-      if (!obj.pos) return;
+    socket.on(EV.playermove, function (obj) {
+      if (!PlayerMoveState.validateEncoded(obj)) {
+        logger.warn(id, "Invalid playermove:", obj);
+        return;
+      }
+      var move = PlayerMoveState.decode(obj);
 
-      // TODO validate events & check illegal moves
-      playersCurrentData[id] = obj;
-      var y = obj.pos.y;
+      var now = Date.now();
+      var deltaServerTime = now - move.time;
+
+      if (Math.abs(deltaServerTime) > 200) {
+        logger.warn(id, "The client is not in sync with the server time", { server: now, client: move.time, delta: deltaServerTime });
+        return;
+      }
+
+      var last = playersLastMove[id];
+      playersLastMove[id] = move;
+
+      var y = move.pos[1];
+
+      if (last && currentTrack.length > 0) {
+        var delta = [
+          move.pos[0] - last.pos[0],
+          move.pos[1] - last.pos[1]
+        ];
+        var dt = move.time-last.time;
+        if (dt <= 0) {
+          logger.warn(id, "time is lower or equal to lastTime...", move.time, last.time);
+          return;
+        }
+        var dist = Math.sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
+        var speed = dist / dt;
+        var speedOverflow = speed - conf.playerMoveSpeed;
+
+        if (speedOverflow > 2) {
+          logger.warn(id, "speed is too high", speed);
+          return;
+        }
+      }
+
+      currentTrack.push(move);
+
       socketsChunks.move([ conf.HEIGHT-y, (conf.HEIGHT-y)+conf.HEIGHT ]);
 
       var roomId = roomForChunk(chunkForY(y));
 
       socket
         .to(roomId)
-        .emit("playerevent", ev, obj, id, Date.now());
+        .emit(EV.playermove, obj, id, move.time);
     });
 
-    socket.on("die", function (score) {
-      // TODO validate that player was effectively around this place.
+    socket.on(EV.playerdie, function (score) {
+      if (!validScore(score)) {
+        logger.warn(id, "invalid score sent", score);
+        return;
+      }
+      var now = Date.now();
+      var track = currentTrack;
+      currentTrack = [];
+
       socket
         .broadcast
-        .emit("playerevent", "die", score, id, Date.now());
-      saveScore(score).then(function (item) {
-        socket.broadcast.emit("newscore", item);
-        socket.emit("newscore", item);
-      });
+        .emit(EV.playerdie, score, id, now);
+
+
+      var length = track.length;
+
+      if (length < 10) {
+        logger.warn(id, "die too early", track.length);
+        return;
+      }
+
+      var overflows = 0;
+      for (var i=1; i<length; ++i) {
+        var from = track[i-1];
+        var to = track[i];
+        var delta = [
+          to.pos[0] - from.pos[0],
+          to.pos[1] - from.pos[1]
+        ];
+        var dist = Math.sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
+        var dt = to.time - from.time;
+        if (dt <= 0) {
+          logger.warn(id, "invalid times betwen 2 moves:", from, to);
+          return;
+        }
+        var speed = dist / dt;
+        var speedOverflow = speed - conf.playerMoveSpeed;
+        overflows += speedOverflow;
+        if (speedOverflow > 6) {
+          logger.warn(id, "invalid track between 2 moves:", from, to);
+          return;
+        }
+      }
+
+      if (overflows/length > 0.5) {
+        logger.warn(id, "invalid track. too much overflow of speed", overflows);
+        return;
+      }
+
+      saveScore(score, track)
+        .then(function (item) {
+          socket.broadcast.emit(EV.newscore, item);
+          socket.emit(EV.newscore, item);
+        })
+        .fail(function (err) {
+          logger.error("Failure in saving the score: " + err);
+        });
     });
 
     socket.on("disconnect", function () {
-      socket.broadcast.emit("playerleave", id, Date.now());
+      logger.debug("player disconnect", id);
+      socket.broadcast.emit(EV.playerleave, id, Date.now());
+      currentTrack = 0;
+      delete playersLastMove[id];
       delete players[id];
     });
   });
