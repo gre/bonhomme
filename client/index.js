@@ -52,7 +52,7 @@ socket.on('connect', socketConnectedD.resolve);
 
 ntp.init(socket);
 
-var syncTime = socketConnected.delay(1000);
+var syncTime = socketConnected.delay(2000);
 var latestOffset = 0;
 
 var imagesLoaded = atlas();

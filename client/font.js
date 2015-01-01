@@ -10,8 +10,9 @@ function load (url) {
 }
 
 module.exports = {
-  ready: Q.all([ load("./fonts/Monda-Bold.xml"), load("./fonts/Monda.xml") ]).delay(100),
+  // FIXME Something is wrong with either my fonts or PIXI
+  ready: Q.all([ /*load("./fonts/Monda-Bold.xml")*/ , load("./fonts/Monda.xml") ]).delay(100),
   style: function (size, bold) {
-    return (bold ? "bold" : "normal") + " " + (size||12) + " Monda";
+    return /*(bold ? "bold" : "normal")*/"bold" + " " + (size||12) + " Monda";
   }
 };
