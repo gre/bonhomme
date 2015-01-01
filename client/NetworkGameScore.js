@@ -11,7 +11,7 @@ function NetworkGameScore (socket) {
     scores.forEach(function (s) {
       self.scores.push(s);
     });
-    self.refreshScores();
+    self.refreshScores(false);
   });
   socket.on("newscore", this.addScore.bind(this));
 }
@@ -19,14 +19,14 @@ function NetworkGameScore (socket) {
 NetworkGameScore.prototype = {
   addScore: function (score) {
     this.scores.push(score);
-    this.refreshScores();
+    this.refreshScores(true);
   },
-  _refreshScores: function () {
+  _refreshScores: function (animated) {
     this.scores.sort(function (a, b) {
       return a.score < b.score;
     });
     if (this.game) {
-      this.game.setScores(this.scores);
+      this.game.setScores(this.scores, animated);
     }
   },
   setGame: function (game) {

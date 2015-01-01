@@ -26,6 +26,7 @@ function DeadCarrot (score, animated, me, size) {
 DeadCarrot.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 DeadCarrot.prototype.constructor = DeadCarrot;
 DeadCarrot.prototype.update = function () {
+  // TODO : use t parameter
   if (this.animated) {
     var scale = 1 + smoothstep(4000, 0, Date.now()-this.start);
     this.scale.set(scale, scale);

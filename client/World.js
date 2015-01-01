@@ -4,7 +4,6 @@ var audio = require("./audio");
 var conf = require("./conf");
 var vibrate = require("./vibrate");
 
-var DeadCarrot = require("./DeadCarrot");
 var Snowball = require("./Snowball");
 var ParticleExplosion = require("./ParticleExplosion");
 var RingSpawner = require("./RingSpawner");
@@ -57,11 +56,9 @@ World.prototype.update = function (t, dt) {
 World.prototype.playerDied = function (player, isMyself) {
   var obj = player.getScore();
   obj.opacity = 1;
-  var self = this;
   setTimeout(function () {
     if (isMyself)
       audio.play("lose");
-    self.addChild(new DeadCarrot(obj, true, isMyself));
   }, 800);
   this.addChild(new ParticleExplosion(player, playerExplosionTextures, 250));
 };

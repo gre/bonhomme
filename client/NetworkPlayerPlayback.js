@@ -8,7 +8,7 @@ function NetworkPlayerPlayback (player, delay) {
   this.player = player;
   this.controls = controls;
   this.delay = delay || conf.networkPlaybackDelay;
-
+  this.timeout = this.delay + 100;
   this.evts = [];
 }
 
@@ -38,6 +38,7 @@ NetworkPlayerPlayback.prototype = {
     for (var i=0; i<this.evts.length; ++i) {
       var e = this.evts[i];
       if (e[0] < t-this.delay) {
+        this.lastEvts = e[0];
         var move = e[1];
         this.player.life = move.life;
         this.player.position.set(move.pos.x, move.pos.y);
@@ -45,6 +46,13 @@ NetworkPlayerPlayback.prototype = {
 
         this.evts.splice(i--, 1); // Remove the element out of the array and continue iterating
       }
+    }
+    if (t > this.lastEvts + this.timeout) {
+      // Workaround. Figure something else ...
+      this.controls.setState({
+        x: 0,
+        y: 0
+      });
     }
   }
 };

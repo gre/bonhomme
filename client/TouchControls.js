@@ -75,14 +75,14 @@ TouchControls.prototype = {
     if (this._paused) return 0;
     if (!this.startPos || !this.movePos) return 0;
     var dx = this.movePos[0]-this.startPos[0];
-    if (Math.abs(dx) < 50) return 0;
+    if (Math.abs(dx) < 30) return 0;
     return dx < 0 ? -1 : 1;
   },
   y: function () {
     if (this._paused) return 0;
     if (!this.startPos || !this.movePos) return 0;
-    var dy = this.movePos[1]-this.startPos[1] - 20;
-    if (Math.abs(dy) < 10) return 0;
+    var dy = this.movePos[1]-this.startPos[1] - 10;
+    if (Math.abs(dy) < 8) return 0;
     return dy < 0 ? 1 : -1;
   }
 };

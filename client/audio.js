@@ -4,6 +4,8 @@ var howler = require("howler");
 var Howl = howler.Howl;
 var Howler = howler.Howler;
 
+// TODO using promises, we should load sounds one by one for better performances
+
 function burnGen (f) {
   return jsfxr([3,,0.2597,0.3427,0.3548,0.04+0.03*f,,0.1573,,,,,,,,,0.3027,-0.0823,1,,,,,0.5]);
 }

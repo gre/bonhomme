@@ -17,7 +17,7 @@ NetworkPlayer.prototype = {
   update: function (t) {
     if (t-this._lastSubmit < this.rate) return;
     this._lastSubmit = t;
-    
+    if (this.player.dead) return;
     var state = this.player.getState();
     state.controls = {
       x: this.player.controls.x(),

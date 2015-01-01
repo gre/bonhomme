@@ -16,11 +16,12 @@ OtherPlayer.prototype = Object.create(Player.prototype);
 OtherPlayer.prototype.constructor = OtherPlayer;
 
 OtherPlayer.prototype.update = function (t, dt) {
+  console.log("other", this.y);
   Player.prototype.update.call(this, t, dt);
   if (this.env.computeAlpha) {
     this.nameSprite.alpha = this.alpha = this.maxAlpha * this.env.computeAlpha(this.position);
   }
-  this.nameSprite.position.set(this.position.x-this.nameSprite.width/2, this.position.y+this.height * 0.4);
+  this.nameSprite.position.set(this.position.x-this.nameSprite.width/2, this.y+this.height * 0.4);
 };
 
 OtherPlayer.prototype.destroy = function () {

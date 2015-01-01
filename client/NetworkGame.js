@@ -57,12 +57,6 @@ NetworkGame.prototype = {
   onPlayerEvent: function (ev, obj, id, time) {
     if (!(id in this.playersData)) return; // I still don't know this guy
     var p = this.playersByIds[id];
-    if (p && ev === "die") {
-      console.log("die", p);
-      p.destroy();
-      delete this.playersByIds[id];
-      p = null;
-    }
     if (!p) {
       var data = this.playersData[id];
       var playerSprite = new OtherPlayer(data.name, this.names, this.playerGhost ? 0.6 : 1.0, this.env);
@@ -72,6 +66,10 @@ NetworkGame.prototype = {
       this.players.addChild(playerSprite);
     }
     p.onMessage(ev, obj, time);
+    if (p && ev === "die") {
+      p.destroy();
+      delete this.playersByIds[id];
+    }
   },
 
   onPlayerEnter: function (p, id) {
@@ -83,8 +81,8 @@ NetworkGame.prototype = {
     var p = this.playersByIds[id];
     if (p) {
       p.destroy();
+      delete this.playersByIds[id];
     }
-    delete this.playersByIds[id];
     delete this.playersData[id];
   },
 

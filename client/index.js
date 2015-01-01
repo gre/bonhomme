@@ -1,12 +1,30 @@
+
 var PIXI = require("pixi.js");
 var Q = require("q");
+var Qajax = require("qajax");
 var requestAnimFrame = require("raf");
 var io = require("socket.io-client");
+
+window.onerror = function (e) {
+  var webgl = ( function () { try { var canvas = document.createElement( 'canvas' ); return !! window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ); } catch( e ) { return false; } } )();
+
+  Qajax("/report/error", {
+    method: "POST",
+    data: {
+      userAgent: window.navigator.userAgent,
+      e: ""+e,
+      message: e.message,
+      stack: e.stack,
+      supports: {
+        webgl: webgl
+      }
+    }
+  });
+};
 
 require("socket-ntp/client/ntp");
 var ntp = window.ntp;
 
-var debug = require("./utils/debug");
 var conf = require("./conf");
 var atlas = require("./atlas");
 var font = require("./font");

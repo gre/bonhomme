@@ -31,6 +31,7 @@ function Game (seed, controls, playername) {
   var spawners = new PIXI.DisplayObjectContainer();
   var map = new GameMap(seed, cars, particles, spawners, GENERATOR);
   var deadCarrots = new PIXI.DisplayObjectContainer();
+  deadCarrots.update = updateChildren;
   var footprints = new PIXI.DisplayObjectContainer();
   var player = new Player(playername, footprints);
   player.controls = controls;
@@ -240,14 +241,14 @@ Game.prototype.positionObfuscation = function (pos) {
   return 0.9 * smoothstep(40+w, w/2, dist(this.player.position, pos));
 };
 
-Game.prototype.createDeadCarrot = function (score) {
+Game.prototype.createDeadCarrot = function (score, animated) {
   if (score.opacity > 0) {
-    var deadCarrot = new DeadCarrot(score, false, score.player === this.player.name);
+    var deadCarrot = new DeadCarrot(score, animated, score.player === this.player.name);
     this.deadCarrots.addChild(deadCarrot);
   }
 };
 
-Game.prototype.setScores = function (scores) {
+Game.prototype.setScores = function (scores, animated) {
   var previous = this.scores||[];
   var news = _.filter(scores, function (a) {
     return !_.any(previous, function (b) {
@@ -260,7 +261,9 @@ Game.prototype.setScores = function (scores) {
     return b.score - a.score;
   });
   this.map.setScores(scores);
-  news.forEach(this.createDeadCarrot, this);
+  news.forEach(function (score) {
+    this.createDeadCarrot(score, animated);
+  }.bind(this));
 
   this.scores = scores;
 
