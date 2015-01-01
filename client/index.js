@@ -47,12 +47,8 @@ function createDom() {
   renderer = PIXI.autoDetectRenderer(conf.WIDTH, conf.HEIGHT, { resolution: window.devicePixelRatio });
   renderer.view.style.width = conf.WIDTH+"px";
   renderer.view.style.height = conf.HEIGHT+"px";
-
-  document.body.style.background = "#000";
-  document.body.style.padding = "0";
-  document.body.style.margin = "0";
   var wrapper = document.createElement("div");
-  wrapper.style.margin = "0 auto";
+  wrapper.id = "wrapper";
   wrapper.style.width = conf.WIDTH+"px";
   document.body.appendChild(wrapper);
   wrapper.appendChild(renderer.view);
@@ -161,6 +157,9 @@ var loadStart;
 
 load
   .spread(start)
+  .then(function () {
+    renderer.view.className = "loaded";
+  })
   .done();
 
 function onerror (e) {
