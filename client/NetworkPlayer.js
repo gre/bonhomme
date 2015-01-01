@@ -20,6 +20,7 @@ NetworkPlayer.prototype = {
     if (t-this._lastSubmit < this.rate) return;
     this._lastSubmit = t;
     if (this.player.dead) return;
+    if (this.player.controls.paused()) return;
     var state = PlayerMoveState.encodeFromPlayer(this.player, t);
     this.socket.emit(EV.playermove, state);
   }
