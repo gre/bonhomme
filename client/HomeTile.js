@@ -11,6 +11,7 @@ var logoTexture = PIXI.Texture.fromImage("./img/logo.png");
 function HomeTile () {
   PIXI.Sprite.call(this, homeTexture);
   this.logo = new PIXI.Sprite(logoTexture);
+  this.logo.scale.set(0.5, 0.5);
   this.logo.position.set((conf.WIDTH-200)/2, 0);
   this.logo.tint = 0x000000;
   this.highscoresTitle = new BitmapText("Daily Highscores", { font: font.style(18, true) });
