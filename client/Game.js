@@ -20,6 +20,7 @@ var Container = require("./Container");
 var GENERATOR = "v2";
 
 // TODO : the UI part should be modularized
+var m2Texture = PIXI.Texture.fromImage("./img/m2.png");
 
 function Game (seed, controls, playername) {
   PIXI.Stage.call(this, 0xFFFFFF);
@@ -47,8 +48,13 @@ function Game (seed, controls, playername) {
   rank.position.x = 10;
   rank.position.y = 40;
   var life = new BitmapText("", { font: font.style(20) });
-  life.position.x = conf.WIDTH - 60;
+  life.position.x = conf.WIDTH - 80;
   life.position.y = 10;
+  var m2 = new PIXI.Sprite(m2Texture);
+  m2.scale.set(0.5, 0.5);
+  m2.position.x = conf.WIDTH - 40;
+  m2.position.y = -2;
+  m2.alpha = 0;
 
   var world = new World(particles, explosions);
   world.addChild(map);
@@ -64,6 +70,7 @@ function Game (seed, controls, playername) {
 
   ui.addChild(score);
   ui.addChild(rank);
+  ui.addChild(m2);
   ui.addChild(life);
 
   this.addChild(world);
@@ -83,6 +90,7 @@ function Game (seed, controls, playername) {
   this.rank = rank;
   this.score = score;
   this.life = life;
+  this.m2 = m2;
   this.controls = controls;
 
   // Game states
@@ -216,11 +224,13 @@ Game.prototype.update = function (t, dt) {
     }
     this.score.text = "" + s;
     if (player.life > 0) {
-      this.life.tint = player.life < 20 ? 0xFF0000 : (player.life < 50 ? 0xFF9900 : (player.life < 100 ? 0x999999 : 0x66CC66 ));
-      this.life.text = "" + ~~(player.life) + "%";
+      this.m2.tint = this.life.tint = player.life < 50 ? 0xFF0000 : (player.life <= 100 ? 0xFF9900 : (player.life <= 200 ? 0x999999 : 0x66CC66 ));
+      this.life.text = "" + (player.life / 100).toFixed(2);
+      this.m2.alpha = 1;
     }
     else {
       this.life.text = "";
+      this.m2.alpha = 0;
     }
   }
 

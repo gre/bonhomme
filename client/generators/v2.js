@@ -343,11 +343,11 @@ function allocChunk (i, time, random) {
     0.8 * random() * random() * random(); // rare hardness
 
   var g = "standard";
-  if ( i > 8 && random() < 0.1 )
+  if ( random() < 0.1 * smoothstep(0, 8, i) )
     g = "blizzard";
-  if ( i > 8 && random() < 0.15 )
+  if ( random() < 0.15 * smoothstep(0, 8, i) )
     g = "hell";
-  if ( i > 4 && random() < 0.2 )
+  if ( random() < 0.2 * smoothstep(0, 4, i) )
     g = "double";
 
   var chunk = generators[g](random, difficulty, i);

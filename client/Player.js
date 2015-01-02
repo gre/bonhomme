@@ -18,7 +18,7 @@ var playerWalkTextures = [
 function Player (name, footprints) {
   this.name = name;
   PIXI.Sprite.call(this, playerTexture);
-  this.life = 100;
+  this.life = 201;
   this.maxLife = 999;
   this.meltingSpeed = 0.0025;
   this.moveSpeed = conf.playerMoveSpeed;
@@ -94,8 +94,8 @@ Player.prototype.update = function (t, dt) {
 
   velUpdate.call(this, t, dt);
 
-  var x = this.position.x;
-  var y = this.position.y;
+  var x = this.x;
+  var y = this.y;
 
   this.maxProgress = Math.min(this.maxProgress, y);
   if (this.maxProgress < 0) {
@@ -130,8 +130,8 @@ Player.prototype.update = function (t, dt) {
     }
   }
 
-  this.position.x = x;
-  this.position.y = y;
+  this.x = x;
+  this.y = y;
 
   this._bound.x = x - this.pivot.x * this.scale.x + w * 0.25;
   this._bound.y = y - this.pivot.y * this.scale.y + h * 0.2;
@@ -141,10 +141,15 @@ Player.prototype.update = function (t, dt) {
 Player.prototype.toQuadTreeObject = function () {
   return this._bound;
 };
+Player.prototype.knock = function (x, y) {
+  this.x += x;
+  this.y += y;
+};
 Player.prototype.onProjectile = function (p) {
   var knock = 100 * p.width / this.width;
-  this.position.x += knock * p.vel[0];
-  this.position.y += knock * p.vel[1];
+  this.knock(
+    knock * p.vel[0],
+    knock * p.vel[1]);
 };
 Player.prototype.onSnowball = function (ball) {
   this.life = Math.min(this.life+ball.playerLifeValue(), this.maxLife);
@@ -154,21 +159,22 @@ Player.prototype.onFireball = function (ball) {
   this.life += ball.playerLifeValue();
   this.onProjectile(ball);
 };
-Player.prototype.onCarHit = function () {
-  this.life -= 100;
-  // this.life = 0;
+Player.prototype.onCarHit = function (car) {
   audio.play("carHit", null, 1.0);
+  this.life -= 100;
+  var knock = 8000 / this.width;
+  this.knock(knock * car.vel[0], 0);
 };
 Player.prototype.getScore = function () {
  return {
    player: this.name,
-   x: ~~this.position.x,
+   x: ~~this.x,
    score: Player.getPlayerScore(this)
  };
 };
 
 Player.getPlayerScore = function (player) {
-  return ~~Math.max(0, -player.position.y);
+  return ~~Math.max(0, -player.y);
 };
 
 Player.scoreToY = function (score) {
