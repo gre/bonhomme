@@ -1,7 +1,8 @@
 {
-  "name": "ld31",
+  "private": true,
+  "name": "bonhomme",
   "version": "0.0.0",
-  "description": "LudumDare 31 entry by @greweb",
+  "description": "bonhomme game by @greweb",
   "scripts": {
     "dev": "beefy client/index.js",
     "start": "node server/index.js",
@@ -15,18 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:gre/ld31.git"
+    "url": "git@github.com:gre/bonhomme.git"
   },
-  "keywords": [
-    "ludumdare",
-    "ld31"
-  ],
   "author": "Gaëtan Renaudeau",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/gre/ld31/issues"
+    "url": "https://github.com/gre/bonhomme/issues"
   },
-  "homepage": "https://github.com/gre/ld31",
+  "homepage": "https://github.com/gre/bonhomme",
   "devDependencies": {
     "beefy": "^2.1.1",
     "brfs": "^1.2.0",
