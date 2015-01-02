@@ -32,12 +32,13 @@ var playerExplosionTextures = [
   tile64(playerExplosionTexture, 2, 0)
 ];
 
-function World (particles) {
+function World (particles, explosions) {
   PIXI.DisplayObjectContainer.call(this);
   this._focusY = 0;
   this.shaking = 0;
 
   this.particles = particles;
+  this.explosions = explosions;
 }
 
 World.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
@@ -54,17 +55,18 @@ World.prototype.update = function (t, dt) {
   }
 };
 World.prototype.playerDied = function (player, isMyself) {
-  var obj = player.getScore();
-  obj.opacity = 1;
   setTimeout(function () {
     if (isMyself)
       audio.play("lose");
   }, 800);
-  this.addChild(new ParticleExplosion(player, playerExplosionTextures, 250));
+  vibrate(400)
+  var explosion = new ParticleExplosion(player, playerExplosionTextures, 300);
+  console.log("Explode", explosion);
+  this.explosions.addChild(explosion);
 };
 World.prototype.snowballExplode = function (snowball) {
   audio.play("snowballHit", snowball, 0.6);
-  this.addChild(new ParticleExplosion(snowball, snowExplosionTextures));
+  this.explosions.addChild(new ParticleExplosion(snowball, snowExplosionTextures));
 };
 World.prototype.carHitPlayerExplode = function (car, player) {
   var rect = spriteIntersect(car, player);
@@ -73,7 +75,10 @@ World.prototype.carHitPlayerExplode = function (car, player) {
 
   this.shaking = 10 + (player.life<=0 ? 10 : 0);
   this.shakingVel = -30 / 1000;
-  vibrate(player.life<=0 ? 400 : 200);
+  
+  if (player.life <= 0) return;
+
+  vibrate(200);
 
   if (this.particles) {
     var scale = 0.4 + player.life / 800;
@@ -94,7 +99,7 @@ World.prototype.carHitPlayerExplode = function (car, player) {
 };
 World.prototype.fireballExplode = function (fireball) {
   audio.play("burn", fireball, 0.3);
-  this.addChild(new ParticleExplosion(fireball, fireExplosionTextures));
+  this.explosions.addChild(new ParticleExplosion(fireball, fireExplosionTextures));
 };
 World.prototype.getWindow = function () {
   return [ this._focusY, this._focusY+conf.HEIGHT ];

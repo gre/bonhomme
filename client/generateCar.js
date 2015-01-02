@@ -1,25 +1,75 @@
+var PIXI = require("pixi.js");
+var hslToHexa = require("./utils/hslToHexa");
 
-var templateCar = require("./svg/car");
-var svgTexture = require('./utils/svgTexture');
+var chassisTexture = PIXI.Texture.fromImage("./img/car_chassis.png");
+var carTopTexture = PIXI.Texture.fromImage("./img/car_top.png");
+var shapesTexture = {
+  racestripe1: PIXI.Texture.fromImage("./img/car_racestripe1.png"),
+  racestripe2: PIXI.Texture.fromImage("./img/car_racestripe2.png"),
+  racestripe3: PIXI.Texture.fromImage("./img/car_racestripe3.png")
+};
 
-function randomColor (r) {
-  var a = r(), b = r();
+var shapesKeys = Object.keys(shapesTexture);
 
-  var hue = ((3-2*a)*a*a);
-  var sat = (0.8 - 0.7 * b * hue );
-  var lum = 0.9 - 0.6 * (0.5*(r()+r()));
+function templateCar (chassisColor, shapes) {
+  var obj = new PIXI.DisplayObjectContainer();
+  var chassis = new PIXI.Sprite(chassisTexture);
+  var top = new PIXI.Sprite(carTopTexture);
+  chassis.tint = chassisColor;
+  obj.addChild(chassis);
+  shapes.forEach(function (shape) {
+    var sprite = new PIXI.Sprite(shapesTexture[shape]);
+    obj.addChild(sprite);
+  });
+  obj.addChild(top);
+  obj.width = 84;
+  obj.height = 48;
+  return obj;
+}
 
-  if (r() < hue && r() < 0.5) {
-    lum = r() < 0.5 ? lum * r() : Math.min(lum + r(), 1);
+function randomColor (random) {
+  // Pull of randomness (try to limit number of call to random())
+  var a=random(), b=random(), c=random(), d=random(), e=random(), f=random();
+
+  var hue =
+    a*a // Give more important to red
+    ;
+  var sat =
+    0.6 +
+    - 0.5 * b * hue + // blue tones less saturated because ugly
+    Math.pow(d, 3) // rarely very saturated
+    ;
+  var lum =
+    0.2*(e+f) + // centered around 0.4
+    (1.2 + 0.5*c) * (0.5-Math.abs(hue - 0.3)) // green tones becomes more light
+    ;
+
+  // Dark cars should have grey tones
+  if (lum < 0.3) {
+    lum *= 0.5; // and also a bit more darker!
+    sat *= 0.3;
   }
 
-  return "hsl("+[ ~~(255 * hue), ~~(100 * sat)+"%", ~~(100 * lum)+"%" ]+")";
+  // Bright cars should have grey tones
+  else if (lum > 0.85) {
+    sat *= 0.5;
+  }
+
+  // when a bit flashy, make it more flashy!
+  else if (sat > 0.5 && lum < 0.7) {
+    sat = 1;
+  }
+
+  return hslToHexa(
+    ~~(360 * hue),
+    ~~(100 * Math.max(0, Math.min(sat, 1))),
+    ~~(100 * Math.max(0, Math.min(lum, 1))));
 }
 
 function generateCar (random) {
   var color = randomColor(random);
-  var shape = random() < 0.3 ? templateCar.shapes[~~(random()*templateCar.shapes.length)] : null;
-  return svgTexture(templateCar(color, shape));
+  var shapes = random() < 0.25 ? [ shapesKeys[~~(random()*shapesKeys.length)] ] : [];
+  return templateCar(color, shapes);
 }
 
 module.exports = generateCar;

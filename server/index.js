@@ -114,7 +114,7 @@ function saveScore (item, track) {
         };
         var score = dbScoreToScore(item);
         return Q.ninvoke(collection, "insert", item)
-          .then(function (res) {
+          .then(function () {
             logger.debug("score saved:", score);
           })
           .thenResolve(score);
@@ -160,7 +160,18 @@ io.sockets.on('connection', function (socket) {
     bounds: [0, +Infinity]
   });
 
-  socket.once(EV.ready, function (playerInfos) {
+  socket.once(EV.ready, function (clientConf) {
+    if (!_.isEqual(conf, clientConf)) {
+      socket.send("error", "Client version doesn't match server version.");
+      logger.warn(id, "Client version doesn't match server version.", clientConf, conf);
+      return;
+    }
+    debouncedGetScores().then(function (scores) {
+      socket.emit(EV.scores, scores);
+    });
+  });
+
+  socket.once(EV.playerready, function (playerInfos) {
     if (!_.isEqual(Object.keys(playerInfos), ["name"]) ||
         !playerInfos.name || !nameRegexp.exec(playerInfos.name)) {
       logger.warn(id, "Invalid player: ", playerInfos);
@@ -169,12 +180,9 @@ io.sockets.on('connection', function (socket) {
     }
     logger.debug("player connect", id, playerInfos);
 
-    debouncedGetScores().then(function (scores) {
-      players[id] = playerInfos;
-      socket.emit(EV.scores, scores);
-      socket.emit(EV.players, players);
-      socket.broadcast.emit(EV.playerenter, playerInfos, id, Date.now());
-    });
+    players[id] = playerInfos;
+    socket.emit(EV.players, players);
+    socket.broadcast.emit(EV.playerenter, playerInfos, id, Date.now());
 
     socket.on(EV.playermove, function (obj) {
       if (!PlayerMoveState.validateEncoded(obj)) {
@@ -186,7 +194,7 @@ io.sockets.on('connection', function (socket) {
       var now = Date.now();
       var deltaServerTime = now - move.time;
 
-      if (Math.abs(deltaServerTime) > 500) {
+      if (Math.abs(deltaServerTime) > 400) {
         logger.warn(id, "The client is not in sync with the server time", { server: now, client: move.time, delta: deltaServerTime });
         return;
       }

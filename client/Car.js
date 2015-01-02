@@ -6,11 +6,10 @@ var Groups = require("./Groups");
 var WIDTH = 84;
 var HEIGHT = 48;
 
-function Car (random, cache) {
-  var texture = !cache ?
-    generateCar(random) :
-    cache[~~(cache.length * random())];
-  PIXI.Sprite.call(this, texture);
+function Car (random) {
+  PIXI.DisplayObjectContainer.call(this);
+  var carObject = generateCar(random);
+  this.addChild(carObject);
 
   this._bound = {
     x:0,y:0,w:0,h:0,
@@ -18,7 +17,7 @@ function Car (random, cache) {
     obj: this
   };
 }
-Car.prototype = Object.create(PIXI.Sprite.prototype);
+Car.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Car.prototype.constructor = Car;
 Car.prototype.destroy = function () {
   if (this.parent) this.parent.removeChild(this);

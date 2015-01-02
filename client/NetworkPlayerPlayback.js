@@ -25,7 +25,8 @@ NetworkPlayerPlayback.prototype = {
     this.evts.push(m);
   },
 
-  onDie: function () {
+  onDie: function (obj, time, game) {
+    game.world.playerDied(this.player, false);
   },
 
   /* // FIXME

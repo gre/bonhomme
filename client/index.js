@@ -20,10 +20,14 @@ var ResponsiveControls = require("./ResponsiveControls");
 // FIXME remove the spaghettis!
 
 
-var socket = io();
+// TODO modularize this part
+var socket = io("/", { reconnection: false });
+ntp.init(socket);
 
 var socketConnectedD = Q.defer();
 var socketConnected = socketConnectedD.promise;
+socket.on('connect', socketConnectedD.resolve);
+socket.on('connect_error', socketConnectedD.reject);
 
 var playerNameP = Q.delay(100).then(function getPlayerName () {
   var name = window.localStorage.player || window.prompt("What's your name? (3 to 10 alphanum characters)");
@@ -31,10 +35,6 @@ var playerNameP = Q.delay(100).then(function getPlayerName () {
   if (! /^[a-zA-Z0-9]{3,10}$/.exec(name)) return getPlayerName();
   return (window.localStorage.player = name);
 });
-
-socket.on('connect', socketConnectedD.resolve);
-
-ntp.init(socket);
 
 var syncTime = socketConnected.delay(2000);
 var latestOffset = 0;
@@ -75,12 +75,14 @@ function now () {
 var currentGame;
 var currentNetwork;
 
-currentNetwork = new NetworkGame(socket);
+socketConnected.then(function () {
+  currentNetwork = new NetworkGame(socket);
+  if (currentGame) currentNetwork.setGame(currentGame);
+});
 
 function newGame (controls, playerName) {
   // This part is ugly...
   var seed = "grewebisawesome" + ~~(now() / (24 * 3600 * 1000));
-  console.log("seed = "+seed);
   var game = new Game(seed, controls, playerName);
   game.on("GameOver", function () {
     Q.delay(6000)
@@ -92,7 +94,9 @@ function newGame (controls, playerName) {
     .done();
   });
 
-  currentNetwork.setGame(game);
+  if (currentNetwork) {
+    currentNetwork.setGame(game);
+  }
 
   currentGame = game;
 }
@@ -126,7 +130,9 @@ function start (playerName) {
     lastLoopT = loopT;
 
     currentGame.update(t, dt);
-    currentNetwork.update(t, dt);
+
+    if (currentNetwork)
+      currentNetwork.update(t, dt);
 
     renderer.render(currentGame);
 

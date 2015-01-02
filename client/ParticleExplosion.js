@@ -4,7 +4,8 @@ function ParticleExplosion (ref, textures, speed) {
   PIXI.DisplayObjectContainer.call(this);
   this.position.x = ref.position.x;
   this.position.y = ref.position.y;
-  this.speed = speed || 100;
+  this.speed = speed || 150;
+  this.alpha = ref.alpha || 1;
   this.width = ref.width;
   this.height = ref.width;
   this.rotation = Math.random() * 2 * Math.PI;

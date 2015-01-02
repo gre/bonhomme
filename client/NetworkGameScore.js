@@ -6,13 +6,11 @@ var EV = conf.events;
 function NetworkGameScore (socket) {
   this.socket = socket;
   this.scores = [];
-  this.refreshScores = Qdebounce(this._refreshScores.bind(this));
+  this.refreshScores = Qdebounce(this._refreshScores.bind(this), 800);
 
   var self = this;
   socket.on(EV.scores, function (scores) {
-    scores.forEach(function (s) {
-      self.scores.push(s);
-    });
+    self.scores = self.scores.concat(scores);
     self.refreshScores(false);
   });
   socket.on(EV.newscore, this.addScore.bind(this));

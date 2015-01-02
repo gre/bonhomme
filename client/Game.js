@@ -15,27 +15,27 @@ var World = require("./World");
 var GameMap = require("./Map");
 var DeadCarrot = require("./DeadCarrot");
 var Player = require("./Player");
-var SpawnerCollection = require("./SpawnerCollection");
-
-var updateChildren = require("./behavior/updateChildren");
+var Container = require("./Container");
 
 var GENERATOR = "v2";
+
+// TODO : the UI part should be modularized
 
 function Game (seed, controls, playername) {
   PIXI.Stage.call(this, 0xFFFFFF);
   PIXI.EventTarget.mixin(this);
 
   // TODO move containers to World
-  var cars = new SpawnerCollection();
-  var particles = new SpawnerCollection();
+  var cars = new Container();
+  var particles = new Container();
+  var explosions = new Container();
   var spawners = new PIXI.DisplayObjectContainer();
   var map = new GameMap(seed, cars, particles, spawners, GENERATOR);
-  var deadCarrots = new PIXI.DisplayObjectContainer();
-  deadCarrots.update = updateChildren;
+  var deadCarrots = new Container();
   var footprints = new PIXI.DisplayObjectContainer();
   var player = new Player(playername, footprints);
   player.controls = controls;
-  var players = new PIXI.DisplayObjectContainer();
+  var players = new Container();
   var names = new PIXI.DisplayObjectContainer();
   var ui = new PIXI.DisplayObjectContainer();
   var score = new BitmapText("", { font: font.style(20, true) });
@@ -50,7 +50,7 @@ function Game (seed, controls, playername) {
   life.position.x = conf.WIDTH - 60;
   life.position.y = 10;
 
-  var world = new World(particles);
+  var world = new World(particles, explosions);
   world.addChild(map);
   world.addChild(deadCarrots);
   world.addChild(footprints);
@@ -60,6 +60,7 @@ function Game (seed, controls, playername) {
   world.addChild(player);
   world.addChild(cars);
   world.addChild(particles);
+  world.addChild(explosions);
 
   ui.addChild(score);
   ui.addChild(rank);
@@ -78,7 +79,6 @@ function Game (seed, controls, playername) {
   this.player = player;
   this.players = players;
   this.names = names;
-  this.players.update = updateChildren;
   this.ui = ui;
   this.rank = rank;
   this.score = score;
@@ -186,9 +186,11 @@ Game.prototype.update = function (t, dt) {
 
   }
 
-  var players = this.players.children[0].children;
-  for (i=0; i<players.length; ++i) {
-    playerUpdate.call(this, players[i], false);
+  if (this.players.children.length) {
+    var players = this.players.children[0].children;
+    for (i=0; i<players.length; ++i) {
+      playerUpdate.call(this, players[i], false);
+    }
   }
   playerUpdate.call(this, player, true);
 

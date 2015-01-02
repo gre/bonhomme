@@ -5,14 +5,16 @@ module.exports = {
   networkPlaybackDelay: 100,
   networkSendRate: 50,
   playerMoveSpeed: 0.25,
+  version: "2a",
   events: {
-    playerenter: "i",
-    playerleave: "o",
-    playermove: "m",
-    playerdie: "d",
-    players: "p",
-    scores: "s",
-    newscore: "n",
-    ready: "r"
+    playerenter: 1,
+    playerleave: 2,
+    playermove: 3,
+    playerdie: 4,
+    players: 5,
+    scores: 6,
+    newscore: 7,
+    playerready: 8,
+    ready: 9
   }
 };
