@@ -2,6 +2,6 @@
 var KeyboardControls = require("./KeyboardControls");
 var TouchControls = require("./TouchControls");
 
-var useTouch = window.navigator.userAgent.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i);
+var useTouch = require("./isMobile");
 
 module.exports = useTouch ? TouchControls : KeyboardControls;

@@ -1,7 +1,6 @@
 var PIXI = require("pixi.js");
 var conf = require("../conf");
 var prefix = require('vendor-prefix');
-
 var transformKey = prefix('transform');
 
 function DOM () {

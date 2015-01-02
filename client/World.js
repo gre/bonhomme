@@ -59,7 +59,8 @@ World.prototype.playerDied = function (player, isMyself) {
     if (isMyself)
       audio.play("lose");
   }, 800);
-  vibrate(400);
+  if (isMyself)
+    vibrate(400);
   var explosion = new ParticleExplosion(player, playerExplosionTextures, 300);
   this.explosions.addChild(explosion);
 };
