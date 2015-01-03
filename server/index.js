@@ -36,6 +36,10 @@ logger.debug("conf:", conf);
 // app.use(reqLogger.create(logger));
 app.use(require("body-parser").json());
 app.use(serveStatic('static'));
+app.post("/", function (req, res) {
+  res.sendFile("index.html", {root: './static'});
+});
+
 
 app.post("/report/error", function (req, res) {
   logger.error("ERROR REPORT:", req.body);

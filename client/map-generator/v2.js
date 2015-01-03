@@ -168,10 +168,13 @@ function hellChunk (random, difficulty) {
 
   log("distribCols", distribCols);
 
+  var border = mix(20, conf.WIDTH/2-20, random()) | 0;
+  var yspace = mix(100, 200, random()) | 0;
+
   for (j=0; j<nb; ++j) {
     var col = distribCols[j];
 
-    var pos = [ j%2 ? 80 : WIDTH-80, 80 + ~~(j/2) * 100 ];
+    var pos = [ j%2 ? border : WIDTH - border, 80 + yspace * ((j/2)|0) ];
     var offset = (random() < 0.5 ? 1 : -1) * ((0.01+0.01*difficulty) * random() * random());
     var speed = 60 - 40 * random() - 10 * difficulty;
     var holes = _.range(Math.min(col * (0.2 * (1-difficulty) + 0.4 * random() * random()), col-1));
