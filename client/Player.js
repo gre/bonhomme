@@ -60,6 +60,12 @@ Player.prototype.syncMap = function (map) {
   this.safe = !map.isRoad(this.y);
 };
 */
+
+Player.prototype.constraintX = function (x) {
+  var halfw = this.width / 2;
+  return Math.max(halfw, Math.min(x, conf.WIDTH-halfw));
+};
+
 Player.prototype.update = function (t, dt) {
   if (this.dead) return;
 
@@ -120,8 +126,7 @@ Player.prototype.update = function (t, dt) {
   else if (cx > 0) this.rotation = Math.PI/2;
   else if (cx < 0) this.rotation = -Math.PI/2;
 
-  var halfw = this.width / 2;
-  x = Math.max(halfw, Math.min(x, conf.WIDTH-halfw));
+  x = this.constraintX(x);
 
   if ((cx || cy) && (x !== initialX || y !== initialY)) {
     this.setTexture(playerWalkTextures[~~(t / 150) % playerWalkTextures.length]);
@@ -142,7 +147,7 @@ Player.prototype.toQuadTreeObject = function () {
   return this._bound;
 };
 Player.prototype.knock = function (x, y) {
-  this.x += x;
+  this.x = this.constraintX(this.x + x);
   this.y += y;
 };
 Player.prototype.onProjectile = function (p) {
