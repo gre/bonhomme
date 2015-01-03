@@ -19,6 +19,9 @@ var SpawnerDefault = {
 
   // The duration in ms between each particle tick
   speed: 1000,
+
+  // How much particles should be spawned per particle tick
+  count: 1,
   
   // angle in radians the spawner will rotate for each particle tick
   rotate: 0,
@@ -65,6 +68,8 @@ function Spawner (parameters) {
 
   PIXI.DisplayObjectContainer.call(this);
   _.extend(this, parameters);
+
+  if (this.speed <= 0) throw new Error("speed must be non null positive.");
 
   this.maxCatchup = 1000;
   this.maxPerLoop = 100;
@@ -145,19 +150,21 @@ Spawner.prototype.update = function (t, dt) {
     var delta = t - ti * this.speed;
     var random = lazySeedrandom(this.seed + "@" + ti);
 
-    var particle = this.spawn(ti, random);
-    var angle = this.ang + this.randAngle * (random() - 0.5) + (this.rotate * ti) % (2*Math.PI);
-    var vel = this.vel + this.randVel * (random() - 0.5);
-    var xAngle = Math.cos(angle);
-    var yAngle = -Math.sin(angle);
-    particle.vel = [
-      vel * xAngle,
-      vel * yAngle
-    ];
-    particle.position.x = this.pos[0] + this.randPos * (random() - 0.5) + particle.vel[0] * delta + this.front * xAngle;
-    particle.position.y = this.pos[1] + this.randPos * (random() - 0.5) + particle.vel[1] * delta + this.front * yAngle;
-
-    this.addChild(particle);
+    for (var j=0; j<this.count; ++j) {
+      var particle = this.spawn(ti, random, j);
+      var angle = this.ang + this.randAngle * (random() - 0.5) + (this.rotate * this.count * ti) % (2*Math.PI);
+      var vel = this.vel + this.randVel * (random() - 0.5);
+      var xAngle = Math.cos(angle);
+      var yAngle = -Math.sin(angle);
+      var velx = vel * xAngle;
+      var vely = vel * yAngle;
+      particle.x = this.pos[0] + this.randPos * (random() - 0.5) + velx * delta + this.front * xAngle;
+      particle.y = this.pos[1] + this.randPos * (random() - 0.5) + vely * delta + this.front * yAngle;
+      if (vel) {
+        particle.vel = [ velx, vely ];
+      }
+      this.addChild(particle);
+    }
   }
 
 };

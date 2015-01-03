@@ -321,7 +321,6 @@ function standardChunk (random, difficulty, i) {
       offset = random() * (random() * 0.3 + 0.1 * (i % 24) / 24);
       a = random() * random();
       speed = (1.1 - a)* mix(600, 200, roadDifficulty);
-      console.log("snowball", a, speed);
       chunk.snowballs.push(nSpawner(snowballScale, pos, n, offset, speed, a > 0.8 && random() > 0.5 ? genRepeatPatterns(random) : null, 0.22, 0.05));
     }
   }
@@ -335,7 +334,6 @@ function standardChunk (random, difficulty, i) {
       offset = random() * random() * 0.3;
       a = random() * random();
       speed = (1.1 - a) * mix(100, 600, roadDifficulty);
-      console.log("fireball", a, speed);
       chunk.fireballs.push(nSpawner(fireballScale, pos, n, offset, speed, a > 0.5 && random() > 0.5 ? genRepeatPatterns(random) : null, 0.25 - 0.2 * random() * a));
     }
   }
