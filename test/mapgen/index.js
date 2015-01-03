@@ -3,10 +3,11 @@ var PIXI = require("pixi.js");
 
 var KeyboardControls = require("../../client/KeyboardControls");
 var World = require("../../client/World");
-var Map = require("../../client/Map");
-var SpawnerCollection = require("../../client/SpawnerCollection");
+var GMap = require("../../client/Map");
+var Container = require("../../client/Container");
 
 var conf = require("../../client/conf");
+var font = require("../../client/font");
 
 var genName = "v2";
 var width = conf.WIDTH;
@@ -36,10 +37,10 @@ function newRun (i) {
   var stage = new PIXI.Stage(0x000000);
 
   var debug = new PIXI.DisplayObjectContainer();
-  var cars = new SpawnerCollection();
-  var particules = new SpawnerCollection();
+  var cars = new Container();
+  var particules = new Container();
   var spawners = new PIXI.DisplayObjectContainer();
-  var map = new Map(seed+i, cars, particules, spawners, genName);
+  var map = new GMap(seed+i, cars, particules, spawners, genName);
   map.debug = debug;
 
   var world = new World();
@@ -63,7 +64,7 @@ function newRuns () {
   return runs;
 }
 
-var runs = newRuns();
+var runs = [];
 function regenerate (dir) {
   seed += NB * dir;
   runs = newRuns();
@@ -86,7 +87,7 @@ function render () {
     var current = runs[i];
 
     current.map.watchWindow([scroll, height + scroll]);
-    current.world.focusOnY(height + scroll);
+    current.world.focusOnY(scroll);
 
     current.world.update(t, dt);
 
@@ -100,8 +101,11 @@ function render () {
 
   currentScore.innerText = ""+scroll;
 }
-requestAnimFrame(render);
 
+font.ready.then(function () {
+  regenerate(0);
+  requestAnimFrame(render);
+}).done();
 
 var regenBtn = document.createElement("button");
 regenBtn.innerText = "Regenerate (or press left/right)";
