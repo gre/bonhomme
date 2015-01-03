@@ -1,9 +1,13 @@
 var PIXI = require("pixi.js");
+var Q = require("q");
 var conf = require("../conf");
 var prefix = require('vendor-prefix');
 var transformKey = prefix('transform');
 
 function DOM () {
+  this.lockPromise = Q.fcall(function(){
+    return window.screen.orientation.lock("portrait");
+  });
 }
 
 DOM.prototype = {

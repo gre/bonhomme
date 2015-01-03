@@ -17,8 +17,6 @@ var DeadCarrot = require("./DeadCarrot");
 var Player = require("./Player");
 var Container = require("./Container");
 
-var GENERATOR = "v2";
-
 // TODO : the UI part should be modularized
 var m2Texture = PIXI.Texture.fromImage("./img/m2.png");
 
@@ -31,7 +29,7 @@ function Game (seed, controls, playername) {
   var particles = new Container();
   var explosions = new Container();
   var spawners = new PIXI.DisplayObjectContainer();
-  var map = new GameMap(seed, cars, particles, spawners, GENERATOR);
+  var map = new GameMap(seed, cars, particles, spawners);
   var deadCarrots = new Container();
   var footprints = new PIXI.DisplayObjectContainer();
   var player = new Player(playername, footprints);

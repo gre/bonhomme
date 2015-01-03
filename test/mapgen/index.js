@@ -86,7 +86,7 @@ function render () {
   for (var i=0; i<NB; ++i) {
     var current = runs[i];
 
-    current.map.watchWindow([scroll, height + scroll]);
+    current.map.watchWindow([scroll - conf.HEIGHT, scroll + height]);
     current.world.focusOnY(scroll);
 
     current.world.update(t, dt);

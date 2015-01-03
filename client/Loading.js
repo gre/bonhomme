@@ -12,7 +12,6 @@ function Loading () {
   this.logo.scale.set(0.5, 0.5);
   this.logo.position.set((conf.WIDTH-200)/2, 100);
   this.loadbar = new PIXI.Sprite(loadbarTexture);
-  this.loadbar.alpha = 0.6;
   this.loadbar.scale.set(0.5, 0.5);
   this.loadbar.position.set((conf.WIDTH-200)/2, 300);
   this.layer.addChild(this.logo);

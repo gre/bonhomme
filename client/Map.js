@@ -12,7 +12,7 @@ var Car = require("./Car");
 var Fireball = require("./Fireball");
 var Snowball = require("./Snowball");
 
-var generators = require("./generators");
+var mapGenerator = require("./map-generator");
 
 var roadTexture = PIXI.Texture.fromImage("/img/road.png");
 var roadInTexture = PIXI.Texture.fromImage("/img/roadin.png");
@@ -22,15 +22,13 @@ var roadSeparatorTexture = PIXI.Texture.fromImage("/img/roadseparator.png");
 var fireSpawnerTexture = PIXI.Texture.fromImage("/img/firespawner.png");
 var snowSpawnerTexture = PIXI.Texture.fromImage("/img/snowspawner.png");
 
-function Map (seed, cars, particles, spawners, genName) {
+function Map (seed, cars, particles, spawners) {
   PIXI.DisplayObjectContainer.call(this);
 
   this.seed = seed;
   this.cars = cars;
   this.particles = particles;
   this.spawners = spawners;
-  this.generator = generators[genName];
-  if (!this.generator) throw new Error("no such generator "+genName);
 
   var mapTileSize = 480;
 
@@ -66,7 +64,7 @@ function Map (seed, cars, particles, spawners, genName) {
     */
     this.allocChunk.bind(this),
     this.freeChunk.bind(this), {
-      chunkSize: this.generator.chunkSize,
+      chunkSize: mapGenerator.chunkSize,
       ahead: 1,
       behind: 1,
       bounds: [1, +Infinity]
@@ -115,10 +113,10 @@ Map.prototype.freeChunk = function (i, chunk) {
 Map.prototype.allocChunk = function (i, t) {
   var random = seedrandom(this.seed+"-"+i);
 
-  var chunk = this.generator.generate(i, t, random);
+  var chunk = mapGenerator.generate(i, t, random);
   var allSprites = [];
 
-  var y = -i * this.generator.chunkSize;
+  var y = -i * mapGenerator.chunkSize;
 
   // var roadAreas = [];
 
@@ -219,7 +217,7 @@ Map.prototype.allocChunk = function (i, t) {
 
   if (this.debug) {
     var debug = track(new PIXI.DisplayObjectContainer());
-    var h = this.generator.chunkSize;
+    var h = mapGenerator.chunkSize;
     debug.position.set(0, y);
     this.debug.addChild(debug);
     var line = new PIXI.Graphics();
