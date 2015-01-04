@@ -11,6 +11,8 @@ var Spawner = require("./Spawner");
 var Car = require("./Car");
 var Fireball = require("./Fireball");
 var Snowball = require("./Snowball");
+var FireSpawner = require("./FireSpawner");
+var SnowSpawner = require("./SnowSpawner");
 
 var mapGenerator = require("./map-generator");
 
@@ -18,9 +20,6 @@ var roadTexture = PIXI.Texture.fromImage("/img/road.png");
 var roadInTexture = PIXI.Texture.fromImage("/img/roadin.png");
 var roadOutTexture = PIXI.Texture.fromImage("/img/roadout.png");
 var roadSeparatorTexture = PIXI.Texture.fromImage("/img/roadseparator.png");
-
-var fireSpawnerTexture = PIXI.Texture.fromImage("/img/firespawner.png");
-var snowSpawnerTexture = PIXI.Texture.fromImage("/img/snowspawner.png");
 
 function Map (seed, cars, particles, spawners) {
   PIXI.DisplayObjectContainer.call(this);
@@ -182,14 +181,14 @@ Map.prototype.allocChunk = function (i, t) {
     item.spawn = function (i, random) {
       return new Snowball(scale(i, random));
     };
-    item.front = 10;
+    item.front = 40;
     delete item.scale;
     var spawner = new Spawner(item);
     spawner.init(t);
-    var sprite = new PIXI.Sprite(snowSpawnerTexture);
-    sprite.pivot.set(60, 60);
-    sprite.scale.set(0.5, 0.5);
+
+    var sprite = new SnowSpawner(spawner);
     sprite.position.set.apply(sprite.position, pos);
+
     this.spawners.addChild(sprite);
     this.particles.addChild(spawner);
   }, this);
@@ -208,10 +207,10 @@ Map.prototype.allocChunk = function (i, t) {
     delete item.scale;
     var spawner = new Spawner(item);
     spawner.init(t);
-    var sprite = new PIXI.Sprite(fireSpawnerTexture);
-    sprite.pivot.set(60, 60);
-    sprite.scale.set(0.5, 0.5);
+
+    var sprite = new FireSpawner(spawner);
     sprite.position.set.apply(sprite.position, pos);
+
     this.spawners.addChild(sprite);
     this.particles.addChild(spawner);
   }, this);

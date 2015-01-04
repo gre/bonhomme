@@ -28,7 +28,7 @@ function Game (seed, controls, playername) {
   var cars = new Container();
   var particles = new Container();
   var explosions = new Container();
-  var spawners = new PIXI.DisplayObjectContainer();
+  var spawners = new Container();
   var map = new GameMap(seed, cars, particles, spawners);
   var deadCarrots = new Container();
   var footprints = new PIXI.DisplayObjectContainer();

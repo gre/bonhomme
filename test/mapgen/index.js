@@ -39,7 +39,7 @@ function newRun (i) {
   var debug = new PIXI.DisplayObjectContainer();
   var cars = new Container();
   var particules = new Container();
-  var spawners = new PIXI.DisplayObjectContainer();
+  var spawners = new Container();
   var map = new GMap(seed+i, cars, particules, spawners, genName);
   map.debug = debug;
 

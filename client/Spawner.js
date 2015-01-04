@@ -124,6 +124,16 @@ Spawner.prototype.init = function (currentTime) {
   this.lastti = ti;
 };
 
+// Compute the current rotation position of "heads" useful for drawing rotating weapons.
+Spawner.prototype.getCurrentRotations = function (currentTime) {
+  var t = currentTime - this.initialTime;
+  var ti = Math.floor(t / this.speed); // FIXME this math floor can be removed once make the count working
+  var angles = [];
+  for (var j=0; j<this.count; ++j)
+    angles.push( this.ang + (this.rotate * (this.count * ti + j)) % (2*Math.PI) );
+  return angles;
+};
+
 Spawner.prototype.update = function (t, dt) {
   updateChildren.call(this, t, dt);
   destroyOutOfLivingBound.call(this, t, dt);
@@ -151,12 +161,13 @@ Spawner.prototype.update = function (t, dt) {
     var delta = t - ti * this.speed;
     var random = lazySeedrandom(this.seed + "@" + ti);
 
+    // FIXME: this is not tested and used yet...
     for (var j=0; j<this.count; ++j) {
       var particle = this.spawn(ti, random, j);
-      var angle = this.ang + this.randAngle * (random() - 0.5) + (this.rotate * this.count * ti) % (2*Math.PI);
+      var angle = this.ang + this.randAngle * (random() - 0.5) + (this.rotate * (this.count * ti + j)) % (2*Math.PI);
       var vel = this.vel + this.randVel * (random() - 0.5);
       var xAngle = Math.cos(angle);
-      var yAngle = -Math.sin(angle);
+      var yAngle = Math.sin(angle);
       var velx = vel * xAngle;
       var vely = vel * yAngle;
       particle.x = this.pos[0] + this.randPos * (random() - 0.5) + velx * delta + this.front * xAngle;
@@ -165,7 +176,7 @@ Spawner.prototype.update = function (t, dt) {
         particle.vel = [ velx, vely ];
       }
       if (this.applyRotation) {
-        particle.rotation = -angle;
+        particle.rotation = angle;
       }
       this.addChild(particle);
     }
