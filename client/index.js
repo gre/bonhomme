@@ -38,14 +38,6 @@ function now () {
   return Date.now() - latestOffset;
 }
 
-// TODO modularize and improve the player name part.
-var playerNameP = Q.delay(100).then(function getPlayerName () {
-  var name = window.localStorage.player || window.prompt("What's your name? (3 to 10 alphanum characters)");
-  if (!name) return null;
-  if (! /^[a-zA-Z0-9]{3,10}$/.exec(name)) return getPlayerName();
-  return (window.localStorage.player = name);
-});
-
 // FIXME there should be no global state...
 var renderer,
     game,
@@ -117,7 +109,7 @@ Qstart.then(function () {
   var imagesLoaded = atlas(); // FIXME
 
   var load = Q.all([
-    playerNameP,
+    dom.getPlayerName().fail(function(){ return null; }),
     imagesLoaded,
     syncTime,
     font.ready
