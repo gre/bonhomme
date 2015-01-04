@@ -42,7 +42,7 @@ function Game (seed, controls, playername) {
   score.position.x = 10;
   score.position.y = 10;
   var rank = new BitmapText("", { font: font.style(20, true) });
-  rank.tint = 0xBB8888;
+  rank.tint = 0xCC4400;
   rank.position.x = 10;
   rank.position.y = 40;
   var life = new BitmapText("", { font: font.style(20) });

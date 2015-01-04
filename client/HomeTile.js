@@ -13,10 +13,10 @@ function HomeTile () {
   this.logo = new PIXI.Sprite(logoTexture);
   this.logo.scale.set(0.5, 0.5);
   this.logo.position.set((conf.WIDTH-200)/2, 0);
-  this.logo.tint = 0x000000;
+  this.logo.tint = 0x6488c6;
   this.highscoresTitle = new BitmapText("Daily Highscores", { font: font.style(18, true) });
   this.highscoresTitle.position.set(10, 200);
-  this.highscoresTitle.tint = 0x111111;
+  this.highscoresTitle.tint = 0xCC4400;
   this.highscoresTitle.updateText();
   this.highscores = new PIXI.DisplayObjectContainer();
   this.addChild(this.logo);
