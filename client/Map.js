@@ -187,7 +187,7 @@ Map.prototype.allocChunk = function (i, t) {
     var spawner = new Spawner(item);
     spawner.init(t);
     var sprite = new PIXI.Sprite(snowSpawnerTexture);
-    sprite.pivot.set(40, 40);
+    sprite.pivot.set(60, 60);
     sprite.scale.set(0.5, 0.5);
     sprite.position.set.apply(sprite.position, pos);
     this.spawners.addChild(sprite);
@@ -209,7 +209,7 @@ Map.prototype.allocChunk = function (i, t) {
     var spawner = new Spawner(item);
     spawner.init(t);
     var sprite = new PIXI.Sprite(fireSpawnerTexture);
-    sprite.pivot.set(40, 40);
+    sprite.pivot.set(60, 60);
     sprite.scale.set(0.5, 0.5);
     sprite.position.set.apply(sprite.position, pos);
     this.spawners.addChild(sprite);

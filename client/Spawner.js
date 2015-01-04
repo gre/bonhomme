@@ -165,7 +165,7 @@ Spawner.prototype.update = function (t, dt) {
         particle.vel = [ velx, vely ];
       }
       if (this.applyRotation) {
-        particle.rotation = angle;
+        particle.rotation = -angle;
       }
       this.addChild(particle);
     }
