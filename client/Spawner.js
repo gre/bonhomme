@@ -25,6 +25,7 @@ var SpawnerDefault = {
   
   // angle in radians the spawner will rotate for each particle tick
   rotate: 0,
+  applyRotation: true, // Should the spawner apply the rotation to the spawned item ?
 
   // Particle initial position
   pos: [0,0],
@@ -162,6 +163,9 @@ Spawner.prototype.update = function (t, dt) {
       particle.y = this.pos[1] + this.randPos * (random() - 0.5) + vely * delta + this.front * yAngle;
       if (vel) {
         particle.vel = [ velx, vely ];
+      }
+      if (this.applyRotation) {
+        particle.rotation = angle;
       }
       this.addChild(particle);
     }

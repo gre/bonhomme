@@ -125,13 +125,14 @@ function roadGen (random, yBase, difficulty, maxRoad) {
   var roadCount = ~~Math.min(0.8 + random() + 5 * difficulty * random(), maxRoad);
   if (roadCount <= 0) return [];
   var perRoadDifficulty = 1 - 1 / roadCount;
-  return roads(roadCount, function (y, j) {
+  var leftToRight = random() < 0.5;
+  return roads(roadCount, function (y) {
     var vel = 0.08 + 0.5 * mix(random(), 1-perRoadDifficulty, 0.8) * mix(random(), difficulty, 0.5);
     var maxFollowing = 3 + perRoadDifficulty * random() + 6 * random() * difficulty;
     var maxHole = 9 - 5 * mix(smoothstep(0, 20, difficulty * perRoadDifficulty), random(), 0.5);
     var spacing = 0.2 + 0.2 * (1-difficulty);
     // TODO make roads not anymore alternating
-    return road(random, yBase + y, j % 2 === 0, vel, maxFollowing, maxHole, spacing);
+    return road(random, yBase + y, leftToRight = !leftToRight, vel, maxFollowing, maxHole, spacing);
   });
 }
 
@@ -337,7 +338,7 @@ function standardChunk (random, difficulty, i) {
       offset = random() * random() * 0.3;
       a = random() * random();
       speed = (1.1 - a) * mix(100, 600, roadDifficulty);
-      chunk.fireballs.push(nSpawner(fireballScale, pos, n, offset, speed, a > 0.5 && random() > 0.5 ? genRepeatPatterns(random) : null, 0.25 - 0.2 * random() * a));
+      chunk.fireballs.push(nSpawner(fireballScale, pos, n, offset, speed, a > 0.5 && random() > 0.5 ? genRepeatPatterns(random) : [~~(10 + 50*random()),-1], 0.25 - 0.2 * random() * a));
     }
   }
 

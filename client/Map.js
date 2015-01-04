@@ -144,7 +144,8 @@ Map.prototype.allocChunk = function (i, t) {
       speed: road.speed,
       vel: road.vel,
       seq: road.seq,
-      livingBound: { x: -100, y: y+road.y, height: 100, width: conf.WIDTH+200 }
+      livingBound: { x: -100, y: y+road.y, height: 100, width: conf.WIDTH+200 },
+      applyRotation: false // FIXME
     });
     spawner.init(t);
     this.cars.addChild(track(spawner));
