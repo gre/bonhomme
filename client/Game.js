@@ -115,6 +115,7 @@ Game.prototype.handleCarCollides = function (data) {
 };
 
 Game.prototype.update = function (t, dt) {
+  // FIXME: most of the logic should be moved into World
   var i, j, spawner;
   var world = this.world;
   var player = this.player;

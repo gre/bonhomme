@@ -3,23 +3,15 @@ var PIXI = require("pixi.js");
 var SlidingWindow = require("sliding-window");
 
 var conf = require("./conf");
-// var debug = require("./utils/debug");
 
 var HomeTile = require("./HomeTile");
 var MapTile = require("./MapTile");
-var Spawner = require("./Spawner");
-var Car = require("./Car");
-var Fireball = require("./Fireball");
-var Snowball = require("./Snowball");
 var FireSpawner = require("./FireSpawner");
 var SnowSpawner = require("./SnowSpawner");
-
+var Container = require("./Container");
+var updateChildren = require("./behavior/updateChildren");
+var Road = require("./Road");
 var mapGenerator = require("./map-generator");
-
-var roadTexture = PIXI.Texture.fromImage("/img/road.png");
-var roadInTexture = PIXI.Texture.fromImage("/img/roadin.png");
-var roadOutTexture = PIXI.Texture.fromImage("/img/roadout.png");
-var roadSeparatorTexture = PIXI.Texture.fromImage("/img/roadseparator.png");
 
 function Map (seed, cars, particles, spawners) {
   PIXI.DisplayObjectContainer.call(this);
@@ -57,10 +49,6 @@ function Map (seed, cars, particles, spawners) {
   });
 
   this.generateLevels = new SlidingWindow(
-      /*
-    debug.profile("allocChunk", this.allocChunk.bind(this)),
-    debug.profile("freeChunk", this.freeChunk.bind(this)),
-    */
     this.allocChunk.bind(this),
     this.freeChunk.bind(this), {
       chunkSize: mapGenerator.chunkSize,
@@ -80,30 +68,14 @@ Map.prototype.watchWindow = function (win) {
   this._win = win;
 };
 
-Map.prototype.update = function (t) {
+Map.prototype.update = function (t, dt) {
   var win = this._win;
-
+  updateChildren.call(this, t, dt);
   if (win) {
     this.generateMapTileWindow.move(win, t);
     this.generateLevels.move(win, t);
   }
 };
-
-/*
-Map.prototype.isRoad = function (y) {
-  var chunk = this.generateLevels.getChunkForX(this.generateLevels.chunkSize-y);
-  if (chunk) {
-    var roadAreas = chunk.roadAreas;
-    var length = roadAreas.length;
-    for (var i=0; i<length; ++i) {
-      var area = roadAreas[i];
-      if (area[0] <= y && y <= area[1])
-        return true;
-    }
-  }
-  return false;
-};
-*/
 
 Map.prototype.freeChunk = function (i, chunk) {
   chunk.destroy();
@@ -111,109 +83,51 @@ Map.prototype.freeChunk = function (i, chunk) {
 
 Map.prototype.allocChunk = function (i, t) {
   var random = seedrandom(this.seed+"-"+i);
-
   var chunk = mapGenerator.generate(i, t, random);
-  var allSprites = [];
-
   var y = -i * mapGenerator.chunkSize;
 
-  // var roadAreas = [];
-
+  var allSprites = [];
   function track (sprite) {
     allSprites.push(sprite);
     return sprite;
   }
 
-  // Create roads and car spawners
-
-  var roads = track(new PIXI.DisplayObjectContainer());
+  var cars = track(new Container());
+  var roads = track(new Container());
   var roadsPaint = track(new PIXI.DisplayObjectContainer());
+  var particles = track(new Container());
+  var spawners = track(new Container());
+
+  this.cars.addChild(cars);
   this.addChild(roads);
   this.addChild(roadsPaint);
+  this.particles.addChild(particles);
+  this.addChild(spawners);
 
-  (chunk.roads||[]).forEach(function (road) {
-    var pos = [ road.leftToRight ? -100 : conf.WIDTH+100, y+road.y ];
-    var ang = road.leftToRight ? 0 : Math.PI;
-    var spawn = function (i, random) { return new Car(random); };
-    var spawner = new Spawner({
-      seed: y+road.y,
-      pos: pos,
-      spawn: spawn,
-      ang: ang,
-      speed: road.speed,
-      vel: road.vel,
-      seq: road.seq,
-      livingBound: { x: -100, y: y+road.y, height: 100, width: conf.WIDTH+200 },
-      applyRotation: false // FIXME
-    });
-    spawner.init(t);
-    this.cars.addChild(track(spawner));
+  // Create roads and car spawners
 
-    var roadSprite = new PIXI.Sprite(roadTexture);
-    roadSprite.position.set(0, y+road.y);
-    roads.addChild(roadSprite);
-    if (road.last) {
-      roadSprite = new PIXI.Sprite(roadOutTexture);
-      roadSprite.position.set(0, y+road.y - 20);
-      roads.addChild(roadSprite);
-    }
-    if (road.first) {
-      roadSprite = new PIXI.Sprite(roadInTexture);
-      roadSprite.position.set(0, y+road.y + 10);
-      roads.addChild(roadSprite);
-    }
-    if (!road.last) {
-      var roadSeparator = new PIXI.Sprite(roadSeparatorTexture);
-      roadSeparator.position.set(- ~~(100*Math.random()), y+road.y - 8);
-      roadsPaint.addChild(roadSeparator);
-    }
-
-    // roadAreas.push([ road.y, road.y + 70 ]);
-  }, this);
+  (chunk.roads||[]).forEach(function (roadParams) {
+    roadParams.y += y;
+    var road = new Road(roadParams, cars, roadsPaint);
+    roads.addChild(road);
+  });
 
   // Create snowballs spawners
 
   (chunk.snowballs||[]).forEach(function (item) {
-    var pos = [item.pos[0], item.pos[1]+y];
-    var scale = item.scale;
-    item.seed = "" + pos;
-    item.pos = pos;
-    item.spawn = function (i, random) {
-      return new Snowball(scale(i, random));
-    };
-    item.front = 40;
-    delete item.scale;
-    var spawner = new Spawner(item);
-    spawner.init(t);
-
-    var sprite = new SnowSpawner(spawner);
-    sprite.position.set.apply(sprite.position, pos);
-
-    this.spawners.addChild(sprite);
-    this.particles.addChild(spawner);
-  }, this);
+    item.pos[1] += y;
+    var spawner = new SnowSpawner(item, particles);
+    spawners.addChild(spawner);
+  });
 
   // Create fireballs spawners
 
   (chunk.fireballs||[]).forEach(function (item) {
-    var pos = [item.pos[0], item.pos[1]+y];
-    var scale = item.scale;
-    item.seed = "" + pos;
-    item.pos = pos;
-    item.spawn = function (i, random) {
-      return new Fireball(scale(i, random));
-    };
-    item.front = 10;
-    delete item.scale;
-    var spawner = new Spawner(item);
-    spawner.init(t);
-
-    var sprite = new FireSpawner(spawner);
-    sprite.position.set.apply(sprite.position, pos);
-
-    this.spawners.addChild(sprite);
-    this.particles.addChild(spawner);
-  }, this);
+    item.pos[1] += y;
+    var spawner = new FireSpawner(item, particles);
+    spawners.addChild(spawner);
+  });
+  
 
   if (this.debug) {
     var debug = track(new PIXI.DisplayObjectContainer());
@@ -242,7 +156,6 @@ Map.prototype.allocChunk = function (i, t) {
 
   chunk = null;
   return {
-    // roadAreas: roadAreas,
     destroy: function () {
       allSprites.forEach(function (sprite) {
         sprite.parent.removeChild(sprite);

@@ -43,6 +43,7 @@
     "jsfxr": "0.0.1",
     "lodash": "^2.4.1",
     "mongodb": "^1.4.23",
+    "entity-spawner": "0.1.0",
     "performance-now": "~0.1.3",
     "pixi.js": "^2.1.1",
     "q": "^1.1.2",

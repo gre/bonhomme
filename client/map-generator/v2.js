@@ -82,12 +82,12 @@ function rotatingSpawner (scale, pos, rotate, vel, speed, seq, diverge) {
     scale: scale,
     pos: pos,
     vel: vel,
-    rotate: rotate,
+    rot: rotate,
     speed: speed,
-    seq: seq,
+    pattern: seq,
     life: 6000,
-    angle: 0,
-    randAngle: diverge||0,
+    ang: 0,
+    randAng: diverge||0,
     randVel: diverge||0
   };
 }
@@ -156,8 +156,8 @@ function hellChunk (random, difficulty) {
   };
   var log = logger(chunk);
 
-  function fireballScale (i, random) {
-    return 0.3 + 0.8 * random();
+  function fireballScale (o) {
+    return 0.3 + 0.8 * o.random();
   }
 
   var j;
@@ -205,8 +205,8 @@ function blizzardChunk (random, difficulty) {
   };
   var log = logger(chunk);
 
-  function snowballScale (i, random) {
-    return 0.4 + 0.4 * random();
+  function snowballScale (o) {
+    return 0.4 + 0.4 * o.random();
   }
 
   var j;
@@ -247,7 +247,7 @@ function doubleRoadChunk (random, difficulty) {
       scale: function(){ return 0.5; },
       pos: [ 5, ystart + dist * 0.5 ],
       vel: 0.1 + 0.1 * random(),
-      angle: 0,
+      ang: 0,
       randAngle: 0.8 * random(),
       speed: 500 + 1000 * random(),
       life: 6000
@@ -272,12 +272,12 @@ function standardChunk (random, difficulty, i) {
 
   var log = logger(chunk);
 
-  function fireballScale (i, random) {
-    return 0.4 + 0.4 * random();
+  function fireballScale (o) {
+    return 0.4 + 0.4 * o.random();
   }
 
-  function snowballScale (i, random) {
-    return 0.5 + 0.6 * random() * random();
+  function snowballScale (o) {
+    return 0.5 + 0.6 * o.random() * o.random();
   }
 
   var pos, nb, n, offset, j, speed, a;
