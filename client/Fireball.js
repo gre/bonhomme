@@ -11,6 +11,7 @@ function Fireball (scale, life) {
   this.pivot.set(16, 16);
   this.growSpeed = 0.005;
   this.targetScale = scale;
+  this.initialScale = scale;
   this.scale.set(0, 0);
   this.dieTimeout = life || 6000;
   this._bound = {
@@ -40,7 +41,7 @@ Fireball.prototype.toQuadTreeObject = function () {
   return this._bound;
 };
 Fireball.prototype.playerLifeValue = function () {
-  return -30 * this.scale.x;
+  return -30 * this.initialScale;
 };
 Fireball.prototype.explodeInWorld = function (world) {
   world.fireballExplode(this);

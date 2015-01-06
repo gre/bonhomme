@@ -102,7 +102,7 @@ Map.prototype.allocChunk = function (i, t) {
   this.addChild(roads);
   this.addChild(roadsPaint);
   this.particles.addChild(particles);
-  this.addChild(spawners);
+  this.spawners.addChild(spawners);
 
   // Create roads and car spawners
 

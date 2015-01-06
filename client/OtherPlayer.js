@@ -5,9 +5,9 @@ var Player = require("./Player");
 function OtherPlayer (name, namesContainer, maxAlpha, env) {
   this.nameSprite = new BitmapText("", { font: font.style(12) });
   this.nameSprite.tint = 0xCC4400;
-  Player.call(this, name);
   namesContainer.addChild(this.nameSprite);
 
+  Player.call(this, name);
   this.maxAlpha = maxAlpha || 1;
   this.nameSprite.alpha = this.alpha = this.maxAlpha;
   this.env = env || {};

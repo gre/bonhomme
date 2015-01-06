@@ -57,6 +57,10 @@ Road.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Road.prototype.constructor = Road;
 
 Road.prototype.update = function (t) {
+  if (!this._init) {
+    this._init = true;
+    this.spawner.init(t-1000);
+  }
   this.spawner.update(t);
 };
 

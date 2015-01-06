@@ -115,7 +115,9 @@ Player.prototype.update = function (t, dt) {
   y = Math.min(y, this.maxSafeProgress + this.maxMoveBack);
   */
 
+  var b = y;
   y = Math.min(y, this.maxProgress + this.maxMoveBack);
+  if (b !== y) console.log(b, "->", y, this.name, this.maxProgress, this.maxMoveBack);
 
   var scale = 0.6 + this.life / 150;
   var w = this.width  = 40 * scale;

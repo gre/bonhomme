@@ -11,6 +11,7 @@ function NetworkPlayerPlayback (player, delay) {
   this.delay = delay || conf.networkPlaybackDelay;
   this.timeout = this.delay + 100;
   this.evts = [];
+  this.maxProgress = player.maxProgress;
 }
 
 NetworkPlayerPlayback.prototype = {
@@ -41,15 +42,13 @@ NetworkPlayerPlayback.prototype = {
       if (e.time < t-this.delay) {
         this.lastEvts = e.time;
         PlayerMoveState.applyToPlayer(this.player, e);
+
+        // maxProgress should be reset because the interpolation might have polluted it.
+        this.maxProgress = Math.min(this.player.y, this.maxProgress);
+        this.player.maxProgress = this.maxProgress;
+
         this.evts.splice(i--, 1); // Remove the element out of the array and continue iterating
       }
-    }
-    if (t > this.lastEvts + this.timeout) {
-      // Workaround. Figure something else ...
-      this.controls.setState({
-        x: 0,
-        y: 0
-      });
     }
   }
 };

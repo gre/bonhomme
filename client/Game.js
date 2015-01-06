@@ -20,6 +20,11 @@ var Container = require("./Container");
 // TODO : the UI part should be modularized
 var m2Texture = PIXI.Texture.fromImage("./img/m2.png");
 
+/**
+ * 2 important things to refactor:
+ * - move a lot of code into World
+ * - move the UI part into "ui" components
+ */
 function Game (seed, controls, playername) {
   PIXI.Stage.call(this, 0xFFFFFF);
   PIXI.EventTarget.mixin(this);
@@ -58,12 +63,12 @@ function Game (seed, controls, playername) {
   world.addChild(map);
   world.addChild(deadCarrots);
   world.addChild(footprints);
-  world.addChild(spawners);
   world.addChild(players);
   world.addChild(names);
   world.addChild(player);
   world.addChild(cars);
   world.addChild(particles);
+  world.addChild(spawners);
   world.addChild(explosions);
 
   ui.addChild(score);
@@ -217,6 +222,12 @@ Game.prototype.update = function (t, dt) {
       for (var length = this.scores.length; rank < length && s < this.scores[rank].score; ++rank);
       ++ rank;
       this.rank.text = "#" + rank;
+      if (player.life > 0) {
+        this.rank.alpha = Math.cos(t / 80) < 0 ? 1 : 0.2;
+      }
+      else {
+        this.rank.alpha = 1;
+      }
     }
     else {
       this.rank.text = "";
