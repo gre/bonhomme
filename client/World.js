@@ -1,6 +1,6 @@
 var PIXI = require("pixi.js");
 
-var audio = require("./audio");
+var audio = require("./audio"); // FIXME remove this dep. audio should be done on game level? Events or not events?
 var conf = require("./conf");
 var vibrate = require("./vibrate");
 
@@ -78,6 +78,7 @@ World.prototype.carHitPlayerExplode = function (car, player) {
   
   if (player.life <= 0) return;
 
+  // FIXME move at game level
   vibrate(200);
 
   if (this.particles) {

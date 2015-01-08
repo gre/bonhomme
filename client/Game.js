@@ -8,8 +8,8 @@ var dist = require("./utils/dist");
 
 var audio = require("./audio");
 var conf = require("./conf");
-var font = require("./font");
-var BitmapText = require("./BitmapText");
+
+var UI = require("./GameUI");
 
 var World = require("./World");
 var GameMap = require("./Map");
@@ -17,8 +17,6 @@ var DeadCarrot = require("./DeadCarrot");
 var Player = require("./Player");
 var Container = require("./Container");
 
-// TODO : the UI part should be modularized
-var m2Texture = PIXI.Texture.fromImage("./img/m2.png");
 
 /**
  * 2 important things to refactor:
@@ -41,23 +39,8 @@ function Game (seed, controls, playername) {
   player.controls = controls;
   var players = new Container();
   var names = new PIXI.DisplayObjectContainer();
-  var ui = new PIXI.DisplayObjectContainer();
-  var score = new BitmapText("", { font: font.style(20, true) });
-  score.tint = 0x8888BB;
-  score.position.x = 10;
-  score.position.y = 10;
-  var rank = new BitmapText("", { font: font.style(20, true) });
-  rank.tint = 0xCC4400;
-  rank.position.x = 10;
-  rank.position.y = 40;
-  var life = new BitmapText("", { font: font.style(20) });
-  life.position.x = conf.WIDTH - 80;
-  life.position.y = 10;
-  var m2 = new PIXI.Sprite(m2Texture);
-  m2.scale.set(0.5, 0.5);
-  m2.position.x = conf.WIDTH - 40;
-  m2.position.y = -2;
-  m2.alpha = 0;
+  var ui = new UI(this);
+  this.ui = ui;
 
   var world = new World(particles, explosions);
   world.addChild(map);
@@ -70,11 +53,6 @@ function Game (seed, controls, playername) {
   world.addChild(particles);
   world.addChild(spawners);
   world.addChild(explosions);
-
-  ui.addChild(score);
-  ui.addChild(rank);
-  ui.addChild(m2);
-  ui.addChild(life);
 
   this.addChild(world);
   this.addChild(ui);
@@ -89,11 +67,6 @@ function Game (seed, controls, playername) {
   this.player = player;
   this.players = players;
   this.names = names;
-  this.ui = ui;
-  this.rank = rank;
-  this.score = score;
-  this.life = life;
-  this.m2 = m2;
   this.controls = controls;
 
   // Game states
@@ -215,35 +188,6 @@ Game.prototype.update = function (t, dt) {
     this.audio1.setVolume( moving ? 0.2 + Math.min(0.8, angry + danger / 4) : 0 );
   }
 
-  var s = Player.getPlayerScore(player);
-  if (s > 0) {
-    if (this.scores) {
-      var rank = 0;
-      for (var length = this.scores.length; rank < length && s < this.scores[rank].score; ++rank);
-      ++ rank;
-      this.rank.text = "#" + rank;
-      if (player.life > 0) {
-        this.rank.alpha = Math.cos(t / 80) < 0 ? 1 : 0.2;
-      }
-      else {
-        this.rank.alpha = 1;
-      }
-    }
-    else {
-      this.rank.text = "";
-    }
-    this.score.text = "" + s;
-    if (player.life > 0) {
-      this.m2.tint = this.life.tint = player.life < 50 ? 0xFF0000 : (player.life <= 100 ? 0xFF9900 : (player.life <= 200 ? 0x999999 : 0x66CC66 ));
-      this.life.text = "" + (player.life / 100).toFixed(2);
-      this.m2.alpha = 1;
-    }
-    else {
-      this.life.text = "";
-      this.m2.alpha = 0;
-    }
-  }
-
   world.focusOn(player);
   audio.micOn(player);
 
@@ -255,6 +199,7 @@ Game.prototype.update = function (t, dt) {
   map.watchWindow(win);
 
   world.update(t, dt);
+  this.ui.update(t, dt);
   audio.update(t, dt);
 };
 
@@ -268,6 +213,28 @@ Game.prototype.createDeadCarrot = function (score, animated) {
     var deadCarrot = new DeadCarrot(score, animated, score.player === this.player.name);
     this.deadCarrots.addChild(deadCarrot);
   }
+};
+
+Game.prototype.getCurrentRank = function (s) {
+  if (!this.scores) return 0;
+  var rank = 0;
+  for (var length = this.scores.length; rank < length && s < this.scores[rank].score; ++rank);
+  return rank + 1;
+};
+
+Game.prototype.getPlayerBestScore = function (name) {
+  if (!this.scores) return null;
+  // TODO move to for loop
+  var bestScoreIndex = _.findIndex(this.scores, function (s) {
+    return s.player === name;
+  });
+  if (bestScoreIndex === -1)
+    return null;
+  else
+    return {
+      rank: bestScoreIndex+1,
+      score: this.scores[bestScoreIndex].score
+    };
 };
 
 Game.prototype.setScores = function (scores, animated) {
@@ -288,21 +255,6 @@ Game.prototype.setScores = function (scores, animated) {
   }.bind(this));
 
   this.scores = scores;
-
-  var name = this.player.name;
-  var bestScoreIndex = _.findIndex(scores, function (s) {
-    return s.player === name;
-  });
-  var bestScore = scores[bestScoreIndex];
-
-  if (bestScore) {
-    this.score.text = ("" + bestScore.score);
-    this.rank.text = ("#"+(bestScoreIndex+1));
-  }
-  else {
-    this.score.text = ("no score");
-    this.rank.text = ("no rank");
-  }
 };
 
 module.exports = Game;
