@@ -3,6 +3,14 @@ var Q = require("q");
 var conf = require("../conf");
 var prefix = require('vendor-prefix');
 var transformKey = prefix('transform');
+var prompt = require("./prompt");
+
+function setLocalName (name) {
+  window.localStorage.player = name;
+}
+function getLocalName () {
+  return window.localStorage.player;
+}
 
 function Mobile () {
   this.lockPromise = Q.fcall(function(){
@@ -12,12 +20,19 @@ function Mobile () {
 
 Mobile.prototype = {
   getPlayerName: function () {
-    return Q.delay(100).then(function getPlayerName () {
-      var name = window.localStorage.player || window.prompt("What's your name? (3 to 10 alphanum characters)");
-      if (!name) return null;
-      if (! /^[a-zA-Z0-9]{3,10}$/.exec(name)) return getPlayerName();
-      return (window.localStorage.player = name);
-    });
+    return Q(getLocalName()) || this.askName();
+  },
+
+  askName: function (again) {
+    var self = this;
+    return prompt(!again ?
+        "What's your name? (3 to 10 alphanum characters)"
+      : "please give a name between 3 to 10 alphanum characters")
+      .then(function (name) {
+        if (! /^[a-zA-Z0-9]{3,10}$/.exec(name)) return self.askName(true);
+        setLocalName(name);
+        return name;
+      });
   },
 
   createRenderer: function () {

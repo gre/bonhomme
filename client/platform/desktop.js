@@ -3,6 +3,7 @@ var conf = require("../conf");
 var prefix = require('vendor-prefix');
 var transformKey = prefix('transform');
 var Q = require("q");
+var prompt = require("./prompt");
 
 function setLocalName (name) {
   window.localStorage.player = name;
@@ -33,19 +34,19 @@ function Desktop () {
   grid.style.background = "url(./img/grid.png) repeat";
   this.grid = grid;
 
-  var interaction = document.createElement("div");
-  interaction.style.position = "absolute";
-  interaction.style.color = "#fff";
-  interaction.style.width = conf.WIDTH+"px";
-  interaction.style.height = "40px";
-  interaction.style.lineHeight = "40px";
-  interaction.style.font = "normal 20px sans-serif";
-  this.interaction = interaction;
-  this.syncInteraction();
+  var bar = document.createElement("div");
+  bar.style.position = "absolute";
+  bar.style.color = "#fff";
+  bar.style.width = conf.WIDTH+"px";
+  bar.style.height = "40px";
+  bar.style.lineHeight = "40px";
+  bar.style.font = "normal 20px sans-serif";
+  this.bar = bar;
+  this.syncBar();
 
   gridwrap.appendChild(grid);
   document.body.appendChild(gridwrap);
-  document.body.appendChild(interaction);
+  document.body.appendChild(bar);
 
   this.name = Q.defer();
 
@@ -53,11 +54,14 @@ function Desktop () {
   if (cur) {
     this.name.resolve(cur);
   }
+  else {
+    this._setName();
+  }
 }
 
 Desktop.prototype = {
-  syncInteraction: function () {
-    var node = this.interaction;
+  syncBar: function () {
+    var node = this.bar;
     node.innerHTML = "";
     var name = getLocalName();
     var title = document.createElement("span"), a = document.createElement("a");
@@ -80,22 +84,27 @@ Desktop.prototype = {
     node.appendChild(title);
   },
   _setName: function (e, again) {
-    e.preventDefault();
-    var name = window.prompt(again===true ?
+    if (e) e.preventDefault();
+    var self = this;
+    prompt(!again ?
         "What's your name? (3 to 10 alphanum characters)"
-      : "please give a name between 3 to 10 alphanum characters");
-    if (! /^[a-zA-Z0-9]{3,10}$/.exec(name)) return this._setName(e, true);
-    setLocalName(name);
-    this.syncInteraction();
-    this.name.resolve(name);
+      : "please give a name between 3 to 10 alphanum characters")
+      .then(function (name) {
+        if (! /^[a-zA-Z0-9]{3,10}$/.exec(name)) return self._setName(e, true);
+        setLocalName(name);
+        self.syncBar();
+        self.name.resolve(name);
+      });
   },
   _reaskName: function (e) {
     e.preventDefault();
-    var name = window.prompt("Change your name:", getLocalName());
-    if (name) {
-      setLocalName(name);
-      window.location.reload();
-    }
+    var self = this;
+    prompt("Change your name:", getLocalName())
+      .then(function (name) {
+        if (! /^[a-zA-Z0-9]{3,10}$/.exec(name)) return self._reaskName(e);
+        setLocalName(name);
+        window.location.reload();
+      });
   },
   getPlayerName: function () {
     return this.name.promise;
@@ -104,7 +113,7 @@ Desktop.prototype = {
   setViewportPos: function (x, y) {
     this.gridwrap.style[transformKey] = "translate3D(0,"+y+"px,0)";
     this.canvas.style[transformKey] = "translate3D("+x+"px,"+y+"px,0)";
-    this.interaction.style[transformKey] = "translate3D("+x+"px,"+(y-40)+"px,0)";
+    this.bar.style[transformKey] = "translate3D("+x+"px,"+(y-40)+"px,0)";
   },
   setGridY: function (y) {
     y = Math.round(y) % 1000 - 1000 - (y < 1000 ? 1000 : 0);

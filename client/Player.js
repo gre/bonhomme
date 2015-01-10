@@ -30,9 +30,6 @@ function Player (name, footprints) {
   this.position.x = conf.WIDTH / 2;
   this.position.y = conf.HEIGHT - 50;
   this.maxProgress = conf.HEIGHT - this.maxMoveBack - 25;
-  // this.maxSafeProgress = this.maxProgress;
-
-  // this.safe = true;
 
   this._m = 0;
   this.pivot.set(80, 80);
@@ -55,11 +52,6 @@ Player.prototype.die = function () {
 Player.prototype.isDead = function () {
   return this.dead;
 };
-/*
-Player.prototype.syncMap = function (map) {
-  this.safe = !map.isRoad(this.y);
-};
-*/
 
 Player.prototype.constraintX = function (x) {
   var halfw = this.width / 2;
@@ -108,16 +100,7 @@ Player.prototype.update = function (t, dt) {
     this.life -= dt * this.meltingSpeed;
   }
 
-  /*
-  if (this.safe) {
-    this.maxSafeProgress = this.maxProgress;
-  }
-  y = Math.min(y, this.maxSafeProgress + this.maxMoveBack);
-  */
-
-  var b = y;
   y = Math.min(y, this.maxProgress + this.maxMoveBack);
-  if (b !== y) console.log(b, "->", y, this.name, this.maxProgress, this.maxMoveBack);
 
   var scale = 0.6 + this.life / 150;
   var w = this.width  = 40 * scale;
