@@ -12,10 +12,10 @@ function SnowSpawner (item, particles) {
   item.front = 40;
   item.seed = "" + item.pos;
   item.spawn = function (o) {
-    var particle = new Snowball(scale(o));
+    var particle = new Snowball(scale(o), o.random);
     particle.position.set.apply(particle.position, o.position);
     particle.vel = o.velocity;
-    particle.rotation = o.angle;
+    particle.rotation += o.angle;
     particles.addChild(particle);
   };
   var spawner = new Spawner(item);

@@ -3,14 +3,19 @@ var destroyOutOfMap = require("./behavior/destroyOutOfMap");
 var velUpdate = require("./behavior/velUpdate");
 var Groups = require("./Groups");
 var dieAfterTimeout = require("./behavior/dieAfterTimeout");
+var tilePIXI = require("./utils/tilePIXI");
 
-var snowballTexture = PIXI.Texture.fromImage("./img/snowball.png");
+var snowballsTexture = PIXI.Texture.fromImage("./img/snowballs.png");
+var snowballsTextures = [0,1,2,3].map(function (i) {
+  return tilePIXI.tile64(snowballsTexture, i, 0);
+});
 
-function Snowball (scale, life) {
-  PIXI.Sprite.call(this, snowballTexture);
-  this.pivot.set(16, 16);
+function Snowball (scale, random) {
+  PIXI.Sprite.call(this, snowballsTextures[(snowballsTextures.length * random()) | 0]);
+  this.rotation = 2 * Math.PI * random();
+  this.pivot.set(32, 32);
   this.scale.set(scale, scale);
-  this.dieTimeout = life || 6000;
+  this.dieTimeout = 6000;
 
   this._bound = {
     x:0,y:0,w:0,h:0,
@@ -34,7 +39,7 @@ Snowball.prototype.toQuadTreeObject = function () {
   return this._bound;
 };
 Snowball.prototype.playerLifeValue = function () {
-  return 10 * this.scale.x;
+  return 20 * this.scale.x;
 };
 Snowball.prototype.explodeInWorld = function (world) {
   world.snowballExplode(this);

@@ -21,7 +21,7 @@ function Map (seed, cars, particles, spawners) {
   this.particles = particles;
   this.spawners = spawners;
 
-  var mapTileSize = 480;
+  var mapTileSize = 400;
 
   var homeTile = this.homeTile = new HomeTile();
 
@@ -35,16 +35,17 @@ function Map (seed, cars, particles, spawners) {
       tile = homeTile;
     }
     else
-      tile = new MapTile(i);
+      tile = new MapTile(seedrandom(seed+"tile"+i));
     tile.position.y = y;
-    mapTiles.addChild(tile);
+    tile.i = i;
+    mapTiles.addChildAt(tile, 0);
     return tile;
   }, function (i, tile) {
     mapTiles.removeChild(tile);
   }, {
     chunkSize: mapTileSize,
-    ahead: 1,
-    behind: 1,
+    right: 2,
+    left: 1,
     bounds: [0, +Infinity]
   });
 
@@ -52,8 +53,8 @@ function Map (seed, cars, particles, spawners) {
     this.allocChunk.bind(this),
     this.freeChunk.bind(this), {
       chunkSize: mapGenerator.chunkSize,
-      ahead: 1,
-      behind: 1,
+      right: 1,
+      left: 1,
       bounds: [1, +Infinity]
     });
 }

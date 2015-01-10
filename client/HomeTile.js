@@ -5,7 +5,7 @@ var BitmapText = require("./BitmapText");
 var font = require("./font");
 var conf = require("./conf");
 
-var homeTexture = PIXI.Texture.fromImage("./img/map1.png");
+var homeTexture = PIXI.Texture.fromImage("./img/map2.png");
 var logoTexture = PIXI.Texture.fromImage("./img/logo.png");
 
 function HomeTile () {

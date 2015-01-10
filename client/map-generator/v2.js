@@ -206,7 +206,7 @@ function blizzardChunk (random, difficulty) {
   var log = logger(chunk);
 
   function snowballScale (o) {
-    return 0.4 + 0.4 * o.random();
+    return 0.2 + 0.2 * o.random();
   }
 
   var j;
@@ -277,7 +277,7 @@ function standardChunk (random, difficulty, i) {
   }
 
   function snowballScale (o) {
-    return 0.5 + 0.6 * o.random() * o.random();
+    return 0.3 + 0.3 * o.random() * o.random();
   }
 
   var pos, nb, n, offset, j, speed, a;

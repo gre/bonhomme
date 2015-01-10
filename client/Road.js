@@ -5,6 +5,7 @@ var Car = require("./Car");
 var conf = require("./conf");
 
 var roadTexture = PIXI.Texture.fromImage("/img/road.png");
+var roadInOutTexture = PIXI.Texture.fromImage("/img/roadinout.png");
 var roadInTexture = PIXI.Texture.fromImage("/img/roadin.png");
 var roadOutTexture = PIXI.Texture.fromImage("/img/roadout.png");
 var roadSeparatorTexture = PIXI.Texture.fromImage("/img/roadseparator.png");
@@ -31,19 +32,12 @@ function Road (road, cars, roadsPaint) {
     pattern: road.seq
   });
 
-  var roadSprite = new PIXI.Sprite(roadTexture);
+  var texture = road.last ?
+    (road.first ? roadInOutTexture : roadOutTexture) :
+    (road.first ? roadInTexture    : roadTexture   ) ;
+  var roadSprite = new PIXI.Sprite(texture);
   roadSprite.position.set(0, road.y);
   this.addChild(roadSprite);
-  if (road.last) {
-    roadSprite = new PIXI.Sprite(roadOutTexture);
-    roadSprite.position.set(0, road.y - 20);
-    this.addChild(roadSprite);
-  }
-  if (road.first) {
-    roadSprite = new PIXI.Sprite(roadInTexture);
-    roadSprite.position.set(0, road.y + 10);
-    this.addChild(roadSprite);
-  }
   if (!road.last) {
     var roadSeparator = new PIXI.Sprite(roadSeparatorTexture);
     roadSeparator.position.set(- ~~(100*Math.random()), road.y - 8);

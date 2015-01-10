@@ -15,7 +15,7 @@ function Footprints () {
       chunkSize: 200,
       ahead: 1,
       behind: 1,
-      bounds: [0, +Infinity]
+      bounds: [-4, +Infinity]
     });
 }
 
@@ -37,7 +37,7 @@ Footprints.prototype.walk = function (position, size) {
   var foot = new Foot(size);
   foot.position.x = position.x;
   foot.position.y = position.y;
-  var chunk = this.containers.getChunk(conf.HEIGHT-position.y);
+  var chunk = this.containers.getChunk(-position.y);
   if (chunk) {
     chunk.addChild(foot);
     /*

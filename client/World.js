@@ -89,7 +89,7 @@ World.prototype.carHitPlayerExplode = function (car, player) {
         pos: [x,y],
         n: n,
         spawn: function () {
-          return new Snowball(scale);
+          return new Snowball(scale, Math.random);
         },
         vel: 0.1,
         front: 4 + player.width / 2,
@@ -103,7 +103,7 @@ World.prototype.fireballExplode = function (fireball) {
   this.explosions.addChild(new ParticleExplosion(fireball, fireExplosionTextures));
 };
 World.prototype.getWindow = function () {
-  return [ this._focusY, this._focusY+conf.HEIGHT ];
+  return [ this._focusY-conf.HEIGHT, this._focusY ];
 };
 World.prototype.focusOn = function (player) {
   var y = conf.HEIGHT - Math.max(player.y, player.maxProgress + player.maxMoveBack + player.height / 2);
