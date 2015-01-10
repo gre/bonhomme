@@ -30,12 +30,6 @@ NetworkPlayerPlayback.prototype = {
     game.world.playerDied(this.player, false);
   },
 
-  /* // FIXME
-  handle_ready: function (name) {
-    this.player.name = name;
-  },
-  */
-  
   update: function (t) {
     for (var i=0; i<this.evts.length; ++i) {
       var e = this.evts[i];

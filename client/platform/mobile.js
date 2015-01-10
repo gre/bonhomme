@@ -4,13 +4,13 @@ var conf = require("../conf");
 var prefix = require('vendor-prefix');
 var transformKey = prefix('transform');
 
-function DOM () {
+function Mobile () {
   this.lockPromise = Q.fcall(function(){
     return window.screen.orientation.lock("portrait");
   });
 }
 
-DOM.prototype = {
+Mobile.prototype = {
   getPlayerName: function () {
     return Q.delay(100).then(function getPlayerName () {
       var name = window.localStorage.player || window.prompt("What's your name? (3 to 10 alphanum characters)");
@@ -35,4 +35,4 @@ DOM.prototype = {
   update: function () {}
 };
 
-module.exports = DOM;
+module.exports = Mobile;

@@ -6,7 +6,6 @@ var dieAfterTimeout = require("./behavior/dieAfterTimeout");
 
 var snowballTexture = PIXI.Texture.fromImage("./img/snowball.png");
 
-// FIXME : use Vec2 for velocity
 function Snowball (scale, life) {
   PIXI.Sprite.call(this, snowballTexture);
   this.pivot.set(16, 16);

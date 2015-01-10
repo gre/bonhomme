@@ -20,15 +20,14 @@ function DeadCarrot (score, animated, me, size) {
   this.addChild(text);
   this.alpha = score.opacity;
   this.animated = animated;
-  this.start = Date.now();
 }
 
 DeadCarrot.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 DeadCarrot.prototype.constructor = DeadCarrot;
-DeadCarrot.prototype.update = function () {
-  // TODO : use t parameter
+DeadCarrot.prototype.update = function (t) {
+  if (!this.start) this.start = t;
   if (this.animated) {
-    var scale = 1 + smoothstep(4000, 0, Date.now()-this.start);
+    var scale = 1 + smoothstep(4000, 0, t-this.start);
     this.scale.set(scale, scale);
   }
 };

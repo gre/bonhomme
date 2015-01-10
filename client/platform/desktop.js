@@ -11,7 +11,7 @@ function getLocalName () {
   return window.localStorage.player;
 }
 
-function DOM () {
+function Desktop () {
   
   var gridwrap = document.createElement("div");
   gridwrap.style.overflow = "hidden";
@@ -55,7 +55,7 @@ function DOM () {
   }
 }
 
-DOM.prototype = {
+Desktop.prototype = {
   syncInteraction: function () {
     var node = this.interaction;
     node.innerHTML = "";
@@ -149,4 +149,4 @@ DOM.prototype = {
   }
 };
 
-module.exports = DOM;
+module.exports = Desktop;

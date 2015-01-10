@@ -34,11 +34,14 @@ function Game (seed, controls, playername) {
   var spawners = new Container();
   var map = new GameMap(seed, cars, particles, spawners);
   var deadCarrots = new Container();
+
   var footprints = new PIXI.DisplayObjectContainer();
   var player = new Player(playername, footprints);
   player.controls = controls;
+
   var players = new Container();
   var names = new PIXI.DisplayObjectContainer();
+
   var ui = new UI(this);
   this.ui = ui;
 
@@ -224,20 +227,11 @@ Game.prototype.getCurrentRank = function (s) {
 
 Game.prototype.getPlayerBestScore = function (name) {
   if (!this.scores) return null;
-  // TODO move to for loop
-  var bestScoreIndex = _.findIndex(this.scores, function (s) {
-    return s.player === name;
-  });
-  if (bestScoreIndex === -1)
-    return null;
-  else
-    return {
-      rank: bestScoreIndex+1,
-      score: this.scores[bestScoreIndex].score
-    };
+  return this.bestScorePerPlayer[name] || null;
 };
 
 Game.prototype.setScores = function (scores, animated) {
+  var i;
   var previous = this.scores||[];
   var news = _.filter(scores, function (a) {
     return !_.any(previous, function (b) {
@@ -250,11 +244,23 @@ Game.prototype.setScores = function (scores, animated) {
     return b.score - a.score;
   });
   this.map.setScores(scores);
-  news.forEach(function (score) {
-    this.createDeadCarrot(score, animated);
-  }.bind(this));
+  for (i=0; i<news.length; ++i) {
+    this.createDeadCarrot(news[i], animated);
+  }
+  
+  var bestScorePerPlayer = {};
+  for (i=0; i<scores.length; ++i) {
+    var score = scores[i];
+    if (!(score.player in bestScorePerPlayer)) {
+      bestScorePerPlayer[score.player] = {
+        rank: i+1,
+        score: score.score
+      };
+    }
+  }
 
   this.scores = scores;
+  this.bestScorePerPlayer = bestScorePerPlayer;
 };
 
 module.exports = Game;

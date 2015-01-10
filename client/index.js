@@ -11,7 +11,7 @@ var ntp = window.ntp;
 var atlas = require("./atlas");
 var font = require("./font");
 
-var DOM = require("./dom");
+var Platform = require("./platform");
 var Game = require("./Game");
 var Loading = require("./Loading");
 var NetworkGame = require("./NetworkGame");
@@ -42,7 +42,7 @@ function now () {
 var renderer,
     game,
     network,
-    dom,
+    platform,
     controls;
 
 socketConnected.then(function () {
@@ -66,7 +66,7 @@ function newGame (playerName) {
 
   game = instance;
   if (network) network.setGame(game);
-  dom.setGame(game);
+  platform.setGame(game);
 }
 
 
@@ -95,21 +95,21 @@ function start (playerName) {
 
     renderer.render(game);
 
-    dom.update(t, dt);
+    platform.update(t, dt);
   }
 
   requestAnimFrame(loop);
 }
 
 Qstart.then(function () {
-  dom = new DOM();
+  platform = new Platform();
   controls = new ResponsiveControls();
-  renderer = dom.createRenderer();
+  renderer = platform.createRenderer();
 
   var imagesLoaded = atlas(); // FIXME
 
   var load = Q.all([
-    dom.getPlayerName().fail(function(){ return null; }),
+    platform.getPlayerName().fail(function(){ return null; }),
     imagesLoaded,
     syncTime,
     font.ready
