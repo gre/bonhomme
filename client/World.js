@@ -82,7 +82,7 @@ World.prototype.carHitPlayerExplode = function (car, player) {
   vibrate(200);
 
   if (this.particles) {
-    var scale = 0.4 + player.life / 800;
+    var scale = 0.2 + player.life / 2000;
     var n = ~~(10 / scale);
     this.particles.addChild(
       new RingSpawner({
