@@ -32,7 +32,7 @@ function Player (name, footprints) {
   this.maxProgress = conf.HEIGHT - this.maxMoveBack - 25;
 
   this._m = 0;
-  this.pivot.set(80, 80);
+  this.pivot.set(250, 200);
 
   if (footprints)
     footprints.addChild(this.footprints = new Footprints());
@@ -103,7 +103,7 @@ Player.prototype.update = function (t, dt) {
   y = Math.min(y, this.maxProgress + this.maxMoveBack);
 
   var scale = 0.6 + this.life / 150;
-  var w = this.width  = 40 * scale;
+  var w = this.width  = 50 * scale;
   var h = this.height = 40 * scale;
 
   if (cy < 0) this.rotation = Math.PI;
