@@ -136,7 +136,7 @@ Player.prototype.knock = function (x, y) {
   this.y += y;
 };
 Player.prototype.onProjectile = function (p) {
-  var knock = 100 * p.width / this.width;
+  var knock = 4 + 100 * p.width / this.width;
   this.knock(
     knock * p.vel[0],
     knock * p.vel[1]);

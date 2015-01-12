@@ -82,9 +82,9 @@ function nSpawner (scale, pos, n, offset, speed, seq, vel, diverge) {
     scale: scale,
     pos: pos,
     vel: vel,
-    count: n,
     rot: (offset + 2*Math.PI) / n,
     speed: speed,
+    count: n,
     pattern: seq,
     life: 6000,
     ang: 0,
@@ -159,8 +159,8 @@ function hellChunk (random, difficulty) {
 
   var j;
 
-  var nb = ~~( 1.6 + 3 * difficulty * difficulty * random() );
-  var totalCols = nb * (1 + 1 * random() * random() + 3 * difficulty * random());
+  var nb = ~~( 1.6 + 1 * difficulty + 2 * difficulty * random() );
+  var totalCols = nb * (1 + 1.2 * random() * random() + 3 * difficulty * random());
 
   var distribCols = listDistribution(random, nb, totalCols);
 
@@ -212,11 +212,12 @@ function blizzardChunk (random, difficulty) {
 
   var nb = ~~( 1.8 + 4 * difficulty * difficulty * mix(difficulty, random(), 0.5) );
   var totalCols = nb * 2 + 40 * moreCols;
+  var border = mix(50, conf.WIDTH/2-50, 1-random()*random()) | 0;
 
   var distribCols = listDistribution(random, nb, totalCols);
 
   for (j=0; j<nb; ++j) {
-    var pos = [ j%2 ? 20 : WIDTH-20, 100 + ~~(j/2) * 60 ];
+    var pos = [ j%2 ? border : WIDTH-border, 100 + ~~(j/2) * 60 ];
     var offset = (random() < 0.5 ? 1 : -1) * (0.05 * random() + 0.2 * random() * difficulty);
     var speed = 300 - 280*random() * difficulty * moreCols;
     var col = distribCols[j];
@@ -268,8 +269,10 @@ function standardChunk (random, difficulty, i) {
 
   var log = logger(chunk);
 
-  function fireballScale (o) {
-    return 0.4 + 0.4 * o.random();
+  function fireballScaleMaker (genSize) {
+    return function (o) {
+      return genSize * (0.8 + 0.4 * o.random());
+    };
   }
 
   function snowballScale (o) {
@@ -334,7 +337,7 @@ function standardChunk (random, difficulty, i) {
       offset = random() * random() * 0.3;
       a = random() * random();
       speed = (1.1 - a) * mix(100, 600, roadDifficulty);
-      chunk.fireballs.push(nSpawner(fireballScale, pos, n, offset, speed, a > 0.5 && random() > 0.5 ? genRepeatPatterns(random) : [~~(10 + 50*random()),-1], 0.25 - 0.2 * random() * a));
+      chunk.fireballs.push(nSpawner(fireballScaleMaker(0.4 + 0.3 * difficulty + 2*random()*(1-a)), pos, n, offset, speed, a > 0.5 && random() > 0.5 ? genRepeatPatterns(random) : [~~(10 + 50*random()),-1], 0.25 - 0.2 * random() * a));
     }
   }
 
@@ -350,30 +353,57 @@ function passageChunk (random, difficulty) {
   };
   var log = logger(chunk);
 
-  var div = (2 + 2 * random() + 4 * difficulty) | 0;
+  var div = (2 + 2 * random() + (3 + 2 * random()) * difficulty) | 0;
   var margin = 0;
 
   function fireballScale (o) {
-    return 0.4 + 0.4 * o.random();
+    return 0.2 * difficulty + 0.4 + 0.3 * o.random() + 0.2 * difficulty * random();
   }
 
   function snowballScale (o) {
-    return 0.3 + 0.3 * o.random() * o.random();
+    return 0.3 * difficulty + 0.2 + 0.3 * o.random() * o.random();
   }
 
   for (var i=1; i < div; ++i) {
     var left = random() < 0.5;
     var snow = random() < 0.5 * (1-difficulty) + 0.2 * random();
-    var speed = 15 + 30 * random() + 40 * (1-difficulty);
+    var speed = 40 + 50 * random() + 30 * (1-difficulty);
     var pattern = genRepeatPatterns(random);
-    log("speed", speed);
     (snow ? chunk.snowballs : chunk.fireballs).push({
       scale: snow ? snowballScale : fireballScale,
       pos: [ left ? margin : WIDTH-margin , Math.floor(i * CHUNK_SIZE / div) ],
-      vel: 0.2,
+      vel: 0.2 + 0.1 * random(),
       ang: left ? 0 : Math.PI,
       speed: speed,
       pattern: pattern,
+      life: 6000
+    });
+  }
+
+  if (random() < difficulty) {
+    var n = ~~(2 + random() + 2 * random() * difficulty);
+    chunk.fireballs.push({
+      scale: fireballScale,
+      pos: [ random() * WIDTH, random()<0.5 ? 30 : CHUNK_SIZE-30 ],
+      vel: 0.2,
+      rot: (0.02 * random() + 2*Math.PI)/n,
+      count: n,
+      speed: 100,
+      pattern: genRepeatPatterns(random),
+      life: 6000
+    });
+  }
+
+  if (random() < 0.2) {
+    var n = ~~(1 + 2 * random() + 4 * random() * random());
+    chunk.snowballs.push({
+      scale: snowballScale,
+      pos: [ random() * WIDTH, random()<0.5 ? 30 : CHUNK_SIZE-30 ],
+      vel: 0.2,
+      rot: (0.04 * random() + 2*Math.PI)/n,
+      count: n,
+      speed: 10 + 100 * random(),
+      pattern: [100, -200],
       life: 6000
     });
   }
@@ -406,6 +436,11 @@ function allocChunk (i, time, random) {
     g = "passage";
   if ( random() < 0.20 * smoothstep(0, 4, i) )
     g = "double";
+
+  /*
+  difficulty = random();
+  g = "passage";
+  */
 
   var chunk = generators[g](random, difficulty, i);
   chunk.logs = [ "gen: "+g+", diff: "+difficulty.toPrecision(3), "" ].concat(chunk.logs);

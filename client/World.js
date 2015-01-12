@@ -83,7 +83,7 @@ World.prototype.carHitPlayerExplode = function (car, player) {
 
   if (this.particles) {
     var scale = 0.2 + player.life / 2000;
-    var n = ~~(10 / scale);
+    var n = ~~(5 / scale);
     this.particles.addChild(
       new RingSpawner({
         pos: [x,y],
