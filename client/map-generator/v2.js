@@ -77,25 +77,7 @@ function dotPattern (a, b) {
   return pattern;
 }
 
-/*
-function rotatingSpawner (scale, pos, rotate, vel, speed, seq, diverge) {
-  return {
-    scale: scale,
-    pos: pos,
-    vel: vel,
-    rot: rotate,
-    speed: speed,
-    pattern: seq,
-    life: 6000,
-    ang: 0,
-    randAng: diverge||0,
-    randVel: diverge||0
-  };
-}
-*/
-
 function nSpawner (scale, pos, n, offset, speed, seq, vel, diverge) {
-  // return rotatingSpawner(scale, pos, (offset + 2*Math.PI) / n, vel, speed / n, seq, diverge);
   return {
     scale: scale,
     pos: pos,
@@ -177,14 +159,14 @@ function hellChunk (random, difficulty) {
 
   var j;
 
-  var nb = ~~( 1.8 + 4 * difficulty * difficulty * random() );
-  var totalCols = nb * (1 + 2 * random() * random() + 4 * difficulty * random());
+  var nb = ~~( 1.6 + 3 * difficulty * difficulty * random() );
+  var totalCols = nb * (1 + 1 * random() * random() + 3 * difficulty * random());
 
   var distribCols = listDistribution(random, nb, totalCols);
 
   log("distribCols", distribCols);
 
-  var border = mix(20, conf.WIDTH/2-20, random()) | 0;
+  var border = mix(30, conf.WIDTH/2-30, random()*random()) | 0;
   var yspace = mix(100, 200, random()) | 0;
 
   for (j=0; j<nb; ++j) {
@@ -192,7 +174,7 @@ function hellChunk (random, difficulty) {
 
     var pos = [ j%2 ? border : WIDTH - border, 80 + yspace * ((j/2)|0) ];
     var offset = (random() < 0.5 ? 1 : -1) * ((0.01+0.01*difficulty) * random() * random());
-    var speed = 60 - 40 * random() - 10 * difficulty;
+    var speed = 90 - 40 * random() - 30 * difficulty;
     var holes = _.range(Math.min(col * (0.2 * (1-difficulty) + 0.4 * random() * random()), col-1));
     var repeatPattern = genRepeatPatterns(random);
     var rotatePattern = rotatingHolesPattern(col, holes);
@@ -209,7 +191,6 @@ function hellChunk (random, difficulty) {
 
   return chunk;
 }
-
 
 function blizzardChunk (random, difficulty) {
   var chunk = {
@@ -360,11 +341,53 @@ function standardChunk (random, difficulty, i) {
   return chunk;
 }
 
+function passageChunk (random, difficulty) {
+  var chunk = {
+    roads: [],
+    snowballs: [],
+    fireballs: [],
+    logs: []
+  };
+  var log = logger(chunk);
+
+  var div = (2 + 2 * random() + 4 * difficulty) | 0;
+  var margin = 0;
+
+  function fireballScale (o) {
+    return 0.4 + 0.4 * o.random();
+  }
+
+  function snowballScale (o) {
+    return 0.3 + 0.3 * o.random() * o.random();
+  }
+
+  for (var i=1; i < div; ++i) {
+    var left = random() < 0.5;
+    var snow = random() < 0.5 * (1-difficulty) + 0.2 * random();
+    var speed = 15 + 30 * random() + 40 * (1-difficulty);
+    var pattern = genRepeatPatterns(random);
+    log("speed", speed);
+    (snow ? chunk.snowballs : chunk.fireballs).push({
+      scale: snow ? snowballScale : fireballScale,
+      pos: [ left ? margin : WIDTH-margin , Math.floor(i * CHUNK_SIZE / div) ],
+      vel: 0.2,
+      ang: left ? 0 : Math.PI,
+      speed: speed,
+      pattern: pattern,
+      life: 6000
+    });
+  }
+
+  return chunk;
+}
+
+
 var generators = {
   "hell": hellChunk,
   "blizzard": blizzardChunk,
   "standard": standardChunk,
-  "double": doubleRoadChunk
+  "double": doubleRoadChunk,
+  "passage": passageChunk
 };
 
 function allocChunk (i, time, random) {
@@ -379,6 +402,8 @@ function allocChunk (i, time, random) {
     g = "blizzard";
   if ( random() < 0.15 * smoothstep(0, 8, i) )
     g = "hell";
+  if ( random() < 0.30 * smoothstep(0, 4, i) )
+    g = "passage";
   if ( random() < 0.20 * smoothstep(0, 4, i) )
     g = "double";
 
