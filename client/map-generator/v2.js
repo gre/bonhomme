@@ -77,6 +77,7 @@ function dotPattern (a, b) {
   return pattern;
 }
 
+/*
 function rotatingSpawner (scale, pos, rotate, vel, speed, seq, diverge) {
   return {
     scale: scale,
@@ -91,9 +92,23 @@ function rotatingSpawner (scale, pos, rotate, vel, speed, seq, diverge) {
     randVel: diverge||0
   };
 }
+*/
 
 function nSpawner (scale, pos, n, offset, speed, seq, vel, diverge) {
-  return rotatingSpawner(scale, pos, (offset + 2*Math.PI) / n, vel, speed / n, seq, diverge);
+  // return rotatingSpawner(scale, pos, (offset + 2*Math.PI) / n, vel, speed / n, seq, diverge);
+  return {
+    scale: scale,
+    pos: pos,
+    vel: vel,
+    count: n,
+    rot: (offset + 2*Math.PI) / n,
+    speed: speed,
+    pattern: seq,
+    life: 6000,
+    ang: 0,
+    randAng: diverge||0,
+    randVel: diverge||0
+  };
 }
 
 function road (random, y, leftToRight, vel, maxFollowing, maxHole, spacing) {

@@ -31,7 +31,7 @@ for (var i=0; i<NB; ++i) {
 
 var keyboard = new KeyboardControls();
 var scroll = 1900;
-var seed = ~~(10000000*Math.random());
+var seed = 1000;
 
 function newRun (i) {
   var stage = new PIXI.Stage(0x000000);
