@@ -24,6 +24,9 @@
     "url": "https://github.com/gre/bonhomme/issues"
   },
   "homepage": "https://github.com/gre/bonhomme",
+  "engines": {
+    "node": "0.10.x"
+  },
   "devDependencies": {
     "beefy": "^2.1.1",
     "brfs": "^1.2.0",
@@ -43,7 +46,7 @@
     "jsfxr": "0.0.1",
     "lodash": "^2.4.1",
     "mongodb": "^1.4.23",
-    "entity-spawner": "~0.1.2",
+    "entity-spawner": "0.1.2",
     "performance-now": "~0.1.3",
     "pixi.js": "2.2.3",
     "q": "^1.1.2",
