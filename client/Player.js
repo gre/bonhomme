@@ -154,6 +154,8 @@ Player.prototype.onCarHit = function (car) {
   this.life -= 100;
   var knock = 8000 / this.width;
   this.knock(knock * car.vel[0], 0);
+  if (this.footprints)
+    this.footprints.walk(this.position, this.width);
 };
 Player.prototype.getScore = function () {
  return {

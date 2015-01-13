@@ -31,6 +31,7 @@ function Game (seed, controls, playername) {
   var cars = new Container();
   var particles = new Container();
   var explosions = new Container();
+  var explosionsPlayer = new Container();
   var spawners = new Container();
   var map = new GameMap(seed, cars, particles, spawners);
   var deadCarrots = new Container();
@@ -45,10 +46,10 @@ function Game (seed, controls, playername) {
   var ui = new UI(this);
   this.ui = ui;
 
-  var world = new World(particles, explosions);
+  var world = new World(particles, explosions, explosionsPlayer);
   world.addChild(map);
-  world.addChild(deadCarrots);
   world.addChild(footprints);
+  world.addChild(deadCarrots);
   world.addChild(players);
   world.addChild(names);
   world.addChild(player);
@@ -56,6 +57,7 @@ function Game (seed, controls, playername) {
   world.addChild(particles);
   world.addChild(spawners);
   world.addChild(explosions);
+  world.addChild(explosionsPlayer);
 
   this.addChild(world);
   this.addChild(ui);

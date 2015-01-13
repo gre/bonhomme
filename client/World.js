@@ -32,13 +32,14 @@ var playerExplosionTextures = [
   tile64(playerExplosionTexture, 2, 0)
 ];
 
-function World (particles, explosions) {
+function World (particles, explosions, explosionsPlayer) {
   PIXI.DisplayObjectContainer.call(this);
   this._focusY = 0;
   this.shaking = 0;
 
   this.particles = particles;
   this.explosions = explosions;
+  this.explosionsPlayer = explosionsPlayer;
 }
 
 World.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
@@ -55,14 +56,13 @@ World.prototype.update = function (t, dt) {
   }
 };
 World.prototype.playerDied = function (player, isMyself) {
+  var explosion = new ParticleExplosion(player, playerExplosionTextures, 400);
+  this.explosionsPlayer.addChild(explosion);
+  if (isMyself) vibrate(400);
   setTimeout(function () {
     if (isMyself)
       audio.play("lose");
-  }, 800);
-  if (isMyself)
-    vibrate(400);
-  var explosion = new ParticleExplosion(player, playerExplosionTextures, 300);
-  this.explosions.addChild(explosion);
+  }, 1000);
 };
 World.prototype.snowballExplode = function (snowball) {
   audio.play("snowballHit", snowball, 0.6);
