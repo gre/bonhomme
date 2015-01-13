@@ -9,7 +9,6 @@ var Container = require("../../client/pixi-extend/Container");
 var conf = require("../../client/conf");
 var font = require("../../client/font");
 
-var genName = "v2";
 var width = conf.WIDTH;
 var height = window.innerHeight - 50;
 var NB = ~~(window.innerWidth / width);
@@ -40,7 +39,7 @@ function newRun (i) {
   var cars = new Container();
   var particules = new Container();
   var spawners = new Container();
-  var map = new GMap(seed+i, cars, particules, spawners, genName);
+  var map = new GMap(seed+i, cars, particules, spawners);
   map.debug = debug;
 
   var world = new World();

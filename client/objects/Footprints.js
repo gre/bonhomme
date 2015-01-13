@@ -1,8 +1,6 @@
 var PIXI = require("pixi.js");
 var SlidingWindow = require("sliding-window");
 
-var conf = require("../conf");
-
 var Foot = require("./Foot");
 
 function Footprints () {
@@ -40,11 +38,6 @@ Footprints.prototype.walk = function (position, size) {
   var chunk = this.containers.getChunk(-position.y);
   if (chunk) {
     chunk.addChild(foot);
-    /*
-    if (chunk.children.length > 200) {
-      chunk.removeChildAt(0);
-    }
-    */
   }
 };
 
