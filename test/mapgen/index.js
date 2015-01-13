@@ -2,9 +2,9 @@ var requestAnimFrame = require("raf");
 var PIXI = require("pixi.js");
 
 var Controls = require("../../client/Controls");
-var World = require("../../client/World");
-var GMap = require("../../client/Map");
-var Container = require("../../client/Container");
+var World = require("../../client/objects/World");
+var GMap = require("../../client/objects/Map");
+var Container = require("../../client/pixi-extend/Container");
 
 var conf = require("../../client/conf");
 var font = require("../../client/font");
