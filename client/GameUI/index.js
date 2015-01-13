@@ -1,5 +1,5 @@
 var conf = require("../conf");
-var Container = require("../Container");
+var Container = require("../pixi-extend/Container");
 
 var Score = require("./Score");
 var Rank = require("./Rank");
