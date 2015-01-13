@@ -2,20 +2,18 @@ var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
 var _ = require("lodash");
 var QuadTree = require('simple-quadtree');
-var Groups = require("./Groups");
 
-var dist = require("./utils/dist");
+var dist = require("../utils/dist");
+var Groups = require("../Groups");
+var audio = require("../audio");
+var conf = require("../conf");
+var UI = require("../GameUI");
 
-var audio = require("./audio");
-var conf = require("./conf");
-
-var UI = require("./GameUI");
-
-var World = require("./World");
-var GameMap = require("./Map");
-var DeadCarrot = require("./DeadCarrot");
-var Player = require("./Player");
-var Container = require("./Container");
+var World = require("../objects/World");
+var GameMap = require("../objects/Map");
+var DeadCarrot = require("../objects/DeadCarrot");
+var Player = require("../objects/Player");
+var Container = require("../pixi-extend/Container");
 
 
 /**

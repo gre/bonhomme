@@ -1,11 +1,11 @@
 var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
-var mix = require("./utils/mix");
 
-var Groups = require("./Groups");
-var velUpdate = require("./behavior/velUpdate");
-var audio = require("./audio");
-var conf = require("./conf");
+var mix = require("../utils/mix");
+var Groups = require("../Groups");
+var velUpdate = require("../behavior/velUpdate");
+var audio = require("../audio");
+var conf = require("../conf");
 
 var Footprints = require("./Footprints");
 

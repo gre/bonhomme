@@ -1,7 +1,7 @@
 var PIXI = require("pixi.js");
 var font = require("../font");
-var BitmapText = require("../BitmapText");
-var Player = require("../Player");
+var BitmapText = require("../pixi-extend/BitmapText");
+var Player = require("../objects/Player"); // FIXME remove dep
 
 var m2Texture = PIXI.Texture.fromImage("./img/m2.png");
 

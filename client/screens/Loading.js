@@ -1,9 +1,10 @@
 var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
 
+var conf = require("../conf");
+
 var logoTexture = PIXI.Texture.fromImage("./img/logo.png");
 var loadbarTexture = PIXI.Texture.fromImage("./img/loadbar.png");
-var conf = require("./conf");
 
 function Loading () {
   PIXI.Stage.call(this, 0x6488c6);

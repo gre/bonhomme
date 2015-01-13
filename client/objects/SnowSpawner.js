@@ -1,8 +1,9 @@
 var PIXI = require("pixi.js");
-
 var Spawner = require("entity-spawner");
+
 var Snowball = require("./Snowball");
 var RotatingSpawner = require("./RotatingSpawner");
+
 var snowSpawnerTexture = PIXI.Texture.fromImage("/img/snowspawner.png");
 var snowSpawnerWeaponTexture = PIXI.Texture.fromImage("/img/snowspawnerweapon.png");
 

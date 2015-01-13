@@ -1,4 +1,4 @@
-var conf = require("./conf");
+var conf = require("../conf");
 var EV = conf.events;
 var PlayerMoveState = require("./PlayerMoveState");
 

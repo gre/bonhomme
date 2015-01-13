@@ -1,7 +1,7 @@
 var requestAnimFrame = require("raf");
 var PIXI = require("pixi.js");
 
-var KeyboardControls = require("../../client/KeyboardControls");
+var Controls = require("../../client/Controls");
 var World = require("../../client/World");
 var GMap = require("../../client/Map");
 var Container = require("../../client/Container");
@@ -29,7 +29,7 @@ for (var i=0; i<NB; ++i) {
   renderers.push(renderer);
 }
 
-var keyboard = new KeyboardControls();
+var keyboard = new Controls();
 var scroll = 1900;
 var seed = 1000;
 

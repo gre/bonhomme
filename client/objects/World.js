@@ -1,16 +1,15 @@
 var PIXI = require("pixi.js");
-
-var audio = require("./audio"); // FIXME remove this dep. audio should be done on game level? Events or not events?
-var conf = require("./conf");
-var vibrate = require("./vibrate");
+var vibrate = require("vibrate");
 
 var Snowball = require("./Snowball");
 var ParticleExplosion = require("./ParticleExplosion");
 var RingSpawner = require("./RingSpawner");
 
-var updateChildren = require("./behavior/updateChildren");
-var spriteIntersect = require("./utils/spriteIntersect");
-var tilePIXI = require("./utils/tilePIXI");
+var audio = require("../audio"); // FIXME remove this dep. audio should be done on game level? Events or not events?
+var conf = require("../conf");
+var updateChildren = require("../behavior/updateChildren");
+var spriteIntersect = require("../utils/spriteIntersect");
+var tilePIXI = require("../utils/tilePIXI");
 var tile64 = tilePIXI.tile64;
 
 var fireExplosionTexture = PIXI.Texture.fromImage("./img/fireexplosion.png");

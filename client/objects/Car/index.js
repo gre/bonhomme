@@ -1,7 +1,7 @@
 var PIXI = require("pixi.js");
 var generateCar = require("./generateCar");
-var velUpdate = require("./behavior/velUpdate");
-var Groups = require("./Groups");
+var velUpdate = require("../../behavior/velUpdate");
+var Groups = require("../../Groups");
 
 var WIDTH = 84;
 var HEIGHT = 48;

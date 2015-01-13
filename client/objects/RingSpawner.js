@@ -1,7 +1,8 @@
 var PIXI = require("pixi.js");
 var _ = require("lodash");
-var updateChildren = require("./behavior/updateChildren");
-var dieWhenEmpty = require("./behavior/dieWhenEmpty");
+
+var updateChildren = require("../behavior/updateChildren");
+var dieWhenEmpty = require("../behavior/dieWhenEmpty");
 
 var RingSpawnerDefault = {
   pos: [0,0],

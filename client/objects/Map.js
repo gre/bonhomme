@@ -2,16 +2,16 @@ var seedrandom = require("seedrandom");
 var PIXI = require("pixi.js");
 var SlidingWindow = require("sliding-window");
 
-var conf = require("./conf");
+var conf = require("../conf");
 
 var HomeTile = require("./HomeTile");
 var MapTile = require("./MapTile");
 var FireSpawner = require("./FireSpawner");
 var SnowSpawner = require("./SnowSpawner");
-var Container = require("./Container");
-var updateChildren = require("./behavior/updateChildren");
+var Container = require("../pixi-extend/Container");
+var updateChildren = require("../behavior/updateChildren");
 var Road = require("./Road");
-var mapGenerator = require("./map-generator");
+var mapGenerator = require("../map-generator");
 
 function Map (seed, cars, particles, spawners) {
   PIXI.DisplayObjectContainer.call(this);

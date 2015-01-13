@@ -1,9 +1,9 @@
 var PIXI = require("pixi.js");
-var destroyOutOfMap = require("./behavior/destroyOutOfMap");
-var velUpdate = require("./behavior/velUpdate");
-var Groups = require("./Groups");
-var dieAfterTimeout = require("./behavior/dieAfterTimeout");
-var tilePIXI = require("./utils/tilePIXI");
+var destroyOutOfMap = require("../behavior/destroyOutOfMap");
+var velUpdate = require("../behavior/velUpdate");
+var Groups = require("../Groups");
+var dieAfterTimeout = require("../behavior/dieAfterTimeout");
+var tilePIXI = require("../utils/tilePIXI");
 
 var snowballsTexture = PIXI.Texture.fromImage("./img/snowballs.png");
 var snowballsTextures = [0,1,2,3].map(function (i) {

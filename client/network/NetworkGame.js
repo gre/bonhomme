@@ -1,11 +1,11 @@
 var PIXI = require("pixi.js");
 
-var OtherPlayer = require("./OtherPlayer");
+var OtherPlayer = require("../objects/OtherPlayer");
 var NetworkGameScore = require("./NetworkGameScore");
 var NetworkPlayer = require("./NetworkPlayer");
 var NetworkPlayerPlayback = require("./NetworkPlayerPlayback");
-var conf = require("./conf");
-var Container = require("./Container");
+var conf = require("../conf");
+var Container = require("../pixi-extend/Container");
 var EV = conf.events;
 
 function NetworkGame (socket) {

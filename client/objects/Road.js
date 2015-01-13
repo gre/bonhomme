@@ -1,8 +1,10 @@
 
 var PIXI = require("pixi.js");
 var Spawner = require("entity-spawner");
+
+var conf = require("../conf");
+
 var Car = require("./Car");
-var conf = require("./conf");
 
 var roadTexture = PIXI.Texture.fromImage("/img/road.png");
 var roadInOutTexture = PIXI.Texture.fromImage("/img/roadinout.png");

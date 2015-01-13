@@ -1,11 +1,11 @@
 
 
-function NetworkControls () {
+function StateControls () {
   this._x = 0;
   this._y = 0;
 }
 
-NetworkControls.prototype = {
+StateControls.prototype = {
   setState: function (state) {
     this._x = state.x;
     this._y = state.y;
@@ -18,4 +18,4 @@ NetworkControls.prototype = {
   }
 };
 
-module.exports = NetworkControls;
+module.exports = StateControls;

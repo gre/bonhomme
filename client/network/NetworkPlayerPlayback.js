@@ -1,6 +1,6 @@
-var NetworkControls = require("./NetworkControls");
+var NetworkControls = require("../Controls/StateControls");
 
-var conf = require("./conf");
+var conf = require("../conf");
 var PlayerMoveState = require("./PlayerMoveState");
 
 function NetworkPlayerPlayback (player, delay) {

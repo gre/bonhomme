@@ -1,7 +1,7 @@
 var PIXI = require("pixi.js");
 var SlidingWindow = require("sliding-window");
 
-var conf = require("./conf");
+var conf = require("../conf");
 
 var Foot = require("./Foot");
 

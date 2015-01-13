@@ -1,8 +1,8 @@
 var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
 
-var BitmapText = require("./BitmapText");
-var font = require("./font");
+var BitmapText = require("../pixi-extend/BitmapText");
+var font = require("../font");
 var Player = require("./Player");
 
 var deadCarrotTexture = PIXI.Texture.fromImage("./img/dead_carrot.png");

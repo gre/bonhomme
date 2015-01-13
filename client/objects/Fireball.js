@@ -1,8 +1,8 @@
 var PIXI = require("pixi.js");
-var Groups = require("./Groups");
-var destroyOutOfMap = require("./behavior/destroyOutOfMap");
-var velUpdate = require("./behavior/velUpdate");
-var dieAfterTimeout = require("./behavior/dieAfterTimeout");
+var Groups = require("../Groups");
+var destroyOutOfMap = require("../behavior/destroyOutOfMap");
+var velUpdate = require("../behavior/velUpdate");
+var dieAfterTimeout = require("../behavior/dieAfterTimeout");
 
 var fireballTexture = PIXI.Texture.fromImage("./img/fireball.png");
 

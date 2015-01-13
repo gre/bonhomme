@@ -1,5 +1,5 @@
-var font = require("./font");
-var BitmapText = require("./BitmapText");
+var font = require("../font");
+var BitmapText = require("../pixi-extend/BitmapText");
 var Player = require("./Player");
 
 function OtherPlayer (name, namesContainer, maxAlpha, env) {

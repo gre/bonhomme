@@ -1,6 +1,6 @@
 
 var Qdebounce = require("qdebounce");
-var conf = require("./conf");
+var conf = require("../conf");
 var EV = conf.events;
 
 function NetworkGameScore (socket) {

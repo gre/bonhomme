@@ -1,5 +1,5 @@
 var PIXI = require("pixi.js");
-var updateChildren = require("./behavior/updateChildren");
+var updateChildren = require("../behavior/updateChildren");
 
 function Container () {
   PIXI.DisplayObjectContainer.call(this);

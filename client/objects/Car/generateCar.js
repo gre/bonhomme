@@ -1,5 +1,5 @@
 var PIXI = require("pixi.js");
-var hslToHexa = require("./utils/hslToHexa");
+var hslToHexa = require("../../utils/hslToHexa");
 
 var chassisTexture = PIXI.Texture.fromImage("./img/car_chassis.png");
 var carTopTexture = PIXI.Texture.fromImage("./img/car_top.png");

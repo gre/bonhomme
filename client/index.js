@@ -10,12 +10,11 @@ var ntp = window.ntp;
 
 var atlas = require("./atlas");
 var font = require("./font");
-
 var Platform = require("./platform");
-var Game = require("./Game");
-var Loading = require("./Loading");
-var NetworkGame = require("./NetworkGame");
-var ResponsiveControls = require("./ResponsiveControls");
+var Game = require("./screens/Game");
+var Loading = require("./screens/Loading");
+var NetworkGame = require("./network/NetworkGame");
+var Controls = require("./Controls");
 
 // FIXME remove the spaghettis!
 
@@ -103,7 +102,7 @@ function start (playerName) {
 
 Qstart.then(function () {
   platform = new Platform();
-  controls = new ResponsiveControls();
+  controls = new Controls();
   renderer = platform.createRenderer();
 
   var imagesLoaded = atlas(); // FIXME

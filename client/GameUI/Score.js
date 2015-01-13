@@ -1,6 +1,6 @@
 var font = require("../font");
-var BitmapText = require("../BitmapText");
-var Player = require("../Player");
+var BitmapText = require("../pixi-extend/BitmapText");
+var Player = require("../objects/Player");
 
 function Score (game) {
   BitmapText.call(this, "", { font: font.style(20, true) });

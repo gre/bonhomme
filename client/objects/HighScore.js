@@ -1,7 +1,7 @@
 var PIXI = require("pixi.js");
 
-var BitmapText = require("./BitmapText");
-var font = require("./font");
+var BitmapText = require("../pixi-extend/BitmapText");
+var font = require("../font");
 
 var highscoreIcons = [
   PIXI.Texture.fromImage("./img/scoreIcon1.png"),
