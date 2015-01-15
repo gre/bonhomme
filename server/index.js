@@ -14,7 +14,7 @@ var winston = require('winston');
 var ntp = require("socket-ntp");
 require('date-utils');
 
-var PlayerMoveState = require("../client/PlayerMoveState");
+var PlayerMoveState = require("../client/network/PlayerMoveState");
 
 var logger = new (winston.Logger)({ transports: [
     new (winston.transports.Console)({ level: "debug" })
