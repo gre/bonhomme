@@ -55,13 +55,14 @@ World.prototype.update = function (t, dt) {
   }
 };
 World.prototype.playerDied = function (player, isMyself) {
-  var explosion = new ParticleExplosion(player, playerExplosionTextures, 400);
+  var explosion = new ParticleExplosion(player, playerExplosionTextures, 300);
   this.explosionsPlayer.addChild(explosion);
-  if (isMyself) vibrate(400);
-  setTimeout(function () {
-    if (isMyself)
+  if (isMyself) {
+    vibrate(400);
+    setTimeout(function () {
       audio.play("lose");
-  }, 1000);
+    }, 800);
+  }
 };
 World.prototype.snowballExplode = function (snowball) {
   audio.play("snowballHit", snowball, 0.6);

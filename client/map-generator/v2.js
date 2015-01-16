@@ -352,9 +352,17 @@ function passageChunk (random, difficulty) {
     fireballs: [],
     logs: []
   };
-  var log = logger(chunk);
+  // var log = logger(chunk);
+  var n;
 
-  var div = (2 + 2 * random() + (3 + 2 * random()) * difficulty) | 0;
+  var holesNb = (3*random())|0;
+  var div = (holesNb + 2 + 1 * random() + (3 + 3 * random()) * difficulty) | 0;
+  var holes = [];
+  for (var h=holesNb; h >= 0; --h) {
+    var hn = (div * random()) | 0;
+    if (!_.contains(holes, hn))
+      holes.push(hn);
+  }
   var margin = 0;
 
   function fireballScale (o) {
@@ -366,6 +374,7 @@ function passageChunk (random, difficulty) {
   }
 
   for (var i=1; i < div; ++i) {
+    if (_.contains(holes, i)) continue;
     var left = random() < 0.5;
     var snow = random() < 0.5 * (1-difficulty) + 0.2 * random();
     var speed = 40 + 50 * random() + 30 * (1-difficulty);
@@ -382,7 +391,7 @@ function passageChunk (random, difficulty) {
   }
 
   if (random() < difficulty) {
-    var n = ~~(2 + random() + 2 * random() * difficulty);
+    n = ~~(2 + random() + 2 * random() * difficulty);
     chunk.fireballs.push({
       scale: fireballScale,
       pos: [ random() * WIDTH, random()<0.5 ? 30 : CHUNK_SIZE-30 ],
@@ -396,7 +405,7 @@ function passageChunk (random, difficulty) {
   }
 
   if (random() < 0.2) {
-    var n = ~~(1 + 2 * random() + 4 * random() * random());
+    n = ~~(1 + 2 * random() + 4 * random() * random());
     chunk.snowballs.push({
       scale: snowballScale,
       pos: [ random() * WIDTH, random()<0.5 ? 30 : CHUNK_SIZE-30 ],
@@ -438,10 +447,8 @@ function allocChunk (i, time, random) {
   if ( random() < 0.20 * smoothstep(0, 4, i) )
     g = "double";
 
-  /*
   difficulty = random();
   g = "passage";
-  */
 
   var chunk = generators[g](random, difficulty, i);
   chunk.logs = [ "gen: "+g+", diff: "+difficulty.toPrecision(3), "" ].concat(chunk.logs);

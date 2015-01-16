@@ -10,6 +10,7 @@ function NetworkPlayerPlayback (player, delay) {
   this.controls = controls;
   this.delay = delay || conf.networkPlaybackDelay;
   this.timeout = this.delay + 100;
+  this.lastEvts = 0;
   this.evts = [];
   this.maxProgress = player.maxProgress;
 }
@@ -31,6 +32,9 @@ NetworkPlayerPlayback.prototype = {
   },
 
   update: function (t) {
+    if (this.lastEvts + this.timeout < t) {
+      this.player.controls.setState({ x: 0, y: 0 });
+    }
     for (var i=0; i<this.evts.length; ++i) {
       var e = this.evts[i];
       if (e.time < t-this.delay) {
