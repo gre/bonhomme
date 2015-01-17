@@ -116,7 +116,9 @@ Player.prototype.update = function (t, dt) {
   if ((cx || cy) && (x !== initialX || y !== initialY)) {
     this.setTexture(playerWalkTextures[~~(t / 150) % playerWalkTextures.length]);
     if (this.footprints && (!this._lastFoot||t-this._lastFoot>30) && Math.random() < 0.7) {
-      this.footprints.walk(this.position, this.width / 2);
+      this.footprints.walk(this.position, Math.min(
+        (0.8 + 0.4 * Math.random()) * this.width / 2,
+        100));
     }
   }
 
