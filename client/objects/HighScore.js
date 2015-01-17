@@ -2,17 +2,22 @@ var PIXI = require("pixi.js");
 
 var BitmapText = require("../pixi-extend/BitmapText");
 var font = require("../font");
+var tilePIXI = require("../utils/tilePIXI");
 
-var highscoreIcons = [
-  PIXI.Texture.fromImage("./img/scoreIcon1.png"),
-  PIXI.Texture.fromImage("./img/scoreIcon2.png"),
-  PIXI.Texture.fromImage("./img/scoreIcon3.png")
+var highscoreColors = [
+  0xFFCC22,
+  0x99AABB,
+  0xc67d28
 ];
+var carrotTexture = tilePIXI.tile64(PIXI.Texture.fromImage("./img/carrots.png"), 0, 0);
+
 function HighScore (score, i) {
   PIXI.DisplayObjectContainer.call(this);
-  if (highscoreIcons[i]) {
-    var icon = new PIXI.Sprite(highscoreIcons[i]);
-    icon.position.set(0, 0);
+  if (highscoreColors[i]) {
+    var icon = new PIXI.Sprite(carrotTexture);
+    icon.width = icon.height = 24;
+    icon.tint = highscoreColors[i];
+    icon.position.set(2, 2);
     this.addChild(icon);
   }
 

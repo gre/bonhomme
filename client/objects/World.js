@@ -11,6 +11,7 @@ var updateChildren = require("../behavior/updateChildren");
 var spriteIntersect = require("../utils/spriteIntersect");
 var tilePIXI = require("../utils/tilePIXI");
 var tile64 = tilePIXI.tile64;
+var tile256 = tilePIXI.tile256;
 
 var fireExplosionTexture = PIXI.Texture.fromImage("./img/fireexplosion.png");
 var fireExplosionTextures = [
@@ -24,11 +25,12 @@ var snowExplosionTextures = [
   tile64(snowExplosionTexture, 1, 0),
   tile64(snowExplosionTexture, 2, 0)
 ];
-var playerExplosionTexture = PIXI.Texture.fromImage("./img/playerexplosion.png");
+var playerExplosionTexture = PIXI.Texture.fromImage("./img/playerdeath.png");
 var playerExplosionTextures = [
-  tile64(playerExplosionTexture, 0, 0),
-  tile64(playerExplosionTexture, 1, 0),
-  tile64(playerExplosionTexture, 2, 0)
+  tile256(playerExplosionTexture, 0, 0),
+  tile256(playerExplosionTexture, 1, 0),
+  tile256(playerExplosionTexture, 2, 0),
+  tile256(playerExplosionTexture, 3, 0)
 ];
 
 function playLose () {
@@ -59,7 +61,7 @@ World.prototype.update = function (t, dt) {
   }
 };
 World.prototype.playerDied = function (player, isMyself) {
-  var explosion = new ParticleExplosion(player, playerExplosionTextures, 300);
+  var explosion = new ParticleExplosion(player.position, Math.max(100, player.width), playerExplosionTextures, 256, 200, 0.5 * Math.PI);
   this.explosionsPlayer.addChild(explosion);
   if (isMyself) {
     vibrate(400);
@@ -68,7 +70,7 @@ World.prototype.playerDied = function (player, isMyself) {
 };
 World.prototype.snowballExplode = function (snowball) {
   audio.play("snowballHit", snowball, 0.6);
-  this.explosions.addChild(new ParticleExplosion(snowball, snowExplosionTextures));
+  this.explosions.addChild(new ParticleExplosion(snowball.position, snowball.width * 2, snowExplosionTextures, 64, 150, 2*Math.PI));
 };
 World.prototype.carHitPlayerExplode = function (car, player) {
   var rect = spriteIntersect(car, player);
@@ -102,7 +104,7 @@ World.prototype.carHitPlayerExplode = function (car, player) {
 };
 World.prototype.fireballExplode = function (fireball) {
   audio.play("burn", fireball, 0.3);
-  this.explosions.addChild(new ParticleExplosion(fireball, fireExplosionTextures));
+  this.explosions.addChild(new ParticleExplosion(fireball.position, fireball.width * 2, fireExplosionTextures, 64, 150, 2*Math.PI));
 };
 World.prototype.getWindow = function () {
   return [ this._focusY-conf.HEIGHT, this._focusY ];

@@ -1,18 +1,20 @@
 var PIXI = require("pixi.js");
 
-function ParticleExplosion (ref, textures, speed) {
+function ParticleExplosion (position, size, textures, textureSize, speed, randomRotation) {
   PIXI.DisplayObjectContainer.call(this);
-  this.position.x = ref.position.x;
-  this.position.y = ref.position.y;
-  this.speed = speed || 150;
-  this.alpha = ref.alpha || 1;
-  this.width = ref.width;
-  this.height = ref.width;
-  this.rotation = Math.random() * 2 * Math.PI;
-  this.pivot.set(32, 32);
+  var pivot = textureSize / 2;
+  this.position.x = position.x;
+  this.position.y = position.y;
+  this.speed = speed;
   this.nb = textures.length;
+  var rot = 0;
   this.sprites = textures.map(function (t) {
-    return new PIXI.Sprite(t);
+    var s = new PIXI.Sprite(t);
+    s.pivot.set(pivot, pivot);
+    if (randomRotation)
+      s.rotation = ( rot += randomRotation * (Math.random()-0.5) );
+    s.width = s.height = size;
+    return s;
   });
 }
 ParticleExplosion.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
