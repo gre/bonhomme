@@ -11,6 +11,7 @@ function Car (random) {
   PIXI.DisplayObjectContainer.call(this);
   var carObject = generateCar(random);
   this.addChild(carObject);
+  this.cacheAsBitmap = true;
 
   this._bound = {
     x:0,y:0,w:0,h:0,

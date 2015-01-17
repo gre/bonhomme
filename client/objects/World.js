@@ -31,6 +31,10 @@ var playerExplosionTextures = [
   tile64(playerExplosionTexture, 2, 0)
 ];
 
+function playLose () {
+  audio.play("lose");
+}
+
 function World (particles, explosions, explosionsPlayer) {
   PIXI.DisplayObjectContainer.call(this);
   this._focusY = 0;
@@ -59,9 +63,7 @@ World.prototype.playerDied = function (player, isMyself) {
   this.explosionsPlayer.addChild(explosion);
   if (isMyself) {
     vibrate(400);
-    setTimeout(function () {
-      audio.play("lose");
-    }, 800);
+    setTimeout(playLose, 800);
   }
 };
 World.prototype.snowballExplode = function (snowball) {

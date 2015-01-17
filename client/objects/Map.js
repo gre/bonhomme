@@ -156,6 +156,7 @@ Map.prototype.allocChunk = function (i, t) {
   }
 
   chunk = null;
+
   return {
     destroy: function () {
       allSprites.forEach(function (sprite) {
