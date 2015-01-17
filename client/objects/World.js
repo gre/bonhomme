@@ -61,7 +61,7 @@ World.prototype.update = function (t, dt) {
   }
 };
 World.prototype.playerDied = function (player, isMyself) {
-  var explosion = new ParticleExplosion(player.position, Math.max(100, player.width), playerExplosionTextures, 256, 200, 0.5 * Math.PI);
+  var explosion = new ParticleExplosion(player.position, Math.max(100, player.width), playerExplosionTextures, 256, 250, 0.5 * Math.PI);
   this.explosionsPlayer.addChild(explosion);
   if (isMyself) {
     vibrate(400);
