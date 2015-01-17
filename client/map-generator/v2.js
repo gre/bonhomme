@@ -447,8 +447,10 @@ function allocChunk (i, time, random) {
   if ( random() < 0.20 * smoothstep(0, 4, i) )
     g = "double";
 
+  /*
   difficulty = random();
   g = "passage";
+  */
 
   var chunk = generators[g](random, difficulty, i);
   chunk.logs = [ "gen: "+g+", diff: "+difficulty.toPrecision(3), "" ].concat(chunk.logs);
