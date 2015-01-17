@@ -1,6 +1,7 @@
 var PIXI = require("pixi.js");
 var generateCar = require("./generateCar");
 var velUpdate = require("../../behavior/velUpdate");
+var destroyOutOfLivingBound = require("../../behavior/destroyOutOfLivingBound");
 var Groups = require("../../Groups");
 
 var WIDTH = 84;
@@ -30,6 +31,7 @@ Car.prototype.update = function (t, dt) {
     this._bound.w = WIDTH * 0.8;
     this._bound.h = HEIGHT;
   }
+  destroyOutOfLivingBound.call(this, t, dt);
   velUpdate.call(this, t, dt);
   this._bound.x = this.x + Math.min(this.width, 0) + WIDTH * 0.1;
   this._bound.y = this.y;

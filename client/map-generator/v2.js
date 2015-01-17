@@ -453,7 +453,7 @@ function allocChunk (i, time, random) {
   */
 
   var chunk = generators[g](random, difficulty, i);
-  chunk.logs = [ "gen: "+g+", diff: "+difficulty.toPrecision(3), "" ].concat(chunk.logs);
+  chunk.logs = [ g+", "+difficulty.toPrecision(3), "" ].concat(chunk.logs);
   return chunk;
 }
 
