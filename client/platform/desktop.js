@@ -48,6 +48,14 @@ function Desktop () {
   document.body.appendChild(gridwrap);
   document.body.appendChild(bar);
 
+  var survey = document.createElement("div");
+  survey.style.position = "absolute";
+  survey.style.width = "100%";
+  survey.style.textAlign = "center";
+  survey.style[transformKey] = "translate3D(0,600px,0)";
+  survey.innerHTML='<h2>Please answer following survey:</h2><iframe src="https://docs.google.com/forms/d/1ffYKR96JY5rj0feeMS2zYhP-u9R08QAeQV5A3bgNfjE/viewform?embedded=true" width="550" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>';
+  document.body.appendChild(survey);
+
   this.name = Q.defer();
 
   var cur = getLocalName();
@@ -144,7 +152,7 @@ Desktop.prototype = {
   },
   onResize: function () {
     var x = Math.max(0, Math.round((window.innerWidth - conf.WIDTH) / 2));
-    var y = Math.max(0, Math.round((window.innerHeight - conf.HEIGHT) / 2));
+    var y = Math.max(0, Math.min(Math.round((window.innerHeight - conf.HEIGHT) / 2), 120));
     if (x !== this._lastresizex || y !== this._lastresizey) {
       this._lastresizex = x;
       this._lastresizey = y;

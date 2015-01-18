@@ -51,9 +51,13 @@ app.post("/report/error", function (req, res) {
 // TODO: vary with influence & score distance ?
 var CARROT_PERSISTENCE = 24 * 3600 * 1000;
 
+function now () {
+  return +Date.now();
+}
+
 function dbScoreToScore (item) {
   return {
-    opacity: Math.max(0, 1 - (Date.now() - item.date) / CARROT_PERSISTENCE),
+    opacity: Math.max(0, 1 - (now() - item.date) / CARROT_PERSISTENCE),
     x: item.x,
     score: item.score,
     player: item.player
@@ -65,10 +69,6 @@ function computeMapName (day) {
   return dictionaryReady
     .thenResolve(mapNameGenerator)
     .invoke("pick", seedrandom(seed));
-}
-
-function now () {
-  return +Date.now();
 }
 
 function lazyDaily (f) {
