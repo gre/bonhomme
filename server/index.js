@@ -32,9 +32,9 @@ var nameRegexp = /^[a-zA-Z0-9]{3,10}$/;
 
 var EV = conf.events;
 
-logger.debug("mongo:", MONGO, COLL);
-logger.debug("port:", PORT);
-logger.debug("conf:", conf);
+var scoresReady = connectMongo(MONGO).invoke("collection", COLL).ninvoke("count");
+var mapNameGenerator = MapNameGenerator({ db: MONGO, collection: DICTCOLL });
+var dictionaryReady = mapNameGenerator.init("server/ods5-french.txt", 378989);
 
 // app.use(reqLogger.create(logger));
 app.use(require("body-parser").json());
@@ -43,34 +43,10 @@ app.post("/", function (req, res) {
   res.sendFile("index.html", {root: './static'});
 });
 
-
 app.post("/report/error", function (req, res) {
   logger.error("ERROR REPORT:", req.body);
   res.send();
 });
-
-var scoresReady = connectMongo(MONGO)
-  .then(function (db) {
-    return Q.ninvoke(db.collection(COLL), "count");
-  })
-  .then(function (count) {
-    logger.debug("Nb Scores:", count);
-    return count;
-  });
-
-var dictionaryReady = connectMongo(MONGO)
-  .then(function (db) {
-    return new MapNameGenerator({ db: MONGO, collection: DICTCOLL }).init("server/ods5-french.txt", 378989);
-  })
-  .then(function (count) {
-    logger.debug("Dictionary size: "+count);
-    return count;
-  });
-
-var ready = Q.all([
-  scoresReady,
-  dictionaryReady
-]);
 
 // TODO: vary with influence & score distance ?
 var CARROT_PERSISTENCE = 24 * 3600 * 1000;
@@ -86,9 +62,7 @@ function dbScoreToScore (item) {
 
 function computeMapName (day) {
   return dictionaryReady
-    .then(function () {
-      return MapNameGenerator({ db: MONGO, collection: DICTCOLL });
-    })
+    .thenResolve(mapNameGenerator)
     .invoke("pick", seedrandom("mapnamegen@"+(+day)));
 }
 
@@ -355,8 +329,18 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
+logger.debug("mongo:", MONGO, COLL);
+logger.debug("port:", PORT);
+logger.debug("conf:", conf);
+
+scoresReady.then(function (count) {
+  logger.debug("Nb Scores:", count);
+}).done();
+
+dictionaryReady.then(function (count) {
+  logger.debug("Dictionary size:", count);
+}).done();
+
 http.listen(PORT, function () {
   logger.info('listening on http://localhost:'+PORT);
 });
-
-ready.done();
