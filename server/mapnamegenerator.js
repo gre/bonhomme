@@ -77,6 +77,7 @@ MapNameGenerator.prototype = {
         ]);
       })
       .spread(function (a, b) {
+        console.log("pick:", a, b);
         if (a.length !== 1) throw new Error("a has size = "+a.length);
         if (b.length !== 1) throw new Error("b has size = "+b.length);
         a = a[0].word;
