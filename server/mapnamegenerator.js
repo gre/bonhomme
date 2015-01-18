@@ -45,7 +45,7 @@ MapNameGenerator.prototype = {
     return this.countDictionary()
       .then(function (count) {
         if ((!expectedCount || count === expectedCount) && count > 0) return; // All good
-        console.log("Initializing dictionnary...");
+        console.log("Initializing dictionary... This can takes a few minutes...");
         return self.cleanDictionary()
           .then(function () {
             return self.insertDictionary(dictfile);
