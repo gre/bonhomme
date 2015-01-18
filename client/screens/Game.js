@@ -83,6 +83,10 @@ function Game (seed, controls, playername) {
 Game.prototype = Object.create(PIXI.Stage.prototype);
 Game.prototype.constructor = Game;
 
+Game.prototype.setMapName = function (name) {
+  this.map.setName(name);
+};
+
 Game.prototype.destroy = function () {
   this.audio1.stop();
   for (var k in this) {

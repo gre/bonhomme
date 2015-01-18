@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var Q = require("q");
+var seedrandom = require("seedrandom");
 var Qdebounce = require("qdebounce");
 var _ = require("lodash");
 var SlidingWindow = require("sliding-window");
@@ -15,6 +16,7 @@ var ntp = require("socket-ntp");
 require('date-utils');
 
 var PlayerMoveState = require("../client/network/PlayerMoveState");
+var MapNameGenerator = require("./mapnamegenerator");
 
 var logger = new (winston.Logger)({ transports: [
     new (winston.transports.Console)({ level: "debug" })
@@ -24,7 +26,7 @@ var logger = new (winston.Logger)({ transports: [
 var MONGO = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/bonhomme';
 var PORT = process.env.PORT || 9832;
 var COLL = "scores";
-var conf = require("../client/conf");
+var conf = require("../conf.json");
 var nameRegexp = /^[a-zA-Z0-9]{3,10}$/;
 
 var EV = conf.events;
@@ -48,15 +50,28 @@ app.post("/report/error", function (req, res) {
 
 var connectMongo = Q.nbind(MongoClient.connect, MongoClient);
 
-connectMongo(MONGO)
+var initialScoreCount = connectMongo(MONGO)
   .then(function (db) {
-    return Q.ninvoke(db.collection(COLL).find(), "toArray");
+    return Q.ninvoke(db.collection(COLL), "count");
   })
-  .then(function (res) {
-    logger.debug("Nb Scores:", res.length);
-  })
-  .done();
+  .then(function (count) {
+    logger.debug("Nb Scores:", count);
+    return count;
+  });
 
+var initDictionary = connectMongo(MONGO)
+  .then(function (db) {
+    return new MapNameGenerator(db).init("server/ods5-french.txt", 378989);
+  })
+  .then(function (count) {
+    logger.debug("Dictionary size: "+count);
+    return count;
+  });
+
+var ready = Q.all([
+  initialScoreCount,
+  initDictionary
+]);
 
 // TODO: vary with influence & score distance ?
 var CARROT_PERSISTENCE = 24 * 3600 * 1000;
@@ -69,6 +84,29 @@ function dbScoreToScore (item) {
     player: item.player
   };
 }
+
+function computeMapName (day) {
+  return connectMongo(MONGO)
+    .then(MapNameGenerator)
+    .invoke("pick", seedrandom("mapnamegen@"+(+day)));
+}
+
+function lazyDaily (f) {
+  var data, dataDay;
+  return function () {
+    var today = Date.today();
+    if (today === dataDay) return data;
+    data = f(today);
+    dataDay = today;
+    Q(data).fail(function () {
+      data = null;
+      dataDay = null;
+    });
+    return data;
+  };
+}
+
+var getCurrentMapName = lazyDaily(computeMapName);
 
 function getScores () {
   var timeOfDay = +Date.today();
@@ -173,6 +211,14 @@ io.sockets.on('connection', function (socket) {
     debouncedGetScores().then(function (scores) {
       socket.emit(EV.scores, scores);
     });
+  });
+
+  socket.on(EV.newgame, function () {
+    Q.all([ getCurrentMapName() ])
+    .spread(function (mapname) {
+      socket.emit(EV.gameinfo, { mapname: mapname });
+    })
+    .done();
   });
 
   socket.once(EV.playerready, function (playerInfos) {
@@ -308,6 +354,10 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
-http.listen(PORT, function () {
-  logger.info('listening on http://localhost:'+PORT);
-});
+ready
+  .then(function () {
+    http.listen(PORT, function () {
+      logger.info('listening on http://localhost:'+PORT);
+    });
+  })
+  .done();

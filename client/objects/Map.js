@@ -61,6 +61,10 @@ function Map (seed, cars, particles, spawners) {
 Map.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
 Map.prototype.constructor = Map;
 
+Map.prototype.setName = function (name) {
+  console.log("Welcome to " + name);
+};
+
 Map.prototype.setScores = function (scores) {
   this.homeTile.setScores(scores);
 };

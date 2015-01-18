@@ -21,6 +21,7 @@ function NetworkGame (socket) {
   socket.on(EV.playerenter, this.onPlayerEnter.bind(this));
   socket.on(EV.playerleave, this.onPlayerLeave.bind(this));
   socket.on(EV.players, this.onPlayers.bind(this));
+  socket.on(EV.gameinfo, this.onGameInfo.bind(this));
 
   this.playerGhost = true;
   var self = this;
@@ -47,6 +48,11 @@ NetworkGame.prototype = {
       this.player.destroy();
     }
     this.player = new NetworkPlayer(game.player, this.socket);
+    this.socket.emit(EV.newgame);
+  },
+
+  onGameInfo: function (info) {
+    this.game.setMapName(info.mapname);
   },
 
   onPlayers: function (players) {
