@@ -53,7 +53,7 @@ function Desktop () {
   survey.style.width = "100%";
   survey.style.textAlign = "center";
   survey.style[transformKey] = "translate3D(0,600px,0)";
-  survey.innerHTML='<h2>Please answer following survey:</h2><iframe src="https://docs.google.com/forms/d/1ffYKR96JY5rj0feeMS2zYhP-u9R08QAeQV5A3bgNfjE/viewform?embedded=true" width="550" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>';
+  survey.innerHTML='<h2>Bonhomme v1 beta – Your feedback very appreciated!!!</h2><iframe src="https://docs.google.com/forms/d/1ffYKR96JY5rj0feeMS2zYhP-u9R08QAeQV5A3bgNfjE/viewform?embedded=true" width="550" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>';
   document.body.appendChild(survey);
 
   this.name = Q.defer();
