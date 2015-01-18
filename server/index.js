@@ -226,7 +226,7 @@ io.sockets.on('connection', function (socket) {
       var deltaServerTime = tnow - move.time;
 
       if (Math.abs(deltaServerTime) > 400) {
-        logger.warn(id, "The client is not in sync with the server time", { server: tnow, client: move.time, delta: deltaServerTime });
+        // logger.warn(id, "The client is not in sync with the server time", { server: tnow, client: move.time, delta: deltaServerTime });
         return;
       }
 
