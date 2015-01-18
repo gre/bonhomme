@@ -69,13 +69,14 @@ function computeMapName (day) {
 function lazyDaily (f) {
   var data, dataDay;
   return function () {
-    var today = Date.today();
+    var today = +Date.today();
     if (today === dataDay) return data;
     data = f(today);
     dataDay = today;
-    Q(data).fail(function () {
+    Q(data).fail(function (e) {
       data = null;
       dataDay = null;
+      logger.error("lazy daily failed: "+e);
     });
     return data;
   };
@@ -339,6 +340,10 @@ scoresReady.then(function (count) {
 
 dictionaryReady.then(function (count) {
   logger.debug("Dictionary size:", count);
+}).done();
+
+getCurrentMapName().then(function (mapname) {
+  logger.debug("Daily map name: ", mapname);
 }).done();
 
 http.listen(PORT, function () {

@@ -26,16 +26,18 @@ MapNameGenerator.prototype = {
   insertDictionary: function (dictfile) {
     var streamDefer = Q.defer();
     var i = 0;
+    var SIZE = 512;
     fs.createReadStream(dictfile, { encoding: 'utf8' })
       .pipe(es.split())
-      .pipe(bufferize(512))
+      .pipe(bufferize(SIZE))
       .pipe(es.map(function (words, cb) {
-        cb(null, words.map(function (word) {
-          return { word: word, length: word.length, index: i++ };
+        i ++;
+        cb(null, words.map(function (word, j) {
+          return { word: word, length: word.length, index: i * SIZE + j };
         }));
       }))
       .pipe(StreamToMongo(this.options))
-      .on("end", streamDefer.resolve)
+      .on("finish", streamDefer.resolve)
       .on("error", streamDefer.reject);
     return streamDefer.promise;
   },
