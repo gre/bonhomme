@@ -29,13 +29,10 @@ MapNameGenerator.prototype = {
     var SIZE = 512;
     fs.createReadStream(dictfile, { encoding: 'utf8' })
       .pipe(es.split())
-      .pipe(bufferize(SIZE))
-      .pipe(es.map(function (words, cb) {
-        i ++;
-        cb(null, words.map(function (word, j) {
-          return { word: word, length: word.length, index: i * SIZE + j };
-        }));
+      .pipe(es.map(function (word, callback) {
+        callback(null, { word: word, length: word.length, index: i++ });
       }))
+      .pipe(bufferize(SIZE))
       .pipe(StreamToMongo(this.options))
       .on("finish", streamDefer.resolve)
       .on("error", streamDefer.reject);
