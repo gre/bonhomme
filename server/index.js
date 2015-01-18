@@ -155,6 +155,10 @@ var CHUNK_SIZE = 480;
 var players = {};
 var playersLastMove = {};
 
+var logPlayersSize = _.debounce(function () {
+  logger.debug("Nb players:", Object.keys(players).length);
+}, 1000);
+
 function roomForChunk (i) {
   return "chunk@"+i;
 }
@@ -210,6 +214,8 @@ io.sockets.on('connection', function (socket) {
       return;
     }
     logger.debug("player connect", id, playerInfos);
+
+    logPlayersSize();
 
     players[id] = playerInfos;
     socket.emit(EV.players, players);
