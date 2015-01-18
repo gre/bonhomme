@@ -15,6 +15,8 @@ var updateChildren = require("../behavior/updateChildren");
 var Road = require("./Road");
 var mapGenerator = require("../map-generator");
 
+var mapTileSize = 400;
+
 function Map (seed, cars, particles, spawners, objects) {
   PIXI.DisplayObjectContainer.call(this);
 
@@ -23,8 +25,6 @@ function Map (seed, cars, particles, spawners, objects) {
   this.particles = particles;
   this.spawners = spawners;
   this.objects = objects;
-
-  var mapTileSize = 400;
 
   var homeTile = this.homeTile = new HomeTile();
 
@@ -74,7 +74,7 @@ Map.prototype.setName = function (name) {
   var objs = this.objects;
   this.tile1.then(function (tile) {
     var townSign = new TownSign(name);
-    townSign.position.set(tile.x+100, tile.y+200);
+    townSign.position.set(conf.WIDTH/2, tile.y + mapTileSize);
     objs.addChild(townSign);
   }).done();
 };

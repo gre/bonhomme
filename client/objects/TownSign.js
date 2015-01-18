@@ -12,7 +12,7 @@ function TownSign (name) {
   townName.updateText();
   townName.position.set(
     75 + (250-townName.width) / 2,
-    130 + (70-townName.height) / 2);
+    130);
 
   this.addChild(townSign);
   this.addChild(townName);
