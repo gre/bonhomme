@@ -4,6 +4,7 @@ var Q = require("q");
 var Qajax = require("qajax");
 var requestAnimFrame = require("raf");
 var io = require("socket.io-client");
+var today = require("../common/today");
 
 require("socket-ntp/client/ntp");
 var ntp = window.ntp;
@@ -51,7 +52,7 @@ socketConnected.then(function () {
 
 function newGame (playerName) {
   // This part is ugly...
-  var seed = "grewebisawesome" + ~~(now() / (24 * 3600 * 1000));
+  var seed = "grewebisawesome" + today(now());
   var instance = new Game(seed, controls, playerName);
   instance.on("GameOver", function () {
     Q.delay(6000)

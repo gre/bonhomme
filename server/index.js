@@ -12,7 +12,7 @@ var serveStatic = require('serve-static');
 var winston = require('winston');
 // var reqLogger = require('express-request-logger');
 var ntp = require("socket-ntp");
-require('date-utils');
+var today = require("../common/today");
 
 var connectMongo = require("./connectMongo");
 var PlayerMoveState = require("../client/network/PlayerMoveState");
@@ -62,19 +62,22 @@ function dbScoreToScore (item) {
 
 function computeMapName (day) {
   var seed = "mapnamegen@"+(+day);
-  console.log(seed);
   return dictionaryReady
     .thenResolve(mapNameGenerator)
     .invoke("pick", seedrandom(seed));
 }
 
+function now () {
+  return +Date.now();
+}
+
 function lazyDaily (f) {
   var data, dataDay;
   return function () {
-    var today = +Date.today();
-    if (today === dataDay) return data;
-    data = f(today);
-    dataDay = today;
+    var day = today(now());
+    if (day === dataDay) return data;
+    data = f(day);
+    dataDay = day;
     Q(data).fail(function (e) {
       data = null;
       dataDay = null;
@@ -87,7 +90,7 @@ function lazyDaily (f) {
 var getCurrentMapName = lazyDaily(computeMapName);
 
 function getScores () {
-  var timeOfDay = +Date.today();
+  var timeOfDay = today(now());
   return connectMongo(MONGO)
   .then(function (db) {
     var collection = db.collection(COLL);
@@ -129,7 +132,7 @@ function saveScore (item, track) {
           player: item.player,
           x: Math.round(item.x),
           score: Math.round(item.score),
-          date: Date.now(),
+          date: now(),
           track: encodeTrack(track)
         };
         var score = dbScoreToScore(item);
@@ -210,7 +213,7 @@ io.sockets.on('connection', function (socket) {
 
     players[id] = playerInfos;
     socket.emit(EV.players, players);
-    socket.broadcast.emit(EV.playerenter, playerInfos, id, Date.now());
+    socket.broadcast.emit(EV.playerenter, playerInfos, id, now());
 
     socket.on(EV.playermove, function (obj) {
       if (!PlayerMoveState.validateEncoded(obj)) {
@@ -219,11 +222,11 @@ io.sockets.on('connection', function (socket) {
       }
       var move = PlayerMoveState.decode(obj);
 
-      var now = Date.now();
-      var deltaServerTime = now - move.time;
+      var tnow = now();
+      var deltaServerTime = tnow - move.time;
 
       if (Math.abs(deltaServerTime) > 400) {
-        logger.warn(id, "The client is not in sync with the server time", { server: now, client: move.time, delta: deltaServerTime });
+        logger.warn(id, "The client is not in sync with the server time", { server: tnow, client: move.time, delta: deltaServerTime });
         return;
       }
 
@@ -268,13 +271,13 @@ io.sockets.on('connection', function (socket) {
         logger.warn(id, "invalid score sent", score);
         return;
       }
-      var now = Date.now();
+      var tnow = now();
       var track = currentTrack;
       currentTrack = [];
 
       socket
         .broadcast
-        .emit(EV.playerdie, score, id, now);
+        .emit(EV.playerdie, score, id, tnow);
 
 
       var length = track.length;
@@ -324,7 +327,7 @@ io.sockets.on('connection', function (socket) {
 
     socket.on("disconnect", function () {
       logger.debug("player disconnect", id);
-      socket.broadcast.emit(EV.playerleave, id, Date.now());
+      socket.broadcast.emit(EV.playerleave, id, now());
       currentTrack = 0;
       delete playersLastMove[id];
       delete players[id];
