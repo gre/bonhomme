@@ -2,6 +2,7 @@ var Q = require("q");
 var _ = require("lodash");
 var StreamToMongo = require("stream-to-mongo");
 var es = require("event-stream");
+var bufferize = require("bufferize");
 var connectMongo = require("./connectMongo");
 var fs = require("fs");
 
@@ -27,8 +28,11 @@ MapNameGenerator.prototype = {
     var i = 0;
     fs.createReadStream(dictfile, { encoding: 'utf8' })
       .pipe(es.split())
-      .pipe(es.map(function (word, cb) {
-        cb(null, { word: word, length: word.length, index: i++ });
+      .pipe(bufferize(512))
+      .pipe(es.map(function (words, cb) {
+        cb(null, words.map(function (word) {
+          return { word: word, length: word.length, index: i++ };
+        }));
       }))
       .pipe(StreamToMongo(this.options))
       .on("end", streamDefer.resolve)
