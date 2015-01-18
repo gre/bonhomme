@@ -5,7 +5,6 @@ var seedrandom = require("seedrandom");
 var Qdebounce = require("qdebounce");
 var _ = require("lodash");
 var SlidingWindow = require("sliding-window");
-var MongoClient = require('mongodb').MongoClient;
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -15,6 +14,7 @@ var winston = require('winston');
 var ntp = require("socket-ntp");
 require('date-utils');
 
+var connectMongo = require("./connectMongo");
 var PlayerMoveState = require("../client/network/PlayerMoveState");
 var MapNameGenerator = require("./mapnamegenerator");
 
@@ -26,6 +26,7 @@ var logger = new (winston.Logger)({ transports: [
 var MONGO = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/bonhomme';
 var PORT = process.env.PORT || 9832;
 var COLL = "scores";
+var DICTCOLL = "dict";
 var conf = require("../conf.json");
 var nameRegexp = /^[a-zA-Z0-9]{3,10}$/;
 
@@ -48,8 +49,6 @@ app.post("/report/error", function (req, res) {
   res.send();
 });
 
-var connectMongo = Q.nbind(MongoClient.connect, MongoClient);
-
 var scoresReady = connectMongo(MONGO)
   .then(function (db) {
     return Q.ninvoke(db.collection(COLL), "count");
@@ -61,7 +60,7 @@ var scoresReady = connectMongo(MONGO)
 
 var dictionaryReady = connectMongo(MONGO)
   .then(function (db) {
-    return new MapNameGenerator(db).init("server/ods5-french.txt", 378989);
+    return new MapNameGenerator({ db: MONGO, collection: DICTCOLL }).init("server/ods5-french.txt", 378989);
   })
   .then(function (count) {
     logger.debug("Dictionary size: "+count);
@@ -87,8 +86,9 @@ function dbScoreToScore (item) {
 
 function computeMapName (day) {
   return dictionaryReady
-    .then(function () { return connectMongo(MONGO); })
-    .then(MapNameGenerator)
+    .then(function () {
+      return MapNameGenerator({ db: MONGO, collection: DICTCOLL });
+    })
     .invoke("pick", seedrandom("mapnamegen@"+(+day)));
 }
 

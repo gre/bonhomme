@@ -1,13 +1,13 @@
 var Q = require("q");
 var _ = require("lodash");
-var byline = require('byline');
+var StreamToMongo = require("stream-to-mongo");
+var es = require("event-stream");
+var connectMongo = require("./connectMongo");
 var fs = require("fs");
 
-var DICTCOLL = "dict";
-
-function MapNameGenerator (db) {
-  if (!(this instanceof MapNameGenerator)) return new MapNameGenerator(db);
-  this.coll = db.collection(DICTCOLL);
+function MapNameGenerator (options) {
+  if (!(this instanceof MapNameGenerator)) return new MapNameGenerator(options);
+  this.options = options;
 }
 
 function capitalize (name) {
@@ -15,29 +15,33 @@ function capitalize (name) {
 }
 
 MapNameGenerator.prototype = {
+  coll: function () {
+    var options = this.options;
+    return connectMongo(options.db)
+      .then(function (db) {
+        return db.collection(options.collection);
+      });
+  },
   insertDictionary: function (dictfile) {
-    var coll = this.coll;
     var streamDefer = Q.defer();
     var i = 0;
-    var insertions = [];
-    byline(fs.createReadStream(dictfile, { encoding: 'utf8' }))
-      .on("data", function (word) {
-        var item = { word: word, length: word.length, index: i++ };
-        insertions.push(Q.ninvoke(coll, "insert", item));
-      })
+    fs.createReadStream(dictfile, { encoding: 'utf8' })
+      .pipe(es.split())
+      .pipe(es.map(function (word, cb) {
+        cb(null, { word: word, length: word.length, index: i++ });
+      }))
+      .pipe(StreamToMongo(this.options))
       .on("end", streamDefer.resolve)
       .on("error", streamDefer.reject);
-    return streamDefer.promise.then(function () {
-      return Q.all(insertions);
-    });
+    return streamDefer.promise;
   },
 
   countDictionary: function () {
-    return Q.ninvoke(this.coll, "count");
+    return this.coll().ninvoke("count");
   },
 
   cleanDictionary: function () {
-    return Q.ninvoke(this.coll, "remove");
+    return this.coll().ninvoke("remove");
   },
 
   init: function (dictfile, expectedCount) {
@@ -57,9 +61,11 @@ MapNameGenerator.prototype = {
   },
 
   pick: function (random) {
-    var coll = this.coll;
-    return this.countDictionary()
-      .then(function (count) {
+    return Q.all([
+      this.countDictionary(),
+      this.coll()
+    ])
+      .spread(function (count, coll) {
         var indexA = Math.floor(count * random());
         var indexB = Math.floor(count * random());
         return Q.all([
