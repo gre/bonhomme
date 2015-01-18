@@ -13,7 +13,7 @@ function getLocalName () {
 }
 
 function Desktop () {
-  
+
   var gridwrap = document.createElement("div");
   gridwrap.style.overflow = "hidden";
   gridwrap.style.position = "absolute";
