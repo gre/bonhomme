@@ -50,7 +50,7 @@ app.post("/report/error", function (req, res) {
 
 var connectMongo = Q.nbind(MongoClient.connect, MongoClient);
 
-var initialScoreCount = connectMongo(MONGO)
+var scoresReady = connectMongo(MONGO)
   .then(function (db) {
     return Q.ninvoke(db.collection(COLL), "count");
   })
@@ -59,7 +59,7 @@ var initialScoreCount = connectMongo(MONGO)
     return count;
   });
 
-var initDictionary = connectMongo(MONGO)
+var dictionaryReady = connectMongo(MONGO)
   .then(function (db) {
     return new MapNameGenerator(db).init("server/ods5-french.txt", 378989);
   })
@@ -69,8 +69,8 @@ var initDictionary = connectMongo(MONGO)
   });
 
 var ready = Q.all([
-  initialScoreCount,
-  initDictionary
+  scoresReady,
+  dictionaryReady
 ]);
 
 // TODO: vary with influence & score distance ?
@@ -86,7 +86,8 @@ function dbScoreToScore (item) {
 }
 
 function computeMapName (day) {
-  return connectMongo(MONGO)
+  return dictionaryReady
+    .then(function () { return connectMongo(MONGO); })
     .then(MapNameGenerator)
     .invoke("pick", seedrandom("mapnamegen@"+(+day)));
 }
@@ -354,10 +355,8 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
-ready
-  .then(function () {
-    http.listen(PORT, function () {
-      logger.info('listening on http://localhost:'+PORT);
-    });
-  })
-  .done();
+http.listen(PORT, function () {
+  logger.info('listening on http://localhost:'+PORT);
+});
+
+ready.done();
