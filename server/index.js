@@ -207,6 +207,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.once(EV.playerready, function (playerInfos) {
+    logPlayersSize();
     if (!_.isEqual(Object.keys(playerInfos), ["name"]) ||
         !playerInfos.name || !nameRegexp.exec(playerInfos.name)) {
       logger.warn(id, "Invalid player: ", playerInfos);
@@ -214,8 +215,6 @@ io.sockets.on('connection', function (socket) {
       return;
     }
     logger.debug("player connect", id, playerInfos);
-
-    logPlayersSize();
 
     players[id] = playerInfos;
     socket.emit(EV.players, players);
@@ -337,6 +336,7 @@ io.sockets.on('connection', function (socket) {
       currentTrack = 0;
       delete playersLastMove[id];
       delete players[id];
+      logPlayersSize();
     });
   });
 });
