@@ -61,9 +61,11 @@ function dbScoreToScore (item) {
 }
 
 function computeMapName (day) {
+  var seed = "mapnamegen@"+(+day);
+  console.log(seed);
   return dictionaryReady
     .thenResolve(mapNameGenerator)
-    .invoke("pick", seedrandom("mapnamegen@"+(+day)));
+    .invoke("pick", seedrandom(seed));
 }
 
 function lazyDaily (f) {
