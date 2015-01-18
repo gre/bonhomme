@@ -31,7 +31,8 @@ function Game (seed, controls, playername) {
   var explosions = new Container();
   var explosionsPlayer = new Container();
   var spawners = new Container();
-  var map = new GameMap(seed, cars, particles, spawners);
+  var objects = new Container();
+  var map = new GameMap(seed, cars, particles, spawners, objects);
   var deadCarrots = new Container();
 
   var footprints = new PIXI.DisplayObjectContainer();
@@ -54,6 +55,7 @@ function Game (seed, controls, playername) {
   world.addChild(cars);
   world.addChild(particles);
   world.addChild(spawners);
+  world.addChild(objects);
   world.addChild(explosions);
   world.addChild(explosionsPlayer);
 

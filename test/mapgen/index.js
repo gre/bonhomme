@@ -39,7 +39,8 @@ function newRun (i) {
   var cars = new Container();
   var particules = new Container();
   var spawners = new Container();
-  var map = new GMap(seed+i, cars, particules, spawners);
+  var objects = new Container();
+  var map = new GMap(seed+i, cars, particules, spawners, objects);
   map.debug = debug;
 
   var world = new World();
@@ -47,6 +48,7 @@ function newRun (i) {
   world.addChild(spawners);
   world.addChild(particules);
   world.addChild(cars);
+  world.addChild(objects);
 
   world.addChild(debug);
 
