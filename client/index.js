@@ -133,8 +133,11 @@ Qstart.then(function () {
 
 /// Error management
 
-window.onerror = function (e) {
-  var webgl = ( function () { try { var canvas = document.createElement( 'canvas' ); return !! window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ); } catch( e ) { return false; } } )();
+var consoleError = console.error;
+
+window.onerror = console.error = function (e) {
+  consoleError.call(console, e);
+  var webgl = !!( function () { try { var canvas = document.createElement( 'canvas' ); return !! window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ); } catch( e ) { return false; } } )();
 
   Qajax("/report/error", {
     method: "POST",

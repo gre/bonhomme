@@ -90,7 +90,13 @@ Game.prototype.setMapName = function (name) {
 };
 
 Game.prototype.destroy = function () {
-  this.audio1.stop();
+  try {
+    this.audio1.stop();
+  }
+  catch (e) {
+    // Investigate later why this breaks on Mobile Safari
+    console.error(e);
+  }
   for (var k in this) {
     this[k] = null;
   }

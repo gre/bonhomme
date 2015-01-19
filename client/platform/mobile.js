@@ -20,7 +20,7 @@ function Mobile () {
 
 Mobile.prototype = {
   getPlayerName: function () {
-    return Q(getLocalName()) || this.askName();
+    return Q(getLocalName() || this.askName());
   },
 
   askName: function (again) {
