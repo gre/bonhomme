@@ -1,5 +1,5 @@
 
-Source code under client
+Source code under client and server
 ------
 
 GPL v3
