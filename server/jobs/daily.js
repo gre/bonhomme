@@ -1,3 +1,3 @@
 var Twitter = require("../services/Twitter");
 
-Twitter.tweetDay();
+Twitter.tweetDay().done();
