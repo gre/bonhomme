@@ -1,26 +1,39 @@
+var fs = require("fs");
 var Q = require("q");
 var _ = require("lodash");
+var seedrandom = require("seedrandom");
 var StreamToMongo = require("stream-to-mongo");
 var es = require("event-stream");
 var bufferize = require("bufferize");
-var connectMongo = require("./connectMongo");
-var fs = require("fs");
 
-function MapNameGenerator (options) {
-  if (!(this instanceof MapNameGenerator)) return new MapNameGenerator(options);
-  this.options = options;
-}
+var env = require("../env");
+var connectMongo = require("../utils/connectMongo");
+var logger = require("../utils/logger");
+var lazyDaily = require("../utils/lazyDaily");
+
+var DICTCOLL = "dict";
 
 function capitalize (name) {
   return name.substring(0, 1).toUpperCase() + name.substring(1);
 }
 
-MapNameGenerator.prototype = {
+var readyD = Q.defer();
+var ready = readyD.promise;
+
+function computeForDay (day) {
+  var seed = "mapnamegen@"+(+day);
+  return ready.invoke("pick", seedrandom(seed));
+}
+
+var MapName = module.exports = {
+  computeForDay: computeForDay,
+
+  getCurrent: lazyDaily(computeForDay),
+
   coll: function () {
-    var options = this.options;
-    return connectMongo(options.db)
+    return connectMongo(env.MONGO)
       .then(function (db) {
-        return db.collection(options.collection);
+        return db.collection(DICTCOLL);
       });
   },
   insertDictionary: function (dictfile) {
@@ -58,9 +71,7 @@ MapNameGenerator.prototype = {
             return self.insertDictionary(dictfile);
           });
       })
-      .then(function () {
-        return self.countDictionary();
-      });
+      .thenResolve(this);
   },
 
   pick: function (random) {
@@ -146,7 +157,14 @@ MapNameGenerator.prototype = {
         var name = _.last(_.sortBy(all, score));
         return capitalize(name);
       });
-  }
+  },
+
+  ready: ready
 };
 
-module.exports = MapNameGenerator;
+MapName.init("server/data/ods5-french.txt", 378989).then(readyD.resolve, readyD.reject);
+
+ready.then(function () {
+  logger.debug("Dictionary Loaded.");
+}).done();
+

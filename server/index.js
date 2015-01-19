@@ -1,155 +1,26 @@
 #!/usr/bin/env node
 
 var Q = require("q");
-var seedrandom = require("seedrandom");
 var Qdebounce = require("qdebounce");
 var _ = require("lodash");
 var SlidingWindow = require("sliding-window");
+var serveStatic = require('serve-static');
+var ntp = require("socket-ntp");
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var serveStatic = require('serve-static');
-var winston = require('winston');
-// var reqLogger = require('express-request-logger');
-var ntp = require("socket-ntp");
-var today = require("../common/today");
 
-var connectMongo = require("./connectMongo");
-var PlayerMoveState = require("../client/network/PlayerMoveState");
-var MapNameGenerator = require("./mapnamegenerator");
-
-var logger = new (winston.Logger)({ transports: [
-    new (winston.transports.Console)({ level: "debug" })
-  ]
-});
-
-var MONGO = process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/bonhomme';
-var PORT = process.env.PORT || 9832;
-var COLL = "scores";
-var DICTCOLL = "dict";
+var env = require("./env");
+var MapName = require("./models/MapName");
+var Score = require("./models/Score");
+var logger = require("./utils/logger");
+var now = require("./utils/now");
+var nameRegexp = require("../common/PlayerName").regexp;
+var PlayerMoveState = require("../common/PlayerMoveState");
 var conf = require("../conf.json");
-var nameRegexp = /^[a-zA-Z0-9]{3,10}$/;
-
 var EV = conf.events;
 
-var scoresReady = connectMongo(MONGO).invoke("collection", COLL).ninvoke("count");
-var mapNameGenerator = MapNameGenerator({ db: MONGO, collection: DICTCOLL });
-var dictionaryReady = mapNameGenerator.init("server/ods5-french.txt", 378989);
-
-// app.use(reqLogger.create(logger));
-app.use(require("body-parser").json());
-app.use(serveStatic('static'));
-app.post("/", function (req, res) {
-  res.sendFile("index.html", {root: './static'});
-});
-
-app.post("/report/error", function (req, res) {
-  logger.error("ERROR REPORT:", req.body);
-  res.send();
-});
-
-// TODO: vary with influence & score distance ?
-var CARROT_PERSISTENCE = 24 * 3600 * 1000;
-
-function now () {
-  return +Date.now();
-}
-
-function dbScoreToScore (item) {
-  return {
-    opacity: Math.max(0, 1 - (now() - item.date) / CARROT_PERSISTENCE),
-    x: item.x,
-    score: item.score,
-    player: item.player
-  };
-}
-
-function computeMapName (day) {
-  var seed = "mapnamegen@"+(+day);
-  return dictionaryReady
-    .thenResolve(mapNameGenerator)
-    .invoke("pick", seedrandom(seed));
-}
-
-function lazyDaily (f) {
-  var data, dataDay;
-  return function () {
-    var day = today(now());
-    if (day === dataDay) return data;
-    data = f(day);
-    dataDay = day;
-    Q(data).fail(function (e) {
-      data = null;
-      dataDay = null;
-      logger.error("lazy daily failed: "+e);
-    });
-    return data;
-  };
-}
-
-var getCurrentMapName = lazyDaily(computeMapName);
-
-function getScores () {
-  var timeOfDay = today(now());
-  return connectMongo(MONGO)
-  .then(function (db) {
-    var collection = db.collection(COLL);
-    return Q.ninvoke(collection.find({ "date" : { "$gt": timeOfDay } }).sort({ "score": -1 }), "toArray");
-  })
-  .then(function (results) {
-    return results.map(dbScoreToScore);
-  })
-  .timeout(3000);
-}
-
-var debouncedGetScores = Qdebounce(getScores, 200);
-
-function validScore (item) {
-  return (
-    typeof item.player === "string" && nameRegexp.exec(item.player) &&
-    typeof item.x === "number" && !isNaN(item.x) &&
-    typeof item.score === "number" && !isNaN(item.score) &&
-    0 <= item.x && item.x <= 320 &&
-    item.score > 0
-  );
-}
-
-function encodeTrack (track) {
-  return track.map(PlayerMoveState.encode);
-}
-/*
-function decodeTrack (track) {
-  return track.map(PlayerMoveState.decode);
-}
-*/
-
-function saveScore (item, track) {
-  return Q.fcall(function () {
-    if (validScore(item)) {
-      return connectMongo(MONGO).then(function (db) {
-        var collection = db.collection(COLL);
-        item = {
-          player: item.player,
-          x: Math.round(item.x),
-          score: Math.round(item.score),
-          date: now(),
-          track: encodeTrack(track)
-        };
-        var score = dbScoreToScore(item);
-        return Q.ninvoke(collection, "insert", item)
-          .then(function () {
-            logger.debug("score saved:", score);
-          })
-          .thenResolve(score);
-      });
-    }
-    else {
-      logger.error(item);
-      throw new Error("score requirement: { player /* alphanum in 3-10 chars */, x, score }");
-    }
-  });
-}
-
+var debouncedGetScore = Qdebounce(Score.listDay, 200);
 var CHUNK_SIZE = 480;
 
 var players = {};
@@ -162,10 +33,19 @@ var logPlayersSize = _.debounce(function () {
 function roomForChunk (i) {
   return "chunk@"+i;
 }
-
 function chunkForY (y) {
   return Math.floor((conf.HEIGHT - y) / CHUNK_SIZE);
 }
+
+app.use(require("body-parser").json());
+app.use(serveStatic('static'));
+app.post("/", function (req, res) {
+  res.sendFile("index.html", {root: './static'});
+});
+app.post("/report/error", function (req, res) {
+  logger.error("ERROR REPORT:", req.body);
+  res.send();
+});
 
 // Real Time
 io.sockets.on('connection', function (socket) {
@@ -193,13 +73,13 @@ io.sockets.on('connection', function (socket) {
       logger.warn(id, "Client version doesn't match server version.", clientConf, conf);
       return;
     }
-    debouncedGetScores().then(function (scores) {
+    debouncedGetScore().then(function (scores) {
       socket.emit(EV.scores, scores);
     });
   });
 
   socket.on(EV.newgame, function () {
-    Q.all([ getCurrentMapName() ])
+    Q.all([ MapName.getCurrent() ])
     .spread(function (mapname) {
       socket.emit(EV.gameinfo, { mapname: mapname });
     })
@@ -272,7 +152,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on(EV.playerdie, function (score) {
-      if (!validScore(score)) {
+      if (!Score.valid(score)) {
         logger.warn(id, "invalid score sent", score);
         return;
       }
@@ -320,7 +200,8 @@ io.sockets.on('connection', function (socket) {
         return;
       }
 
-      saveScore(score, track)
+      Score.validateUserInput(score, track)
+        .then(Score.save)
         .then(function (item) {
           socket.broadcast.emit(EV.newscore, item);
           socket.emit(EV.newscore, item);
@@ -341,22 +222,18 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
-logger.debug("mongo:", MONGO, COLL);
-logger.debug("port:", PORT);
+logger.debug("mongo:", env.MONGO);
+logger.debug("port:", env.PORT);
 logger.debug("conf:", conf);
 
-scoresReady.then(function (count) {
+Score.ready.then(function (count) {
   logger.debug("Nb Scores:", count);
 }).done();
 
-dictionaryReady.then(function (count) {
-  logger.debug("Dictionary size:", count);
-}).done();
-
-getCurrentMapName().then(function (mapname) {
+MapName.getCurrent().then(function (mapname) {
   logger.debug("Daily map name: ", mapname);
 }).done();
 
-http.listen(PORT, function () {
-  logger.info('listening on http://localhost:'+PORT);
+http.listen(env.PORT, function () {
+  logger.info('listening on http://localhost:'+env.PORT);
 });
