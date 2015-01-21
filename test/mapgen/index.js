@@ -40,7 +40,7 @@ function newRun (i) {
   var particules = new Container();
   var spawners = new Container();
   var objects = new Container();
-  var map = new GMap(seed+i, cars, particules, spawners, objects);
+  var map = new GMap(seed+i, cars, particules, particules, spawners, objects);
   map.debug = debug;
 
   var world = new World();
