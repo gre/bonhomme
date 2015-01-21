@@ -5094,8 +5094,9 @@ function Game (seed, controls, playername) {
 
   // TODO move containers to World
   var cars = new Container();
-  var snowballs = new Container();
-  var fireballs = new Container();
+  var particles = new Container();
+  var snowballs = particles;
+  var fireballs = particles;
   var explosions = new Container();
   var explosionsPlayer = new Container();
   var spawners = new Container();
@@ -5134,8 +5135,7 @@ function Game (seed, controls, playername) {
   this.world = world;
   this.map = map;
   this.cars = cars;
-  this.snowballs = snowballs;
-  this.fireballs = fireballs;
+  this.particles = particles;
   this.spawners = spawners;
   this.deadCarrots = deadCarrots;
   this.footprints = footprints;
@@ -5160,8 +5160,7 @@ Game.prototype.update = function (t, dt) {
   var player = this.player;
   var controls = this.controls;
   var map = this.map;
-  var fireballs = this.fireballs.children;
-  var snowballs = this.snowballs.children;
+  var particles = this.particles.children;
   var cars = this.cars.children;
   var footprints = this.footprints.children;
 
@@ -5174,23 +5173,16 @@ Game.prototype.update = function (t, dt) {
 
   // Collision checks
 
-  var fireballsBoxes = [];
-  var snowballsBoxes = [];
+  var particlesBoxes = [];
   var carsBoxes = [];
-  for (i=0; i<fireballs.length; ++i) {
-    fireballsBoxes.push(fireballs[i].box);
-  }
-  for (i=0; i<snowballs.length; ++i) {
-    snowballsBoxes.push(snowballs[i].box);
+  for (i=0; i<particles.length; ++i) {
+    particlesBoxes.push(particles[i].box);
   }
   for (i=0; i<cars.length; ++i) {
     carsBoxes.push(cars[i].box);
   }
-  boxIntersect(carsBoxes, snowballsBoxes, function (i, j) {
-    carHitParticules.push(snowballs[j]);
-  });
-  boxIntersect(carsBoxes, fireballsBoxes, function (i, j) {
-    carHitParticules.push(fireballs[j]);
+  boxIntersect(particlesBoxes, carsBoxes, function (i) {
+    carHitParticules.push(particles[i]);
   });
 
   if (!player.isDead()) {
@@ -5198,11 +5190,8 @@ Game.prototype.update = function (t, dt) {
     boxIntersect(carsBoxes, playerBox, function (i) {
       playerCarsHit.push(cars[i]);
     });
-    boxIntersect(snowballsBoxes, playerBox, function (i) {
-      playerParticlesHit.push(snowballs[i]);
-    });
-    boxIntersect(fireballsBoxes, playerBox, function (i) {
-      playerParticlesHit.push(fireballs[i]);
+    boxIntersect(particlesBoxes, playerBox, function (i) {
+      playerParticlesHit.push(particles[i]);
     });
   }
 
@@ -5534,7 +5523,7 @@ module.exports = function (t) {
 
 
 },{}],"/Volumes/Case Sensitive/perso/bonhomme/conf.json":[function(require,module,exports){
-module.exports={
+module.exports=module.exports=module.exports=module.exports=module.exports={
   "WIDTH": 320,
   "HEIGHT": 480,
   "networkPlaybackDelay": 100,
@@ -15328,7 +15317,7 @@ function shr64_lo(ah, al, num) {
 exports.shr64_lo = shr64_lo;
 
 },{"inherits":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/inherits/inherits_browser.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/package.json":[function(require,module,exports){
-module.exports={
+module.exports=module.exports=module.exports=module.exports=module.exports={
   "name": "elliptic",
   "version": "1.0.1",
   "description": "EC cryptography",
@@ -15433,7 +15422,7 @@ module.exports = function evp(crypto, password, salt, keyLen) {
 };
 }).call(this,require("buffer").Buffer)
 },{"buffer":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/buffer/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/aesid.json":[function(require,module,exports){
-module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
+module.exports=module.exports=module.exports=module.exports=module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.2": "aes-128-cbc",
 "2.16.840.1.101.3.4.1.3": "aes-128-ofb",
 "2.16.840.1.101.3.4.1.4": "aes-128-cfb",
@@ -17787,45 +17776,7 @@ module.exports = function (crypto, exports) {
 module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js")
 },{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic.js":[function(require,module,exports){
 module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/curve/base.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/base.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/base.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/base.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/curve/edwards.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/edwards.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/edwards.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/edwards.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/curve/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/curve/mont.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/mont.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/mont.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/mont.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/curve/short.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/short.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/short.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/short.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/curves.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curves.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curves.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curves.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/ec/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/ec/key.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/key.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/key.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/key.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/ec/signature.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/signature.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/signature.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/signature.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/hmac-drbg.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/hmac-drbg.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/hmac-drbg.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/hmac-drbg.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/utils.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/utils.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/utils.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/utils.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/brorand/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/brorand/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/brorand/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/brorand/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/hash.js/lib/hash.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/hash.js/lib/hash/common.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/common.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/common.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/common.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/hash.js/lib/hash/hmac.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/hmac.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/hmac.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/hmac.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/hash.js/lib/hash/ripemd.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/ripemd.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/ripemd.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/ripemd.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/hash.js/lib/hash/sha.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/sha.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/sha.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/sha.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/hash.js/lib/hash/utils.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/utils.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/utils.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/hash.js/lib/hash/utils.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/package.json":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/package.json")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/package.json":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/package.json"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/dh.js":[function(require,module,exports){
+},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/dh.js":[function(require,module,exports){
 (function (Buffer){
 var BN = require('bn.js');
 var MillerRabin = require('miller-rabin');
@@ -18157,8 +18108,8 @@ module.exports = function (crypto, exports) {
 }
 }).call(this,require("buffer").Buffer)
 },{"./dh":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/dh.js","./generatePrime":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/generatePrime.js","./primes.json":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/primes.json","buffer":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/buffer/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/bn.js/lib/bn.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/miller-rabin/lib/mr.js":[function(require,module,exports){
+module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/bn.js/lib/bn.js")
+},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/bn.js/lib/bn.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/bn.js/lib/bn.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/miller-rabin/lib/mr.js":[function(require,module,exports){
 var bn = require('bn.js');
 var brorand = require('brorand');
 
@@ -18277,7 +18228,7 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
 },{"bn.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/bn.js/lib/bn.js","brorand":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/miller-rabin/node_modules/brorand/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/miller-rabin/node_modules/brorand/index.js":[function(require,module,exports){
 module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/brorand/index.js")
 },{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/brorand/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/brorand/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/primes.json":[function(require,module,exports){
-module.exports={
+module.exports=module.exports=module.exports=module.exports=module.exports={
     "modp1": {
         "gen": "02",
         "prime": "ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a63a3620ffffffffffffffff"
@@ -18424,50 +18375,12 @@ function i2ops(c) {
 }
 }).call(this,require("buffer").Buffer)
 },{"buffer":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/buffer/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/bn.js/lib/bn.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/browserify-rsa/index.js":[function(require,module,exports){
+module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/bn.js/lib/bn.js")
+},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/bn.js/lib/bn.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/bn.js/lib/bn.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/browserify-rsa/index.js":[function(require,module,exports){
 module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/browserify-rsa/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/browserify-rsa/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/browserify-rsa/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/EVP_BytesToKey.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/EVP_BytesToKey.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/EVP_BytesToKey.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/EVP_BytesToKey.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/aesid.json":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/aesid.json")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/aesid.json":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/aesid.json"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/asn1.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/asn1.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/asn1.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/asn1.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/fixProc.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/fixProc.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/fixProc.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/fixProc.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/index.js":[function(require,module,exports){
+},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/browserify-rsa/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/browserify-rsa/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/index.js":[function(require,module,exports){
 module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js-rfc3280/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js-rfc3280/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js-rfc3280/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js-rfc3280/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/api.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/api.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/api.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/api.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/buffer.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/buffer.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/buffer.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/buffer.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/node.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/node.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/node.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/node.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/reporter.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/reporter.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/reporter.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/reporter.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/constants/der.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/constants/der.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/constants/der.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/constants/der.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/constants/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/constants/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/constants/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/constants/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/decoders/der.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/decoders/der.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/decoders/der.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/decoders/der.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/decoders/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/decoders/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/decoders/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/decoders/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/encoders/der.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/encoders/der.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/encoders/der.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/encoders/der.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/encoders/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/encoders/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/encoders/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/encoders/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/node_modules/minimalistic-assert/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/node_modules/minimalistic-assert/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/node_modules/minimalistic-assert/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/node_modules/minimalistic-assert/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/pemstrip/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/pemstrip/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/pemstrip/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/pemstrip/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/privateDecrypt.js":[function(require,module,exports){
+},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/privateDecrypt.js":[function(require,module,exports){
 (function (Buffer){
 var parseKeys = require('parse-asn1');
 var mgf = require('./mgf');
@@ -36518,8 +36431,8 @@ module.exports = Qdebounce;
 },{"lodash":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/lodash/dist/lodash.js","q":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qdebounce/node_modules/q/q.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qdebounce/node_modules/q/q.js":[function(require,module,exports){
 module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/qajax/node_modules/q/q.js")
 },{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qajax/node_modules/q/q.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qajax/node_modules/q/q.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qstart/node_modules/q/q.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/qajax/node_modules/q/q.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qajax/node_modules/q/q.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qajax/node_modules/q/q.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qstart/qstart.js":[function(require,module,exports){
+module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/qdebounce/node_modules/q/q.js")
+},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qdebounce/node_modules/q/q.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qdebounce/node_modules/q/q.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/qstart/qstart.js":[function(require,module,exports){
 /**
  * qstart.js - DOM ready promisified with Q
  */
@@ -43107,8 +43020,8 @@ function isBuf(obj) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/socket.io-client/node_modules/socket.io-parser/node_modules/isarray/index.js":[function(require,module,exports){
-module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/isarray/index.js")
-},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/isarray/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/browserify/node_modules/isarray/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/socket.io-client/node_modules/socket.io-parser/node_modules/json3/lib/json3.js":[function(require,module,exports){
+module.exports=require("/Volumes/Case Sensitive/perso/bonhomme/node_modules/socket.io-client/node_modules/has-binary/node_modules/isarray/index.js")
+},{"/Volumes/Case Sensitive/perso/bonhomme/node_modules/socket.io-client/node_modules/has-binary/node_modules/isarray/index.js":"/Volumes/Case Sensitive/perso/bonhomme/node_modules/socket.io-client/node_modules/has-binary/node_modules/isarray/index.js"}],"/Volumes/Case Sensitive/perso/bonhomme/node_modules/socket.io-client/node_modules/socket.io-parser/node_modules/json3/lib/json3.js":[function(require,module,exports){
 /*! JSON v3.2.6 | http://bestiejs.github.io/json3 | Copyright 2012-2013, Kit Cambridge | http://kit.mit-license.org */
 ;(function (window) {
   // Convenience aliases.

@@ -26,8 +26,9 @@ function Game (seed, controls, playername) {
 
   // TODO move containers to World
   var cars = new Container();
-  var snowballs = new Container();
-  var fireballs = new Container();
+  var particles = new Container();
+  var snowballs = particles;
+  var fireballs = particles;
   var explosions = new Container();
   var explosionsPlayer = new Container();
   var spawners = new Container();
@@ -66,8 +67,7 @@ function Game (seed, controls, playername) {
   this.world = world;
   this.map = map;
   this.cars = cars;
-  this.snowballs = snowballs;
-  this.fireballs = fireballs;
+  this.particles = particles;
   this.spawners = spawners;
   this.deadCarrots = deadCarrots;
   this.footprints = footprints;
@@ -92,8 +92,7 @@ Game.prototype.update = function (t, dt) {
   var player = this.player;
   var controls = this.controls;
   var map = this.map;
-  var fireballs = this.fireballs.children;
-  var snowballs = this.snowballs.children;
+  var particles = this.particles.children;
   var cars = this.cars.children;
   var footprints = this.footprints.children;
 
@@ -106,23 +105,16 @@ Game.prototype.update = function (t, dt) {
 
   // Collision checks
 
-  var fireballsBoxes = [];
-  var snowballsBoxes = [];
+  var particlesBoxes = [];
   var carsBoxes = [];
-  for (i=0; i<fireballs.length; ++i) {
-    fireballsBoxes.push(fireballs[i].box);
-  }
-  for (i=0; i<snowballs.length; ++i) {
-    snowballsBoxes.push(snowballs[i].box);
+  for (i=0; i<particles.length; ++i) {
+    particlesBoxes.push(particles[i].box);
   }
   for (i=0; i<cars.length; ++i) {
     carsBoxes.push(cars[i].box);
   }
-  boxIntersect(carsBoxes, snowballsBoxes, function (i, j) {
-    carHitParticules.push(snowballs[j]);
-  });
-  boxIntersect(carsBoxes, fireballsBoxes, function (i, j) {
-    carHitParticules.push(fireballs[j]);
+  boxIntersect(particlesBoxes, carsBoxes, function (i) {
+    carHitParticules.push(particles[i]);
   });
 
   if (!player.isDead()) {
@@ -130,11 +122,8 @@ Game.prototype.update = function (t, dt) {
     boxIntersect(carsBoxes, playerBox, function (i) {
       playerCarsHit.push(cars[i]);
     });
-    boxIntersect(snowballsBoxes, playerBox, function (i) {
-      playerParticlesHit.push(snowballs[i]);
-    });
-    boxIntersect(fireballsBoxes, playerBox, function (i) {
-      playerParticlesHit.push(fireballs[i]);
+    boxIntersect(particlesBoxes, playerBox, function (i) {
+      playerParticlesHit.push(particles[i]);
     });
   }
 
