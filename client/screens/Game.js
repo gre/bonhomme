@@ -105,13 +105,13 @@ Game.prototype.update = function (t, dt) {
 
   // Collision checks
 
-  var particlesBoxes = [];
-  var carsBoxes = [];
+  var particlesBoxes = new Array(particles.length);
   for (i=0; i<particles.length; ++i) {
-    particlesBoxes.push(particles[i].box);
+    particlesBoxes[i] = particles[i].box;
   }
+  var carsBoxes = new Array(cars.length);
   for (i=0; i<cars.length; ++i) {
-    carsBoxes.push(cars[i].box);
+    carsBoxes[i] = cars[i].box;
   }
   boxIntersect(particlesBoxes, carsBoxes, function (i) {
     carHitParticules.push(particles[i]);
