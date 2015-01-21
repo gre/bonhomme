@@ -124,7 +124,7 @@ Map.prototype.allocChunk = function (i, t) {
   var spawners = this.spawners;
 
   function addCar (car) {
-    cars.addChild(car);
+    cars.addChild(track(car));
   }
 
   function addSnowball (snowball) {

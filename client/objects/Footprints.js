@@ -33,8 +33,7 @@ Footprints.prototype.watchWindow = function (win) {
 };
 Footprints.prototype.walk = function (position, size) {
   var foot = new Foot(size);
-  foot.position.x = position.x;
-  foot.position.y = position.y;
+  foot.position.set(position.x, position.y);
   var chunk = this.containers.getChunk(-position.y);
   if (chunk) {
     chunk.addChild(foot);

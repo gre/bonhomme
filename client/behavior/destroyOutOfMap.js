@@ -10,7 +10,7 @@ module.exports = function () {
     x < -w ||
     x > conf.WIDTH + w
   ) {
-    this.parent.removeChild(this);
     if (this.destroy) this.destroy();
+    else if (this.parent) this.parent.removeChild(this);
   }
 };

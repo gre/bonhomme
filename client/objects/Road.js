@@ -18,10 +18,9 @@ function Road (road, addCar, roadsPaint) {
   var pos = [ road.leftToRight ? -100 : conf.WIDTH+100, road.y ];
   var ang = road.leftToRight ? 0 : Math.PI;
   var spawn = function (o) {
-    var car = new Car(o.random);
+    var car = new Car(o.random, [ -100, road.y, conf.WIDTH+100, road.y + 100 ]);
     car.position.set.apply(car.position, o.position);
     car.vel = o.velocity;
-    car.livingBound = [ -100, road.y, conf.WIDTH+100, road.y + 100 ];
     addCar(car);
   };
   var spawner = new Spawner({

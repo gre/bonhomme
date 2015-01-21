@@ -1,6 +1,8 @@
 var smoothstep = require("smoothstep");
 var PIXI = require("pixi.js");
 
+var halfPI = Math.PI/2;
+
 function RotatingSpawner (spawner, radius, baseTexture, weaponTexture) {
   PIXI.DisplayObjectContainer.call(this);
   this.weaponTexture = weaponTexture;
@@ -29,14 +31,14 @@ RotatingSpawner.prototype.syncHeadCount = function (n) {
 };
 RotatingSpawner.prototype.update = function (t) {
   var heads = this.spawner.getHeads(t);
+  var sprites = this.heads.children;
+  var r = this.radius;
   this.syncHeadCount(heads.length);
   for (var i=0; i<heads.length; ++i) {
     var head = heads[i];
-    var sprite = this.heads.children[i];
-    sprite.rotation = head.angle + Math.PI/2;
-    sprite.pivot.y = this.radius * ( !head.trigger ? 0.8 :
-      1 - 0.1 * smoothstep(0.5, 0.0, head.p)
-    );
+    var sprite = sprites[i];
+    sprite.rotation = head.angle + halfPI;
+    sprite.pivot.y = r * ( !head.trigger ? 0.8 : 1 - 0.1 * smoothstep(0.5, 0.0, head.p) );
   }
 };
 

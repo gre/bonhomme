@@ -104,7 +104,6 @@ Game.prototype.update = function (t, dt) {
   var playerParticlesHit = [];
 
   // Collision checks
-
   var particlesBoxes = new Array(particles.length);
   for (i=0; i<particles.length; ++i) {
     particlesBoxes[i] = particles[i].box;
