@@ -8,7 +8,7 @@ var RingSpawner = require("./RingSpawner");
 var audio = require("../audio"); // FIXME remove this dep. audio should be done on game level? Events or not events?
 var conf = require("../conf");
 var updateChildren = require("../behavior/updateChildren");
-var spriteIntersect = require("../utils/spriteIntersect");
+var boxIntersection = require("../utils/boxIntersection");
 var tilePIXI = require("../utils/tilePIXI");
 var tile64 = tilePIXI.tile64;
 var tile256 = tilePIXI.tile256;
@@ -37,12 +37,13 @@ function playLose () {
   audio.play("lose");
 }
 
-function World (particles, explosions, explosionsPlayer) {
+function World (snowballs, fireballs, explosions, explosionsPlayer) {
   PIXI.DisplayObjectContainer.call(this);
   this._focusY = 0;
   this.shaking = 0;
 
-  this.particles = particles;
+  this.snowballs = snowballs;
+  this.fireballs = fireballs;
   this.explosions = explosions;
   this.explosionsPlayer = explosionsPlayer;
 }
@@ -73,9 +74,9 @@ World.prototype.snowballExplode = function (snowball) {
   this.explosions.addChild(new ParticleExplosion(snowball.position, snowball.width * 2, snowExplosionTextures, 64, 150, 2*Math.PI));
 };
 World.prototype.carHitPlayerExplode = function (car, player) {
-  var rect = spriteIntersect(car, player);
-  var x = rect.from.x + (rect.to.x - rect.from.x) / 2;
-  var y = rect.from.y + (rect.to.y - rect.from.y) / 2;
+  var intersection = boxIntersection(car.box, player.box);
+  var x = (intersection[0] + intersection[2]) / 2;
+  var y = (intersection[1] + intersection[3]) / 2;
 
   this.shaking = 10 + (player.life<=0 ? 10 : 0);
   this.shakingVel = -30 / 1000;
@@ -85,21 +86,23 @@ World.prototype.carHitPlayerExplode = function (car, player) {
   // FIXME move at game level
   vibrate(200);
 
-  if (this.particles) {
+  var snowballs = this.snowballs;
+  if (snowballs) {
     var scale = 0.2 + player.life / 2000;
     var n = ~~(5 / scale);
-    this.particles.addChild(
-      new RingSpawner({
-        pos: [x,y],
-        n: n,
-        spawn: function () {
-          return new Snowball(scale, Math.random);
-        },
-        vel: 0.1,
-        front: 4 + player.width / 2,
-        angleOffset: Math.random()
-      })
-    );
+    RingSpawner({
+      pos: [x,y],
+      n: n,
+      spawn: function (options) {
+        var snowball = new Snowball(scale, Math.random);
+        snowball.position.set.apply(snowball.position, options.pos);
+        snowball.vel = options.vel;
+        snowballs.addChild(snowball);
+      },
+      vel: 0.1,
+      front: 4 + player.width / 2,
+      angleOffset: Math.random()
+    });
   }
 };
 World.prototype.fireballExplode = function (fireball) {

@@ -12,7 +12,7 @@ var roadInTexture = PIXI.Texture.fromImage("/img/roadin.png");
 var roadOutTexture = PIXI.Texture.fromImage("/img/roadout.png");
 var roadSeparatorTexture = PIXI.Texture.fromImage("/img/roadseparator.png");
 
-function Road (road, cars, roadsPaint) {
+function Road (road, addCar, roadsPaint) {
   PIXI.DisplayObjectContainer.call(this);
 
   var pos = [ road.leftToRight ? -100 : conf.WIDTH+100, road.y ];
@@ -21,8 +21,8 @@ function Road (road, cars, roadsPaint) {
     var car = new Car(o.random);
     car.position.set.apply(car.position, o.position);
     car.vel = o.velocity;
-    car.livingBound = { x: -100, y: road.y, height: 100, width: conf.WIDTH+200 };
-    cars.addChild(car);
+    car.livingBound = [ -100, road.y, conf.WIDTH+100, road.y + 100 ];
+    addCar(car);
   };
   var spawner = new Spawner({
     seed: road.y,

@@ -1,12 +1,11 @@
 var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
 var _ = require("lodash");
-var QuadTree = require('simple-quadtree');
+// var QuadTree = require('simple-quadtree');
+var boxIntersect = require('box-intersect');
 
 var dist = require("../utils/dist");
-var Groups = require("../Groups");
 var audio = require("../audio");
-var conf = require("../conf");
 var UI = require("../GameUI");
 
 var World = require("../objects/World");
@@ -27,12 +26,13 @@ function Game (seed, controls, playername) {
 
   // TODO move containers to World
   var cars = new Container();
-  var particles = new Container();
+  var snowballs = new Container();
+  var fireballs = new Container();
   var explosions = new Container();
   var explosionsPlayer = new Container();
   var spawners = new Container();
   var objects = new Container();
-  var map = new GameMap(seed, cars, particles, spawners, objects);
+  var map = new GameMap(seed, cars, snowballs, fireballs, spawners, objects);
   var deadCarrots = new Container();
 
   var footprints = new PIXI.DisplayObjectContainer();
@@ -45,7 +45,7 @@ function Game (seed, controls, playername) {
   var ui = new UI(this);
   this.ui = ui;
 
-  var world = new World(particles, explosions, explosionsPlayer);
+  var world = new World(snowballs, fireballs, explosions, explosionsPlayer);
   world.addChild(map);
   world.addChild(footprints);
   world.addChild(deadCarrots);
@@ -53,7 +53,8 @@ function Game (seed, controls, playername) {
   world.addChild(names);
   world.addChild(player);
   world.addChild(cars);
-  world.addChild(particles);
+  world.addChild(snowballs);
+  world.addChild(fireballs);
   world.addChild(spawners);
   world.addChild(objects);
   world.addChild(explosions);
@@ -65,7 +66,8 @@ function Game (seed, controls, playername) {
   this.world = world;
   this.map = map;
   this.cars = cars;
-  this.particles = particles;
+  this.snowballs = snowballs;
+  this.fireballs = fireballs;
   this.spawners = spawners;
   this.deadCarrots = deadCarrots;
   this.footprints = footprints;
@@ -77,16 +79,144 @@ function Game (seed, controls, playername) {
   // Game states
   this.audio1 = audio.loop("/audio/1.ogg");
 
-  this.playerGhost = true;
-
   audio.play("start");
 }
 
 Game.prototype = Object.create(PIXI.Stage.prototype);
 Game.prototype.constructor = Game;
 
-Game.prototype.setMapName = function (name) {
-  this.map.setName(name);
+// FIXME: most of the logic should be moved into World
+Game.prototype.update = function (t, dt) {
+  var i;
+  var world = this.world;
+  var player = this.player;
+  var controls = this.controls;
+  var map = this.map;
+  var fireballs = this.fireballs.children;
+  var snowballs = this.snowballs.children;
+  var cars = this.cars.children;
+  var footprints = this.footprints.children;
+
+  var moving = controls.x() || controls.y();
+
+  // States resulting of collision system.
+  var carHitParticules = [];
+  var playerCarsHit = [];
+  var playerParticlesHit = [];
+
+  // Collision checks
+
+  var fireballsBoxes = [];
+  var snowballsBoxes = [];
+  var carsBoxes = [];
+  for (i=0; i<fireballs.length; ++i) {
+    fireballsBoxes.push(fireballs[i].box);
+  }
+  for (i=0; i<snowballs.length; ++i) {
+    snowballsBoxes.push(snowballs[i].box);
+  }
+  for (i=0; i<cars.length; ++i) {
+    carsBoxes.push(cars[i].box);
+  }
+  boxIntersect(carsBoxes, snowballsBoxes, function (i, j) {
+    carHitParticules.push(snowballs[j]);
+  });
+  boxIntersect(carsBoxes, fireballsBoxes, function (i, j) {
+    carHitParticules.push(fireballs[j]);
+  });
+
+  if (!player.isDead()) {
+    var playerBox = [ player.box ];
+    boxIntersect(carsBoxes, playerBox, function (i) {
+      playerCarsHit.push(cars[i]);
+    });
+    boxIntersect(snowballsBoxes, playerBox, function (i) {
+      playerParticlesHit.push(snowballs[i]);
+    });
+    boxIntersect(fireballsBoxes, playerBox, function (i) {
+      playerParticlesHit.push(fireballs[i]);
+    });
+  }
+
+
+  // Now handle the collisions
+
+  var angry = 0;
+
+  for (i = 0; i<carHitParticules.length; ++i) {
+    carHitParticules[i].explodeInWorld(world);
+  }
+  for (i = 0; i<playerCarsHit.length; ++i) {
+    var carHit = playerCarsHit[i];
+    player.onCarHit(carHit);
+    world.carHitPlayerExplode(carHit, player);
+  }
+  for (i = 0; i<playerParticlesHit.length; ++i) {
+    var particle = playerParticlesHit[i];
+    particle.explodeInWorld(world);
+    particle.hitPlayer(player);
+    angry ++;
+  }
+
+
+  // Camera on player
+
+  world.focusOn(player);
+  var win = world.getWindow();
+  for (i=0; i<footprints.length; ++i) {
+    footprints[i].watchWindow(win);
+  }
+  map.watchWindow(win);
+
+  // Audio System
+
+  angry = Math.max(0, angry - dt * 0.001);
+  var danger = 0;
+  for (i=0; i<cars.length; ++i) {
+    var car = cars[i];
+    var d = dist(car, player);
+    danger += Math.pow(smoothstep(300, 50, d), 2);
+    if (!car.neverSaw && d < 300) {
+      car.neverSaw = 1;
+      audio.play("car", car);
+    }
+  }
+  if (player.dead) {
+    this.audio1.setVolume(0);
+  }
+  else {
+    this.audio1.setVolume( moving ? 0.2 + Math.min(0.8, angry + danger / 4) : 0 );
+  }
+  audio.micOn(player);
+  audio.update(t, dt);
+
+
+  // Run player life related game updates on all players
+
+  function playerUpdate (player, isMyself) {
+    if (!player.isDead()) {
+      if (player.life <= 0) {
+        player.die();
+        world.playerDied(player, isMyself);
+        if (isMyself) {
+          world.removeChild(player);
+          this.emit("GameOver", player.getScore());
+        }
+      }
+    }
+  }
+  if (this.players.children.length) {
+    var players = this.players.children[0].children;
+    for (i=0; i<players.length; ++i) {
+      playerUpdate.call(this, players[i], false);
+    }
+  }
+  playerUpdate.call(this, player, true);
+
+  // Delegate all the game update
+  
+  world.update(t, dt);
+  this.ui.update(t, dt);
 };
 
 Game.prototype.destroy = function () {
@@ -102,120 +232,8 @@ Game.prototype.destroy = function () {
   }
 };
 
-Game.prototype.handleCarCollides = function (data) {
-  if (data.group & Groups.PARTICLE)
-    data.obj.explodeInWorld(this.world);
-};
-
-Game.prototype.update = function (t, dt) {
-  // FIXME: most of the logic should be moved into World
-  var i, j, spawner;
-  var world = this.world;
-  var player = this.player;
-  var controls = this.controls;
-  var map = this.map;
-
-  var moving = controls.x() || controls.y();
-
-  // general vars for this loop time
-  var danger = 0;
-
-  var quadtree = QuadTree(0, 0, conf.WIDTH, 100); // TODO ask map what is the current allocation window
-  for (i=0; i<this.particles.children.length; ++i) {
-    spawner = this.particles.children[i];
-    for (j=0; j<spawner.children.length; ++j) {
-      var particle = spawner.children[j];
-      quadtree.put(particle.toQuadTreeObject());
-    }
-  }
-
-  function handleCarCollides (data) {
-    if (data.group & Groups.PARTICLE)
-      data.obj.explodeInWorld(world);
-  }
-
-  // Handle cars and collision with particles
-  for (i=0; i<this.cars.children.length; ++i) {
-    spawner = this.cars.children[i];
-    for (j=0; j<spawner.children.length; ++j) {
-      var car = spawner.children[j];
-      var carQuad = car.toQuadTreeObject();
-      quadtree.get(carQuad, handleCarCollides);
-      quadtree.put(carQuad);
-      var d = dist(car, player);
-      danger += Math.pow(smoothstep(300, 50, d), 2);
-      if (!car.neverSaw && d < 300) {
-        car.neverSaw = 1;
-        audio.play("car", car);
-      }
-    }
-  }
-
-  var angry = 0;
-
-  var playerGhost = this.playerGhost;
-
-  function playerUpdate (player, isMyself) {
-    if (!player.isDead()) {
-      if (isMyself || !playerGhost) {
-        var playerQuad = player.toQuadTreeObject();
-        quadtree.get(playerQuad, function (data) {
-          if (data.group & Groups.CAR) {
-            var car = data.obj;
-            player.onCarHit(car);
-            world.carHitPlayerExplode(car, player);
-          }
-          else if (data.group & Groups.PARTICLE) {
-            var particle = data.obj;
-            particle.explodeInWorld(world);
-            particle.hitPlayer(player);
-            if (isMyself)
-              angry ++;
-          }
-        });
-      }
-      if (player.life <= 0) {
-        player.die();
-        world.playerDied(player, isMyself);
-        if (isMyself) {
-          world.removeChild(player);
-          this.emit("GameOver", player.getScore());
-        }
-      }
-    }
-
-  }
-
-  if (this.players.children.length) {
-    var players = this.players.children[0].children;
-    for (i=0; i<players.length; ++i) {
-      playerUpdate.call(this, players[i], false);
-    }
-  }
-  playerUpdate.call(this, player, true);
-
-  angry = Math.max(0, angry - dt * 0.001);
-
-  if (player.dead) {
-    this.audio1.setVolume(0);
-  }
-  else {
-    this.audio1.setVolume( moving ? 0.2 + Math.min(0.8, angry + danger / 4) : 0 );
-  }
-
-  world.focusOn(player);
-  audio.micOn(player);
-
-  var win = world.getWindow();
-  var footprints = this.footprints.children;
-  for (i=0; i<footprints.length; ++i) {
-    footprints[i].watchWindow(win);
-  }
-  map.watchWindow(win);
-
-  world.update(t, dt);
-  this.ui.update(t, dt);
-  audio.update(t, dt);
+Game.prototype.setMapName = function (name) {
+  this.map.setName(name);
 };
 
 Game.prototype.positionObfuscation = function (pos) {

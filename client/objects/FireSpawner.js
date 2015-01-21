@@ -6,7 +6,7 @@ var RotatingSpawner = require("./RotatingSpawner");
 var fireSpawnerTexture = PIXI.Texture.fromImage("/img/firespawner.png");
 var fireSpawnerWeaponTexture = PIXI.Texture.fromImage("/img/firespawnerweapon.png");
 
-function FireSpawner (item, particles) {
+function FireSpawner (item, addParticle) {
   var scale = item.scale;
   delete item.scale;
   item.front = 20;
@@ -16,7 +16,7 @@ function FireSpawner (item, particles) {
     particle.position.set.apply(particle.position, o.position);
     particle.vel = o.velocity;
     particle.rotation = o.angle;
-    particles.addChild(particle);
+    addParticle(particle);
   };
   var spawner = new Spawner(item);
   

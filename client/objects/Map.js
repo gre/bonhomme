@@ -17,12 +17,13 @@ var mapGenerator = require("../map-generator");
 
 var mapTileSize = 400;
 
-function Map (seed, cars, particles, spawners, objects) {
+function Map (seed, cars, snowballs, fireballs, spawners, objects) {
   PIXI.DisplayObjectContainer.call(this);
 
   this.seed = seed;
   this.cars = cars;
-  this.particles = particles;
+  this.snowballs = snowballs;
+  this.fireballs = fireballs;
   this.spawners = spawners;
   this.objects = objects;
 
@@ -111,23 +112,34 @@ Map.prototype.allocChunk = function (i, t) {
     return sprite;
   }
 
-  var cars = track(new Container());
   var roads = track(new Container());
   var roadsPaint = track(new PIXI.DisplayObjectContainer());
-  var particles = track(new Container());
-  var spawners = track(new Container());
 
-  this.cars.addChild(cars);
   this.addChild(roads);
   this.addChild(roadsPaint);
-  this.particles.addChild(particles);
-  this.spawners.addChild(spawners);
+
+  var cars = this.cars;
+  var fireballs = this.fireballs;
+  var snowballs = this.snowballs;
+  var spawners = this.spawners;
+
+  function addCar (car) {
+    cars.addChild(track(car));
+  }
+
+  function addSnowball (snowball) {
+    snowballs.addChild(track(snowball));
+  }
+
+  function addFireball (fireball) {
+    fireballs.addChild(track(fireball));
+  }
 
   // Create roads and car spawners
 
   (chunk.roads||[]).forEach(function (roadParams) {
     roadParams.y += y;
-    var road = new Road(roadParams, cars, roadsPaint);
+    var road = new Road(roadParams, addCar, roadsPaint);
     roads.addChild(road);
   });
 
@@ -135,7 +147,7 @@ Map.prototype.allocChunk = function (i, t) {
 
   (chunk.snowballs||[]).forEach(function (item) {
     item.pos[1] += y;
-    var spawner = new SnowSpawner(item, particles);
+    var spawner = track(new SnowSpawner(item, addSnowball));
     spawners.addChild(spawner);
   });
 
@@ -143,7 +155,7 @@ Map.prototype.allocChunk = function (i, t) {
 
   (chunk.fireballs||[]).forEach(function (item) {
     item.pos[1] += y;
-    var spawner = new FireSpawner(item, particles);
+    var spawner = track(new FireSpawner(item, addFireball));
     spawners.addChild(spawner);
   });
   
@@ -177,9 +189,11 @@ Map.prototype.allocChunk = function (i, t) {
 
   return {
     destroy: function () {
-      allSprites.forEach(function (sprite) {
-        sprite.parent.removeChild(sprite);
-      });
+      for (var i=0; i<allSprites.length; ++i) {
+        var sprite = allSprites[i];
+        if (sprite.parent) sprite.parent.removeChild(sprite);
+      }
+      allSprites.length = 0;
       allSprites = null;
     }
   };

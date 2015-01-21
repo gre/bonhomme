@@ -7,7 +7,7 @@ var RotatingSpawner = require("./RotatingSpawner");
 var snowSpawnerTexture = PIXI.Texture.fromImage("/img/snowspawner.png");
 var snowSpawnerWeaponTexture = PIXI.Texture.fromImage("/img/snowspawnerweapon.png");
 
-function SnowSpawner (item, particles) {
+function SnowSpawner (item, addParticle) {
   var scale = item.scale;
   delete item.scale;
   item.front = 40;
@@ -17,7 +17,7 @@ function SnowSpawner (item, particles) {
     particle.position.set.apply(particle.position, o.position);
     particle.vel = o.velocity;
     particle.rotation += o.angle;
-    particles.addChild(particle);
+    addParticle(particle);
   };
   var spawner = new Spawner(item);
 

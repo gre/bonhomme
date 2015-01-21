@@ -2,7 +2,6 @@ var PIXI = require("pixi.js");
 var smoothstep = require("smoothstep");
 
 var mix = require("../utils/mix");
-var Groups = require("../Groups");
 var velUpdate = require("../behavior/velUpdate");
 var audio = require("../audio");
 var conf = require("../conf");
@@ -37,11 +36,7 @@ function Player (name, footprints) {
   if (footprints)
     footprints.addChild(this.footprints = new Footprints());
 
-  this._bound = {
-    x:0,y:0,w:0,h:0,
-    group: Groups.PLAYER,
-    obj: this
-  };
+  this.box = [0,0,0,0];
 }
 Player.prototype = Object.create(PIXI.Sprite.prototype);
 Player.prototype.constructor = Player;
@@ -125,13 +120,10 @@ Player.prototype.update = function (t, dt) {
   this.x = x;
   this.y = y;
 
-  this._bound.x = x - this.pivot.x * this.scale.x + w * 0.25;
-  this._bound.y = y - this.pivot.y * this.scale.y + h * 0.2;
-  this._bound.w = w * 0.5;
-  this._bound.h = h * 0.6;
-};
-Player.prototype.toQuadTreeObject = function () {
-  return this._bound;
+  this.box[0] = x - this.pivot.x * this.scale.x + w * 0.25;
+  this.box[1] = y - this.pivot.y * this.scale.y + h * 0.2;
+  this.box[2] = this.box[0] + w * 0.5;
+  this.box[3] = this.box[1] + h * 0.6;
 };
 Player.prototype.knock = function (x, y) {
   this.x = this.constraintX(this.x + x);
