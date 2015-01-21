@@ -124,15 +124,15 @@ Map.prototype.allocChunk = function (i, t) {
   var spawners = this.spawners;
 
   function addCar (car) {
-    cars.addChild(track(car));
+    cars.addChild(car);
   }
 
   function addSnowball (snowball) {
-    snowballs.addChild(track(snowball));
+    snowballs.addChild(snowball);
   }
 
   function addFireball (fireball) {
-    fireballs.addChild(track(fireball));
+    fireballs.addChild(fireball);
   }
 
   // Create roads and car spawners
@@ -189,6 +189,7 @@ Map.prototype.allocChunk = function (i, t) {
 
   return {
     destroy: function () {
+      // FIXME: should better clear all particles that are away from the window?
       for (var i=0; i<allSprites.length; ++i) {
         var sprite = allSprites[i];
         if (sprite.parent) sprite.parent.removeChild(sprite);
