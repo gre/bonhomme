@@ -70,7 +70,7 @@ NetworkGame.prototype = {
     var p = this.playersByIds[id];
     if (!p) {
       var data = this.playersData[id];
-      var playerSprite = new OtherPlayer(data.name, this.names, 0.6, this.env);
+      var playerSprite = new OtherPlayer(data.name, this.names, 0.8, this.env);
       playerSprite.position.x = -1000;
       p = new NetworkPlayerPlayback(playerSprite);
       this.playersByIds[id] = p;
