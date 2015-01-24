@@ -31,8 +31,8 @@ function SnowSpawner (item, addParticle) {
 SnowSpawner.prototype = Object.create(RotatingSpawner.prototype);
 SnowSpawner.prototype.constructor = SnowSpawner;
 SnowSpawner.prototype.update = function (t, dt) {
-  RotatingSpawner.prototype.update.call(this, t, dt);
   this.spawner.update(t);
+  RotatingSpawner.prototype.update.call(this, t, dt);
 };
 
 module.exports = SnowSpawner;

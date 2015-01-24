@@ -30,8 +30,8 @@ function FireSpawner (item, addParticle) {
 FireSpawner.prototype = Object.create(RotatingSpawner.prototype);
 FireSpawner.prototype.constructor = FireSpawner;
 FireSpawner.prototype.update = function (t, dt) {
-  RotatingSpawner.prototype.update.call(this, t, dt);
   this.spawner.update(t);
+  RotatingSpawner.prototype.update.call(this, t, dt);
 };
 
 module.exports = FireSpawner;

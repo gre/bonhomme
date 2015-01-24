@@ -40,7 +40,7 @@
     "body-parser": "^1.10.0",
     "bson": "^0.2.15",
     "bufferize": "^1.0.0",
-    "entity-spawner": "^0.3.0",
+    "entity-spawner": "^0.4.0",
     "event-stream": "^3.2.1",
     "express": "^4.10.4",
     "express-request-logger": "0.0.3",
