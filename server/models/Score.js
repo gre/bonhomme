@@ -52,7 +52,7 @@ module.exports = {
     .then(function (results) {
       return results.map(dbScoreToScore);
     })
-    .timeout(3000);
+    .timeout(30000);
   },
 
   validateUserInput: function (input, track) {
