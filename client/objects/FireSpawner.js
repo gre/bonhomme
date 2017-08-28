@@ -3,8 +3,8 @@ var PIXI = require("pixi.js");
 var Spawner = require("entity-spawner");
 var Fireball = require("./Fireball");
 var RotatingSpawner = require("./RotatingSpawner");
-var fireSpawnerTexture = PIXI.Texture.fromImage("/img/firespawner.png");
-var fireSpawnerWeaponTexture = PIXI.Texture.fromImage("/img/firespawnerweapon.png");
+var fireSpawnerTexture = PIXI.Texture.fromImage("./img/firespawner.png");
+var fireSpawnerWeaponTexture = PIXI.Texture.fromImage("./img/firespawnerweapon.png");
 
 function FireSpawner (item, addParticle) {
   var scale = item.scale;

@@ -77,7 +77,7 @@ function Game (seed, controls, playername) {
   this.controls = controls;
 
   // Game states
-  this.audio1 = audio.loop("/audio/1.ogg");
+  this.audio1 = audio.loop("./audio/1.ogg");
 
   audio.play("start");
 }

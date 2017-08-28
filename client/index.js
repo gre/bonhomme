@@ -1,4 +1,3 @@
-
 var Qstart = require("qstart");
 var Q = require("q");
 var Qajax = require("qajax");
@@ -19,49 +18,43 @@ var Controls = require("./Controls");
 
 // FIXME remove the spaghettis!
 
-
 // TODO modularize the network part
-var socket = io("/", { reconnection: false });
+var socket = io("https://bonhomme.herokuapp.com/", { reconnection: false });
 var socketConnectedD = Q.defer();
 var socketConnected = socketConnectedD.promise;
-socket.on('connect', socketConnectedD.resolve);
-socket.on('connect_error', socketConnectedD.reject);
+socket.on("connect", socketConnectedD.resolve);
+socket.on("connect_error", socketConnectedD.reject);
 
 // TODO modularize NTP
 ntp.init(socket);
 var syncTime = socketConnected.delay(2000);
 var latestOffset = 0;
-function now () {
+function now() {
   var off = ntp.offset();
-  if (!isNaN(off))
-    latestOffset = off;
+  if (!isNaN(off)) latestOffset = off;
   return Date.now() - latestOffset;
 }
 
 // FIXME there should be no global state...
-var renderer,
-    game,
-    network,
-    platform,
-    controls;
+var renderer, game, network, platform, controls;
 
-socketConnected.then(function () {
+socketConnected.then(function() {
   network = new NetworkGame(socket);
   if (game) network.setGame(game);
 });
 
-function newGame (playerName) {
+function newGame(playerName) {
   // This part is ugly...
   var seed = "grewebisawesome" + today(now());
   var instance = new Game(seed, controls, playerName);
-  instance.on("GameOver", function () {
+  instance.on("GameOver", function() {
     Q.delay(6000)
-    .fin(function(){
-      instance.destroy();
-      newGame(playerName);
-      instance = null;
-    })
-    .done();
+      .fin(function() {
+        instance.destroy();
+        newGame(playerName);
+        instance = null;
+      })
+      .done();
   });
 
   game = instance;
@@ -69,15 +62,13 @@ function newGame (playerName) {
   platform.setGame(game);
 }
 
-
-function start (playerName) {
-
+function start(playerName) {
   newGame(playerName);
 
   var lastLoopT;
   var lastAbsoluteTime = 0;
 
-  function loop (loopT) {
+  function loop(loopT) {
     requestAnimFrame(loop);
     // if (controls.paused()) return; // FIXME do something about pause?
 
@@ -90,8 +81,7 @@ function start (playerName) {
 
     game.update(t, dt);
 
-    if (network)
-      network.update(t, dt);
+    if (network) network.update(t, dt);
 
     renderer.render(game);
 
@@ -101,7 +91,7 @@ function start (playerName) {
   requestAnimFrame(loop);
 }
 
-Qstart.then(function () {
+Qstart.then(function() {
   platform = new Platform();
   controls = new Controls();
   renderer = platform.createRenderer();
@@ -109,41 +99,50 @@ Qstart.then(function () {
   var imagesLoaded = atlas(); // FIXME
 
   var load = Q.all([
-    platform.getPlayerName().fail(function(){ return null; }),
+    platform.getPlayerName().fail(function() {
+      return null;
+    }),
     imagesLoaded,
     syncTime,
     font.ready
   ]);
   var loading = new Loading();
   var loadStart;
-  (function loadingloop (t) {
+  (function loadingloop(t) {
     if (!loadStart) loadStart = t;
     if (!load.isPending()) return;
     requestAnimFrame(loadingloop);
-    loading.setProgress((t-loadStart) / 2200); // FIXME this has to be smarter
+    loading.setProgress((t - loadStart) / 2200); // FIXME this has to be smarter
     loading.update(t - loadStart);
     renderer.render(loading);
-  }());
+  })();
 
-  return load
-    .spread(start);
-
+  return load.spread(start);
 }).done();
-
 
 /// Error management
 
 var consoleError = console.error;
 
-window.onerror = console.error = function (e) {
+window.onerror = console.error = function(e) {
   consoleError.call(console, e);
-  var webgl = !!( function () { try { var canvas = document.createElement( 'canvas' ); return !! window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ); } catch( e ) { return false; } } )();
+  var webgl = !!(function() {
+    try {
+      var canvas = document.createElement("canvas");
+      return (
+        !!window.WebGLRenderingContext &&
+        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+      );
+    } catch (e) {
+      return false;
+    }
+  })();
 
-  Qajax("/report/error", {
+  Qajax("https://bonhomme.herokuapp.com/report/error", {
     method: "POST",
     data: {
       userAgent: window.navigator.userAgent,
-      e: ""+e,
+      e: "" + e,
       message: e.message,
       stack: e.stack,
       supports: {

@@ -4,8 +4,8 @@ var Spawner = require("entity-spawner");
 var Snowball = require("./Snowball");
 var RotatingSpawner = require("./RotatingSpawner");
 
-var snowSpawnerTexture = PIXI.Texture.fromImage("/img/snowspawner.png");
-var snowSpawnerWeaponTexture = PIXI.Texture.fromImage("/img/snowspawnerweapon.png");
+var snowSpawnerTexture = PIXI.Texture.fromImage("./img/snowspawner.png");
+var snowSpawnerWeaponTexture = PIXI.Texture.fromImage("./img/snowspawnerweapon.png");
 
 function SnowSpawner (item, addParticle) {
   var scale = item.scale;
